@@ -1,0 +1,13 @@
+
+			<!-- START nested: nested_bottom_random_extra_1 -->
+			<MySource_AREA id_name="nested_bottom_random_extra_1" design_area="nest_content"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
+			<!--  END nested:  nested_bottom_random_extra_1 -->
+
+			<!-- START nested: nested_bottom_random_extra_2 -->
+			<MySource_AREA id_name="nested_bottom_random_extra_2" design_area="nest_content"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
+			<!--  END nested:  nested_bottom_random_extra_2 -->
+
+			<!-- START nested: nested_bottom_random_extra_3 -->
+			<MySource_AREA id_name="nested_bottom_random_extra_3" design_area="nest_content"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
+			<!--  END nested:  nested_bottom_random_extra_3 -->
+

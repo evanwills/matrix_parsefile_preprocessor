@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+{[ees]}
+<html lang="en">{[page-ID-comment]}
+	<head>
+		<meta charset="utf-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="user-scalable=yes, initial-scale=1.0, width=device-width" />
+
+		<meta name="theme-color" content="#00539F" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="#00539F" />
+
+		<title>
+{{head/head_title}}
+			- ACU (Australian Catholic University)
+		</title>
+{{head/head_metadata_icon|abc|def}}
+
+
+{{head/head_js-linked|^a([b-w)x|$1|R}}
+
+
+{{head/head_css-linked}}
+
+
+{{head/head_IE-all}}
+{{head/head_IE-9-lt}}
+{{head/head_IE-9}}
+{{head/head_IE-8}}
+{{head/head_IE-7}}
+
+
+{{head/head_js-inline}}
+
+{{head/head_css-inline}}
+	</head>
+
+	<body class="
+
+{[body/body_open/body-open_body-tag-classes]}
+
+	">
+{{body/body_open/body-open_GTM}}
+
+		<!-- div id="wrap-global" -->
+		<div id="main-body" class="">
+			<header role="banner">
+				<div class="container">
+{{body/header}}
+				</div>
+			</header>
+
+			<div class="breadcrumbs hidden-xs hidden-sm">
+				<div class="container">
+					<div class="row">
+						<div class="col-md-12 col-lg-12">
+							<nav>
+{{body/breadcrumbs}}
+							</nav>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="standard_page container main-content" id="main-content">
+				<div class="row">
+					<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+						<div id="wrap-inner">
+{{body/content/content_top}}
+{{body/content/content_wrap_open}}
+							<div class="row" id="main-row">
+{{body/content/content_BS_declared-vars_3-col}}
+								<div id="main-col" class="
+{[body/content/main_col/main-col_classes]}
+								">
+									<main role="main" id="main-content" class="main-content">
+{{body/content/main_col/main-col_page-head}}
+{{body/content/main_col/main-col_dynamic-images_top}}
+{{body/content/main_col/main-col_general-nested}}
+{{body/content/main_col/main-col_dynamic-images_bottom}}
+									</main>
+								</div>
+
+{{body/content/left_col/left-col_BS-classes_show-if}}
+{{body/content/left_col/left-col_dynamic}}
+{{body/content/left_col/left-col_single-parent}}
+{{body/content/left_col/left-col_static}}
+{{body/content/left_col/left-col_type-classes}}
+{{body/content/left_col/left-col_SHOW_IF}}
+
+
+
+
+{{body/content/right_col/right-col_BS-classes_show-if}}
+{{body/content/right_col/right-col_logo}}
+{{body/content/right_col/right-col_web-tile-1}}
+{{body/content/right_col/right-col_web-tile-2}}
+{{body/content/right_col/right-col_extra-nested}}
+{{body/content/right_col/right-col_SHOW_IF}}
+
+
+{{body/content/DEPRICATED_short-url}}
+							</div>
+{{body/content/content_wrap_close}}
+						</div>
+{{body/content/askACU}}
+						<div class="row social-meta">
+{{body/content/short-url_social-icons}}
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<footer role="contentinfo">
+
+				<div class="pre-footer-strip beyond-box-boundary">
+					<div class="container">
+						<div class="row">
+							<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="container">
+{{body/body_close/footer}}
+				</div>
+			</footer>
+		</div>
+
+
+
+{{body/body_close/post-footer}}
+
+
+{{body/body_close/js_linked}}
+{{body/body_close/js_design-persist}}
+{{body/body_close/js_royal-slider}}
+{{body/body_close/js_iLightbox}}
+{{body/body_close/js_chosen}}
+{{body/body_close/js_sticky-tabs}}
+{{body/body_close/js-nested}}
+
+
+		<script type="text/javascript">
+{{body/body_close/js_inline}}
+		</script>
+
+
+{{body/body_close/nested-extra}}
+	</body>
+</html>

@@ -1,0 +1,10 @@
+
+<MySource_AREA id_name="metadata_right_col" design_area="metadata" print="no"><MySource_SET name="metadata_field" value="hide_right_column" /></MySource_AREA>
+
+<MySource_AREA id_name="metadata_right_col_class" design_area="show_if" print="no">
+	<MySource_SET name="condition" value="keyword_regexp" />
+	<MySource_SET name="condition_keyword" value="asset_metadata_hide_right_column" />
+	<MySource_SET name="condition_keyword_match" value="hide-right-col" />
+	<MySource_THEN><MySource_PRINT id_name="metadata_right_col" /><MySource_PRINT id_name="show_space" var="space" /></MySource_THEN>
+</MySource_AREA>
+

@@ -1,0 +1,22 @@
+
+		<MySource_PRINT id_name="newsletter_css_link_main" />
+
+
+		<MySource_AREA id_name="css_customised_stylesheet_1" design_area="linked_css"/>
+		<MySource_AREA id_name="css_customised_stylesheet_2" design_area="linked_css"/>
+
+		<!-- Vendors -->
+		<link rel="stylesheet" type="text/css" href="mysource_files/bootstrap.css" />
+		<link rel="stylesheet" type="text/css" href="mysource_files/bootstrap-theme.css" />
+		<link rel="stylesheet" type="text/css" href="mysource_files/proxima-nova.css" />
+		<link rel="stylesheet" type="text/css" href="mysource_files/jquery-ui.css" />
+		<link rel="stylesheet" type="text/css" href="mysource_files/select2.css" />
+
+		<link rel="stylesheet" type="text/css" href="//www.acu.edu.au/__data/assets/css_file/0007/697795/ilightbox.css" />
+
+		<!-- ACU uses icons from http://glyphicons.com/. Many thanks to Glyphicons! -->
+		<link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet" />
+
+		<!-- Custom style sheet -->
+		<link rel="stylesheet" type="text/css" href="mysource_files/stylesheet.css" />
+

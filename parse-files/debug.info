@@ -1,0 +1,138 @@
+; debug info file - This file defines DEBUG config for the current app
+
+; -----------------------------------------------
+; status defines whether or not debug will output
+; anything.
+; The options are:
+;    'true' (default) or 'on' or 'test' or 'testing' -
+;          debug() will always be shown if called
+;    'false' or 'off' - debug() will never be
+;          shown
+;    'debug' - debug() will only be shown if
+;          $_GET['debug'] is set and equal to
+;          TRUE or 'debug'
+
+status = true;
+
+
+; -----------------------------------------------
+; format defines how the debug output will be
+; written.
+; The options are:
+;     'html' - Use HTML to mark up the
+;          debug output
+;     'comment' - wrap the 'text' output in HTML
+;           comment tags
+;     'text' or 'log' - render the output of
+;          debug() in plain text
+;     'auto' (default) - if the parent script is
+;          running from the command line, format
+;          will become 'text', otherwise it will
+;          become 'html'
+
+format = auto; comment / html / log / text / auto
+
+
+; -----------------------------------------------
+; mode defines where the output of debug is
+; rendered. i.e. is it rendered to screen, to a
+; log file or returned as a string for use
+; elsewhere.
+; The options are:
+;     'append' or 'log_append' - add to an
+;          existing log file
+;     'clean' or 'log' or 'log_clean' - add to an
+;          empty log file
+;     'echo' (default) - render to screen
+;     'return' - returned by the debug function
+ 
+mode = echo; append / clean / echo / log / log_append / log_clean / return
+
+
+; -----------------------------------------------
+; show_file defines whether the name of the file
+; debug() is being called from is rendered in the
+; debug output.
+; The options are:
+;     true (default) or false
+
+show_file = true; true/false
+
+
+; -----------------------------------------------
+; show_date defines whether the current date is
+; rendered in the debug output.
+; The options are:
+;     true or false (default)
+
+show_date = false; true/false
+
+
+; -----------------------------------------------
+; show_time defines whether the time a debug()
+; call is parsed is rendered in the debug output.
+; The options are:
+;     true or false (default)
+
+show_time = false; true/false
+
+
+; -----------------------------------------------
+; full_path defines whether the full path to the
+; current file being processed is rendered in the
+; debug output.
+; (Note: This is only relevant if show_file is
+;  set to TRUE)
+; The options are:
+;     true or false (default)
+
+full_path = false;
+
+
+; -----------------------------------------------
+; log_file is the file name to output log to. If
+; logging is active it defaults to 
+; .debug__log.[initial file name].log
+;log_file = ;
+
+
+; -----------------------------------------------
+; time_adjust is the number of seconds (or minutes
+; or hours) difference between the server time
+; and your local time)
+
+;time_adjust 36000; 10 hours
+
+
+; -----------------------------------------------
+; timezone string to be used by
+; date_default_timezone_set()
+; (see www.php.net/manual/en/timezones.php)
+; default timezone is Australia/Sydney;
+; NOTE: timezone is case sensitive
+
+timezone = Australia/Sydney;
+
+
+; -----------------------------------------------
+; meta_max_length is the maximum number of total
+; characters the file name, line number, date and
+; time can be before the debug output is pushed
+; to a new line.
+
+meta_max_length = 10;
+
+
+; -----------------------------------------------
+; if the max-times option is passed for a
+; particular debug() call, max_max_times is the
+; default maximum number of times a that
+; particular call to debug() will be rendered
+; within a loop.
+; NOTE: if force-die is also passed, when the
+;       max-times is reach the script will stop
+;       processing all together. This is to help
+;       debug scripts with infinite loops.
+
+max_max_times = 13;
+

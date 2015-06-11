@@ -1,0 +1,13 @@
+
+<MySource_AREA id_name="js_bottom_design_persist" design_area="nest_content" print="no"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
+		<!-- START show_if: #js_bottom_SQL_DESIGN_NAME_persist -->
+<MySource_AREA id_name="js_bottom_SQL_DESIGN_NAME_persist" design_area="show_if">
+	<MySource_SET name="condition" value="logged_in" />
+	<MySource_THEN>
+			<!-- START: js_bottom_design_persist -->
+<MySource_PRINT id_name="js_bottom_design_persist" />
+			<!--  END:  js_bottom_design_persist -->
+	</MySource_THEN>
+</MySource_AREA>
+		<!--  END  show_if: #js_bottom_SQL_DESIGN_NAME_persist -->
+

@@ -1,0 +1,137 @@
+
+<MySource_AREA id_name="right_col_promo_1_nested_via_metadata" design_area="nest_content" print="no"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
+<MySource_AREA id_name="right_col_promo_1_unit_logo" design_area="nest_content" print="no"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
+
+<MySource_AREA id_name="HIDE_right_col_promo_1_nested_via_metadata" design_area="show_if" print="no">
+	<MySource_SET name="condition" value="keyword_regexp" />
+	<MySource_SET name="condition_keyword" value="asset_metadata__right-col_web-tile_1_display-type" />
+	<MySource_SET name="condition_keyword_match" value="external" />
+	<MySource_THEN>
+												<!-- START: right_col_promo_1_nested_via_metadata -->
+<MySource_PRINT id_name="right_col_promo_1_link_nested_via_metadata" />
+												<!--  END:  right_col_promo_1_nested_via_metadata -->
+	</MySource_THEN>
+	<MySource_ELSE>
+												<!-- START: right_col_promo_1_unit_logo -->
+<MySource_PRINT id_name="right_col_promo_1_unit_logo" />
+												<!--  END:  right_col_promo_1_unit_logo -->
+	</MySource_ELSE>
+</MySource_AREA>
+
+
+<MySource_AREA id_name="right_col_promo_1_raw_HTML" design_area="nest_content" print="no"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
+
+<MySource_AREA id_name="HIDE_right_col_promo_1_raw_HTML" design_area="show_if" print="no">
+	<MySource_SET name="condition" value="keyword_regexp" />
+	<MySource_SET name="condition_keyword" value="asset_metadata__right-col_web-tile_1_display-type" />
+	<MySource_SET name="condition_keyword_match" value="rawhtml" />
+	<MySource_THEN>
+											<!-- START: right_col_promo_1_raw_HTML -->
+<MySource_PRINT id_name="right_col_promo_1_raw_HTML" />
+											<!--  END:  right_col_promo_1_raw_HTML -->
+	</MySource_THEN>
+	<MySource_ELSE>
+											<!-- START: HIDE_right_col_promo_1_unit_logo -->
+<MySource_PRINT id_name="HIDE_right_col_promo_1_nested_via_metadata" />
+											<!--  END:  HIDE_right_col_promo_1_unit_logo -->
+	</MySource_ELSE>
+</MySource_AREA>
+
+
+
+<MySource_AREA id_name="right_col_promo_1_YouTube" design_area="nest_content" print="no"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
+
+<MySource_AREA id_name="HIDE_right_col_promo_1_YouTube" design_area="show_if" print="no">
+	<MySource_SET name="condition" value="keyword_regexp" />
+	<MySource_SET name="condition_keyword" value="asset_metadata__right-col_web-tile_1_display-type" />
+	<MySource_SET name="condition_keyword_match" value="youtube" />
+	<MySource_THEN>
+										<!-- START: right_col_promo_1_YouTube -->
+<MySource_PRINT id_name="right_col_promo_1_link_YouTube" />
+										<!--  END:  right_col_promo_1_YouTube -->
+	</MySource_THEN>
+	<MySource_ELSE>
+										<!-- START: HIDE_right_col_promo_1_metadata_normal -->
+<MySource_PRINT id_name="HIDE_right_col_promo_1_raw_HTML" />
+										<!--  END:  HIDE_right_col_promo_1_metadata_normal -->
+	</MySource_ELSE>
+</MySource_AREA>
+
+
+
+<MySource_AREA id_name="right_col_promo_1_link_external" design_area="nest_content" print="no"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
+
+<MySource_AREA id_name="HIDE_right_col_promo_1_link_external" design_area="show_if" print="no">
+	<MySource_SET name="condition" value="keyword_regexp" />
+	<MySource_SET name="condition_keyword" value="asset_metadata__right-col_web-tile_1_display-type" />
+	<MySource_SET name="condition_keyword_match" value="external" />
+	<MySource_THEN>
+									<!-- START: right_col_promo_1_external -->
+<MySource_PRINT id_name="right_col_promo_1_link_external" />
+									<!--  END:  right_col_promo_1_external -->
+	</MySource_THEN>
+	<MySource_ELSE>
+									<!-- START: HIDE_right_col_promo_1_YouTube -->
+<MySource_PRINT id_name="HIDE_right_col_promo_1_YouTube" />
+									<!--  END:  HIDE_right_col_promo_1_YouTube -->
+	</MySource_ELSE>
+</MySource_AREA>
+
+
+
+<MySource_AREA id_name="right_col_promo_1_link_matrix" design_area="nest_content" print="no"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
+
+<MySource_AREA id_name="HIDE_right_col_promo_1_link_matrix" design_area="show_if" print="no">
+	<MySource_SET name="condition" value="keyword_regexp" />
+	<MySource_SET name="condition_keyword" value="asset_metadata__right-col_web-tile_1_display-type" />
+	<MySource_SET name="condition_keyword_match" value="matrix" />
+	<MySource_THEN>
+								<!-- START: right_col_promo_1_link_matrix -->
+<MySource_PRINT id_name="right_col_promo_1_link_matrix" />
+								<!--  END:  right_col_promo_1_link_matrix -->
+	</MySource_THEN>
+	<MySource_ELSE>
+								<!-- START: HIDE_right_col_promo_1_link_external -->
+<MySource_PRINT id_name="HIDE_right_col_promo_1_link_external" />
+								<!--  END:  HIDE_right_col_promo_1_link_external -->
+	</MySource_ELSE>
+</MySource_AREA>
+
+
+
+<MySource_AREA id_name="right_col_promo_1_customisation" design_area="nest_content" print="no"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
+
+<MySource_AREA id_name="HIDE_right_col_promo_1_customisation" design_area="show_if" print="no">
+	<MySource_SET name="condition" value="keyword_regexp" />
+	<MySource_SET name="condition_keyword" value="asset_metadata__right-col_web-tile_1_display-type" />
+	<MySource_SET name="condition_keyword_match" value="default" />
+	<MySource_THEN>
+							<!-- START: right_col_promo_1_customisation -->
+<MySource_PRINT id_name="right_col_promo_1_customisation" />
+							<!--  END:  right_col_promo_1_customisation -->
+	</MySource_THEN>
+	<MySource_ELSE>
+							<!-- START: HIDE_right_col_promo_1_link_matrix -->
+<MySource_PRINT id_name="HIDE_right_col_promo_1_link_matrix" />
+							<!--  END:  HIDE_right_col_promo_1_link_matrix -->
+	</MySource_ELSE>
+</MySource_AREA>
+
+
+
+<MySource_AREA id_name="HIDE_right_col_promo_1_hide" design_area="show_if" print="no">
+	<MySource_SET name="condition" value="keyword_regexp" />
+	<MySource_SET name="condition_keyword" value="asset_metadata__right-col_web-tile_1_display-type" />
+	<MySource_SET name="condition_keyword_match" value="hide" />
+	<MySource_THEN>
+						<!--
+						 ! Promo 1 hidden by metadata
+						 ! -->
+	</MySource_THEN>
+	<MySource_ELSE>
+						<!-- START: right_col_promo_1_customisation -->
+<MySource_PRINT id_name="HIDE_right_col_promo_1_customisation" />
+						<!--  END:  right_col_promo_1_customisation -->
+	</MySource_ELSE>
+</MySource_AREA>
+

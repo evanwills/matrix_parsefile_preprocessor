@@ -1,0 +1,16 @@
+
+		<!--[if IE 7]>
+			<link rel="stylesheet" type="text/css" href="mysource_files/ie7.css" />
+
+<MySource_AREA id_name="eNewsletter_CSS_IE7" design_area="metadata" print="no"><MySource_SET name="metadata_field" value="_newsletter__css_IE7_URL" /></MySource_AREA>
+<MySource_AREA id_name="newsletter_css_link_IE7" design_area="show_if" print="no">
+	<MySource_SET name="condition" value="keyword_regexp" />
+	<MySource_SET name="condition_keyword" value="asset_metadata__newsletter__css_IE7_URL" />
+	<MySource_SET name="condition_keyword_match" value=".+" />
+	<MySource_THEN>			<link rel="stylesheet" href="<MySource_PRINT id_name="eNewsletter_CSS_IE7" />" media="screen, projection" /></MySource_THEN>
+</MySource_AREA>
+
+			<MySource_AREA id_name="css_customised_IE7_stylesheet_1" design_area="linked_css"/>
+			<MySource_AREA id_name="css_customised_IE7_stylesheet_2" design_area="linked_css"/>
+		<![endif]-->
+

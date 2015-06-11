@@ -1,0 +1,18 @@
+
+<MySource_AREA id_name="content_footer_askacu" design_area="nest_content" print="no"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
+					<!-- START: content_footer_askacu_showif -->
+<MySource_AREA id_name="content_footer_askacu_showif" design_area="show_if">
+	<MySource_SET name="condition" value="keyword_regexp" />
+	<MySource_SET name="condition_keyword" value="asset_metadata__hide_askACU" />
+	<MySource_SET name="condition_keyword_match" value="Hide askACU" />
+	<MySource_THEN>
+						<!-- content_footer_askacu hidden by metadata -->
+	</MySource_THEN>
+	<MySource_ELSE>
+						<!-- START: content_footer_askacu -->
+<MySource_PRINT id_name="content_footer_askacu" />
+						<!--  END:  content_footer_askacu -->
+	</MySource_ELSE>
+</MySource_AREA>
+					<!--  END:  content_footer_askacu_showif -->
+
