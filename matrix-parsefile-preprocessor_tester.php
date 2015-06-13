@@ -60,4 +60,11 @@ if(!function_exists('debug'))
 // ==================================================================
 
 
-require_once('matrix-parse-file-assembler.class.php');
+require_once('matrix-parsefile-preprocessor.class.php');
+require_once('matrix-parsefile-prepocessor.class.php');
+require_once('matrix-parsefile-preprocessor_assembler.class.php');
+require_once('matrix-parsefile-preprocessor_basic-test.class.php');
+
+
+$sample = file_get_contents( 'parse-files/partials/body/content/right_col/_right-col_promo-1.xml');
+
