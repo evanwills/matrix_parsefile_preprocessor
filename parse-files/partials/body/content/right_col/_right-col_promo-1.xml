@@ -1,5 +1,6 @@
 
-<MySource_AREA id_name="right_col_promo_1_nested_via_metadata" design_area="nest_content" print="no"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
+
+<MySource_AREA id_name="right_col_promo_1_link_nested_via_metadata" design_area="nest_content" print="no"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
 <MySource_AREA id_name="right_col_promo_1_unit_logo" design_area="nest_content" print="no"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
 
 <MySource_AREA id_name="HIDE_right_col_promo_1_nested_via_metadata" design_area="show_if" print="no">
@@ -39,7 +40,7 @@
 
 
 
-<MySource_AREA id_name="right_col_promo_1_YouTube" design_area="nest_content" print="no"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
+<MySource_AREA id_name="right_col_promo_1_link_YouTube" design_area="nest_content" print="no"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
 
 <MySource_AREA id_name="HIDE_right_col_promo_1_YouTube" design_area="show_if" print="no">
 	<MySource_SET name="condition" value="keyword_regexp" />
