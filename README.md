@@ -17,7 +17,7 @@ keyword structure: `{{path/to/partial/file|find|replace|modifiers}}`
 	*	`{[` partial is NOT wrapped in comments
 *	"__path/to/partial/__" relative or absolute path to partial
 *	"__file__" name of partial file (not partials (like in SASS) are prefixed with an underscore '_' and end with the .xml file extension
-*	"__`&#96;`__" or "__`|`__" or "__`~`__" find/replace delimiter can be either backtick '&#96;', pipe '|' or tilda '~'
+*	"__<code>&#96;</code>`__" or "__`|`__" or "__`~`__" find/replace delimiter can be either backtick '&#96;', pipe '|' or tilda '~'
 *	"__find__"  find string or regex
 *	"__replace__" replacement string or regex pattern
 *	"__modifiers__" if regex is to be used, modifiers must containt '`R`' (for Regex) or any valid regex modifier
