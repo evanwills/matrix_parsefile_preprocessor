@@ -8,55 +8,62 @@ class matrix_parsefile_preprocessor__assembler extends matrix_parsefile_preproce
 	 * @const string INCLUDES_REGEX a regular expression for
 	 * matching preparse file keywords
 	 *		[0] the full match of the keyword string
-	 *  	[1] opening wrapper
-	 *		[2] the directory path to find the preparse
+	 *  	[1] whole keyword
+	 *  	[2] preceeding content
+	 *  	[3] opening wrapper
+	 *		[4] the directory path to find the preparse
 	 *			block or sub-preparse file (relative to the
 	 *			current preparse file)
-	 *		[3] the name of the file to be included
-	 *  	[4] (optional) find/replace delimiter [`~|]
-	 *		[5] (optional) find string/regex to do find and
+	 *		[5] the name of the file to be included
+	 *  	[6] (optional) find/replace delimiter [`~|]
+	 *		[7] (optional) find string/regex to do find and
 	 *			replace on the praparse block/sub-preparse
 	 *			file
-	 *		[6] (optional) replace string to be used in
+	 *		[8] (optional) replace string to be used in
 	 *			conjuction with find string/regex
-	 *		[7] (optional) regex modifiers/regex identifier
+	 *		[9] (optional) regex modifiers/regex identifier
 	 *			"R" (if no modifiers)
-	 *		[8] closing wrapper
+	 *		[10] closing wrapper
 	 */
 	const INCLUDES_REGEX = '@
-( # [1] opening wrapper
-	[\{\}\[\]]{2}
+( # [1] preceeding content
+	.*?
 )
-(?:
-	( # [2] path
-		(?:[a-zA-Z0-9_-]+/)*
-	)
-	( # [3] file
-		[a-zA-Z0-9_-]+
+( # [2] whole keyword
+	( # [3] opening wrapper
+		[\{\}\[\]]{2}
 	)
 	(?:
-		( # [4] find/replace delimiter
-			[\`\|\~\;]
+		( # [4] path
+			(?:[a-zA-Z0-9_-]+/)*
 		)
-		( # [5] find string/pattern
-			.*?
-		)
-		(?<!\\\\)
-		\4
-		( # [6] replace string/pattern
-			.*?
+		( # [5] file
+			[a-zA-Z0-9_-]+
 		)
 		(?:
+			( # [6] find/replace delimiter
+				[\`\|\~\;]
+			)
+			( # [7] find string/pattern
+				.*?
+			)
 			(?<!\\\\)
 			\4
-			( # [7] regex identifier/modifiers
-				[RimsxeADSUXJu]{1,11}
+			( # [8] replace string/pattern
+				.*?
 			)
+			(?:
+				(?<!\\\\)
+				\4
+				( # [9] regex identifier/modifiers
+					[RimsxeADSUXJu]{1,11}
+				)
+			)?
 		)?
-	)?
-)
-( # [8] closing wrapper
-	[\{\}\[\]]{2}
+	)
+	( # [10] closing wrapper
+		[\{\}\[\]]{2}
+	)
 )
 @x';
 
@@ -87,7 +94,8 @@ class matrix_parsefile_preprocessor__assembler extends matrix_parsefile_preproce
 	 * @var string $partials the directory parth to the partials
 	 * directory
 	 */
-	static private $partials = '';
+	static private $partials_dir = '';
+	private $partials = '';
 
 	/**
 	 * @var string $original the contents of the preparse file being
@@ -95,7 +103,8 @@ class matrix_parsefile_preprocessor__assembler extends matrix_parsefile_preproce
 	 */
 	private $original = '';
 
-	static private $id_checker = false;
+	static private $matrix_test = false;
+	private $matrix_tester = false;
 
 // ==================================================================
 // START: property validation and processing
@@ -103,25 +112,29 @@ class matrix_parsefile_preprocessor__assembler extends matrix_parsefile_preproce
 	public function __construct( $source_path , $source_file ){
 		if( !is_string($source_path) )
 		{
-			// throw
+			echo "\n\n--------- ERROR --------\nmatrix_parsefile_preprocessor__assembler::__constructor() expects first paramater to be a string!\n".gettype($source_path)." given\n\n";
+			exit;
 		}
 		elseif( !is_dir($source_path) )
 		{
-			// throw
+			echo "\n\n--------- ERROR --------\nmatrix_parsefile_preprocessor__assembler::__constructor() expects first paramater to be a string path to a directory\nCould not find directory: \"$source_path\"!\n\n";
+			exit;
 		}
 		else
 		{
-			$this-path = realpath($source_path);
+			$this->path = realpath($source_path).'/';
 		}
 
-		if( $this->check_path($this->path,$source_file) )
-			{
+		if( $this->check_file($this->path,$source_file) )
+		{
 			$this->file = $source_file;
 		}
 
-		if( self::$id_checker === false ) {
-			self::$id_checker = new valid_id();
+		if( self::$matrix_test === false ) {
+			self::$matrix_test = new matrix_parsefile_preprocessor__basic_test();
 		}
+		$this->matrix_tester = self::$matrix_test;
+		$this->partials = self::$partials_dir;
 	}
 
 //  END: property validation and processing
@@ -141,25 +154,16 @@ class matrix_parsefile_preprocessor__assembler extends matrix_parsefile_preproce
 		$output = '';
 		$includes = 0;
 
-		if( $this->check_file($path,$file) === true )
-		{
-			$this->file = $file;
-			$this->path = $path;
-
-			$this->original = file_get_contents($path.$file);
-			$output = preg_replace_callback( SELF::INCLUDES_REGEX , array( $this , ASSEMBLER_CALLBACK ) , $this->original , -1 , $includes );
+		$this->original = file_get_contents($this->path.$this->file);
+		$output = preg_replace_callback( SELF::INCLUDES_REGEX , array( $this , 'ASSEMBLER_CALLBACK' ) , $this->original , -1 , $includes );
 
 
-			if( $includes === 0 ) {
-				echo "\n\n--------- ERROR --------\nThere were no partial patterns found in\n\t{$this->path}{$this->file}\n\n";
-				exit;
-			}
-			else {
-				echo "\n\nThere were $includes partial patterns found in\n\t{$this->path}{$this->file}\n\n";
-			}
-		} else {
-			echo "\n\n--------- ERROR --------\nCould not find\n\t{$path}{$file}\n\n";
+		if( $includes === 0 ) {
+			echo "\n\n--------- ERROR --------\nThere were no partial patterns found in\n\t{$this->path}{$this->file}\n\n";
 			exit;
+		}
+		else {
+			echo "\n\nThere were $includes partial patterns found in\n\t{$this->path}{$this->file}\n\n";
 		}
 
 		$this->prop_restore($bk);
@@ -172,7 +176,8 @@ class matrix_parsefile_preprocessor__assembler extends matrix_parsefile_preproce
 		{
 			if( is_dir($partials_dir) )
 			{
-				self::$partials = realpath($partials_dir);
+				self::$partials_dir = realpath($partials_dir).'/';
+				$this->partials = self::$partials_dir;
 			}
 			else
 			{
@@ -195,62 +200,76 @@ class matrix_parsefile_preprocessor__assembler extends matrix_parsefile_preproce
 	 * returns the defined contents after doing some stuff with it.
 	 * @param  array $inc an array of seven items:
 	 *		[0] the full match of the keyword string
-	 *  	[1] opening wrapper
-	 *		[2] the directory path to find the preparse
+	 *  	[1] whole keyword
+	 *  	[2] preceeding content
+	 *  	[3] opening wrapper
+	 *		[4] the directory path to find the preparse
 	 *			block or sub-preparse file (relative to the
 	 *			current preparse file)
-	 *		[3] the name of the file to be included
-	 *  	[4] (optional) find/replace delimiter [`~|]
-	 *		[5] (optional) find string/regex to do find and
+	 *		[5] the name of the file to be included
+	 *  	[6] (optional) find/replace delimiter [`~|]
+	 *		[7] (optional) find string/regex to do find and
 	 *			replace on the praparse block/sub-preparse
 	 *			file
-	 *		[6] (optional) replace string to be used in
+	 *		[8] (optional) replace string to be used in
 	 *			conjuction with find string/regex
-	 *		[7] (optional) regex modifiers/regex identifier
+	 *		[9] (optional) regex modifiers/regex identifier
 	 *			"R" (if no modifiers)
-	 *		[8] closing wrapper
+	 *		[10] closing wrapper
 	 */
 	private function ASSEMBLER_CALLBACK($match) {
 		$bk = $this->prop_backup('partials','path');
 		$partial_content = '';
 
+
+
+		$test_result = $this->matrix_tester->test_parsefile($match[1]);
+		if( $test_result !== true ) {
+			// there was a matrix parse file error in the code preceeding this keyword
+			$this->display_error($test_result[1],$test_result[2],$test_result[0]);
+		}
+
+
+
 		$ok = false;
 		$no_comments = false;
-		if( $match[1] == '{{' && $match[8] == '}}' ) {
+		if( $match[3] == '{{' && $match[10] == '}}' ) {
+			$ok = true;
+		} elseif( $match[3] == '{[' && $match[10] == ']}'  ) {
 			$ok = true;
 			$no_comments = true;
-		} elseif( $match[1] == '{[' && $match[8] == ']}'  ) {
-			$ok = true;
 		} else {
 			// keyword dlimiters
-			$this->display_error($match[0], "Keyword delimiters '{$match[1]}' and '{$match[8]}' are not valid");
+			$this->display_error($match[2], "Keyword delimiters '{$match[3]}' and '{$match[10]}' are not valid");
 		}
+debug($match,$this->partials);
 
 		// get the partial
-		if( $this->check_file($match[2],'_'.$match[3].'xml') )
+		if( $this->check_file($match[4],'_'.$match[5].'.xml') )
 		{
-			$this->partials = $match[1];
-			$partial_content = file_get_contents($match[2].'_'.$match[3].'xml');
+
+			$partial_content = file_get_contents($match[4].'_'.$match[5].'.xml');
 		}
-		elseif( this->check_file($match[2],$match[3].'xml') )
+		elseif( $this->check_file($match[4],$match[5].'.xml') )
 		{
-			$this->partials = $match[1];
-			$partial_content = new SELF( $match[2] , $match[3].'xml' );
+			$partial_content = new SELF( $match[4] , $match[5].'.xml' );
 		} else {
-			$this->display_error($match[0],"Could not find\n\t".$this->partials.'_'.$match[3]."xml\nor\t".$this->partials.$match[3].'xml');
+
+			$this->display_error($match[2],"Could not find\n\t".$match[4].'_'.$match[5].".xml\nor\t".$match[4].$match[5].'.xml');
 		}
 
+		$error_suffix = '';
 		// do find and replace if appropriate
 		// useful when using the same partial for multiple design areas.
-		if( $match[5] != '' ) {
-			$match[5] = str_replace('\\'.$match[4],$match[4],$match[5]);
-			$match[6] = str_replace('\\'.$match[4],$match[4],$match[6]);
+		if( $match[6] != '' ) {
+			$match[7] = str_replace('\\'.$match[6],$match[6],$match[7]);
+			$match[8] = str_replace('\\'.$match[6],$match[6],$match[8]);
 			if( $match[7] != '' ) {
 				// Do regular expression find/replacce
 
 				// 'R' is not a valid PREG modifier, it is used to identify a regex so remove it
 				$match[7] = str_replace('R','',$match[7]);
-				$regex_error = regex_error( $match[4].$match[5].$match[4].$match[7] );
+				$regex_error = regex_error( $match[6].$match[7].$match[6].$match[9] );
 				if( $regex_error === false ) {
 					$partial_content = preg_replace( $match[4].$match[5].$match[4].$match[7] , $match[6] , $partial_content);
 				}
@@ -265,12 +284,20 @@ class matrix_parsefile_preprocessor__assembler extends matrix_parsefile_preproce
 				// do simple find/replace
 				$partial_content = str_replace( $match[5] , $match[6] , $partial_content );
 			}
+			$error_suffix = "\nNOTE: parsefile content has been modified by a find/replace which may have caused this issue";
 		}
 
+		$test_result = $this->matrix_tester->test_parsefile($partial_content);
+		if( $test_result !== true ) {
+			// there was a matrix parse file error in the code preceeding this keyword
+			$this->display_error( $test_result[1] , $test_result[2].$error_suffix, $test_result[0]);
+		}
+
+		debug(self::TRIM_LINE_REGEX,$partial_content);
 		$partial_content = preg_replace( SELF::TRIM_LINE_REGEX , '' , $partial_content );
 
 		// wrap partial in comments (if appropriate)
-		if( $match[6] === '}')
+		if( $no_comments === false )
 		{
 			$open = '<!--';
 			$close = '-->';
@@ -282,7 +309,7 @@ class matrix_parsefile_preprocessor__assembler extends matrix_parsefile_preproce
 			$open = "\n$open|| ";
 			$close = "||$close\n";
 
-			$partial_content = "{$open}START: {$match[2]}{$match[3]} {$close}{$partial_content}{$open} END:  {$match[2]}{$match[3]} $close"
+			$partial_content = "{$open}START: {$match[2]}{$match[3]} {$close}{$partial_content}{$open} END:  {$match[2]}{$match[3]} $close";
 		}
 		else
 		{
@@ -310,7 +337,7 @@ class matrix_parsefile_preprocessor__assembler extends matrix_parsefile_preproce
 				{
 					if( is_dir($this->partials.$path) )
 					{
-						$path = realpath($this->partials.$path);
+						$path = realpath($this->partials.$path).'/';
 					}
 					else
 					{
@@ -364,8 +391,14 @@ class matrix_parsefile_preprocessor__assembler extends matrix_parsefile_preproce
 	 * @param string $pattern the keyword where the error has occured
 	 * @param string $msg     the error message to be displayed
 	 */
-	private function display_error( $pattern , $msg ) {
-		echo "\n\n--------- ERROR ---------\n$msg\n$pattern\nLine ".$this->get_error_line($pattern)." in {$this->path}{$this->file}\n\n";
+	private function display_error( $pattern , $msg , $line = false , $file = false ) {
+		if( !is_int($line) ) {
+			$line = $this->get_line_number($pattern,$this->original);
+		}
+		if( !is_string($file) || !is_file($file) ) {
+			$file = $this->path.$this->file;
+		}
+		echo "\n\n--------- ERROR ---------\n$msg\n$pattern\nLine $line in $file\n\n";
 		exit;
 	}
 
@@ -380,7 +413,7 @@ class matrix_parsefile_preprocessor__assembler extends matrix_parsefile_preproce
 		$b = func_num_args();
 		$output = array();
 
-		for( a = 0 ; $a < $b ; $a += 1 )
+		for( $a = 0 ; $a < $b ; $a += 1 )
 		{
 			$key = func_get_arg($a);
 

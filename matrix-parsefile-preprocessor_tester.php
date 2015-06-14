@@ -59,12 +59,27 @@ if(!function_exists('debug'))
 // END: debug include
 // ==================================================================
 
-
 require_once('matrix-parsefile-preprocessor.class.php');
-require_once('matrix-parsefile-prepocessor.class.php');
 require_once('matrix-parsefile-preprocessor_assembler.class.php');
 require_once('matrix-parsefile-preprocessor_basic-test.class.php');
 
 
-$sample = file_get_contents( 'parse-files/partials/body/content/right_col/_right-col_promo-1.xml');
 
+
+if( !isset($_SERVER['arv'][1]) ) {
+
+}
+if( !is_file($_SERVER['argv'][1])) {
+
+}
+
+$file = realpath($_SERVER['argv'][1]);
+$path = dirname($file).'/';
+$file = str_replace($path,'',$file);
+
+$sample = file_get_contents( 'parse-files/partials/body/content/right_col/_right-col_promo-1.xml');
+$te = new matrix_parsefile_preprocessor__assembler($path,$file);
+
+$te->set_partials_dir($path.'partials/');
+
+$te->parse();
