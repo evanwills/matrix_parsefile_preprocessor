@@ -94,7 +94,7 @@ class matrix_parsefile_preprocessor__assembler extends matrix_parsefile_preproce
 	 * @var string $partials the directory parth to the partials
 	 * directory
 	 */
-	static private $partials_dir = '';
+	static private $partials_dir = false;
 	private $partials = '';
 
 	/**
@@ -134,7 +134,10 @@ class matrix_parsefile_preprocessor__assembler extends matrix_parsefile_preproce
 			self::$matrix_test = new matrix_parsefile_preprocessor__basic_test();
 		}
 		$this->matrix_tester = self::$matrix_test;
-		$this->partials = self::$partials_dir;
+
+		if( self::$partials_dir === false ) {
+			$this->set_partials_dir($source_path.'partials/');
+		}
 	}
 
 //  END: property validation and processing
