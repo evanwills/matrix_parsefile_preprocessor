@@ -1,4 +1,29 @@
+// {string} output  must be relative to the source file's directory
+//					or relative to the filesystem root.
 output: compiled/;
+
+// {string} partials  must be relative to the source file's directory
+//					  or relative to the filesystem root.
 partials: partials/;
-show_error_extended: true;
-fail_on_unprinted: true;
+
+// {boolean} show_error_extended If there is an error display the partial
+//					the error was found in after the error message
+show_error_extended: false;
+
+// {string} on_unprinted If there are unprinted design areas
+//					 by the end of parsing, don't output.
+//		options: 'ignore' - [default] show but do nothing
+//				 'fail' - stop processing (i.e. do not write out file)
+//				 'hide' - same as ignore but don't even tell me.
+on_unprinted: ignore;
+
+// {boolean} strip_comments Strip HTML comments as output is being created.
+strip_comments: true;
+
+
+// {string} white_space How to handle white space during compile
+//		options:
+//			normal - [default] do nothing (leave as is)
+//			compact - delete spaces & tabs from start and end of lines
+//			compressed - reduce multiple, consecutive white-spaces character to a single space character
+white_space : compress ; normal - default]
