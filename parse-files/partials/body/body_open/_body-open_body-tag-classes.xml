@@ -17,8 +17,24 @@
 	<MySource_THEN><MySource_PRINT id_name="metadata_content_menu" /><MySource_PRINT id_name="show_space" var="space" /> </MySource_THEN>
 </MySource_AREA>
 
-		<MySource_PRINT id_name="metadata_long_page_title_class" />
-		<MySource_PRINT id_name="newsletter_classes" />
+<MySource_AREA id_name="metadata_long_page_title" design_area="metadata" print="no"><MySource_SET name="metadata_field" value="long_page_name" /></MySource_AREA>
+
+<MySource_AREA id_name="metadata_long_page_title_class" design_area="show_if">
+	<MySource_SET name="condition" value="keyword_regexp" />
+	<MySource_SET name="condition_keyword" value="asset_metadata_long_page_name" />
+	<MySource_SET name="condition_keyword_match" value="page-name_[2-5]_lines" />
+	<MySource_THEN><MySource_PRINT id_name="metadata_long_page_title" /><MySource_PRINT id_name="show_space" var="space" /></MySource_THEN>
+</MySource_AREA>
+
+
+<MySource_AREA id_name="newsletter_class_metadata_newsletter_name_class" design_area="metadata" print="no"><MySource_SET name="metadata_field" value="_newsletter__name_class" /></MySource_AREA>
+<MySource_AREA id_name="newsletter_classes" design_area="show_if">
+	<MySource_SET name="condition" value="keyword_regexp" />
+	<MySource_SET name="condition_keyword" value="asset_metadata__newsletter_rootID" />
+	<MySource_SET name="condition_keyword_match" value="[1-9][0-9]+" />
+	<MySource_THEN></MySource_THEN>
+	<MySource_ELSE><MySource_PRINT id_name="newsletter_class_metadata_newsletter_name_class" /></MySource_ELSE>
+</MySource_AREA>
 
 <MySource_AREA id_name="body_classes" design_area="declared_vars">
 	<MySource_DECLARE name="body_class_1" value="" type="text" description="first custom class name added to the body tag" />
@@ -33,7 +49,7 @@
 
 		SITE_<MySource_PRINT id_name="__global__" var="site_name^lowercase^css_safe" />
 
-		<MySource_AREA id_name="page_class_lineage_depth" design_area="nest_content" print="no"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
+		<MySource_AREA id_name="page_class_lineage_depth" design_area="nest_content"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
 
 <MySource_AREA id_name="page_class_lineage" design_area="asset_lineage">
 	<MySource_SET name="show_hidden_links" value="false" />

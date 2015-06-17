@@ -4,7 +4,7 @@
 							<!--  END nested:  #content_faculty_name -->
 
 							<!-- START nested: #content_faculty_name_by_metadata -->
-<MySource_AREA id_name="content_faculty_name_by_metadata" design_area="metadata" print="no"><MySource_SET name="metadata_field" value="_faculty_name" /></MySource_AREA>
+<MySource_AREA id_name="content_faculty_name_by_metadata" design_area="metadata"><MySource_SET name="metadata_field" value="_faculty_name" /></MySource_AREA>
 							<!--  END nested:  #content_faculty_name_by_metadata -->
 
 							<!-- START nested: #content_feature_page_heading -->

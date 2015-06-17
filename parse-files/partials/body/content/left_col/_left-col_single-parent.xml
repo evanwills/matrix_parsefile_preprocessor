@@ -1,5 +1,5 @@
 
-<MySource_AREA id_name="single_parent_list" design_area="asset_lineage" print="no">
+<MySource_AREA id_name="left_col_single_parent_list" design_area="asset_lineage" print="no">
 	<MySource_SET name="levels_to_print" value="-1" />
 	<MySource_SET name="prefix_with_home_link" value="false" />
 	<MySource_SET name="show_hidden_links" value="yes" />

@@ -68,7 +68,7 @@
 											<ul id="menu_dynamic">
 												<li class="Hierarchy">
 													<!-- START show_if: #left_col_menu_prefix_dynamic_switch -->
-<MySource_PRINT id_name="left_col_menu_prefix_dynamicc_switch" />
+<MySource_PRINT id_name="left_col_menu_prefix_dynamic_switch" />
 													<!--  END  show_if: #left_col_menu_prefix_dynamic_switch -->
 
 
