@@ -1,0 +1,4 @@
+output: compiled/;
+partials: partials/;
+show_error_extended: true;
+fail_on_unprinted: true;
