@@ -7,11 +7,14 @@ class matrix_parsefile_preprocessor__config
 	private $output_dir = '';
 	private $partials_dir = '';
 	private $show_error_extended = false;
-	private $fail_on_unprinted = false;
+	private $on_unprinted = 'show';
+	private $white_space = 'normal';
+	private $strip_comments = true;
+	private $unprinted_exceptions = array('__global__');
 
 	private static $me = null;
 
-	private function __construct( $file )
+	private function __construct( $file , $runtime )
 	{
 		$config = false;
 		$conf_type = 'info';
@@ -27,74 +30,36 @@ class matrix_parsefile_preprocessor__config
 		}
 
 		if( preg_match( '`^.*?/config.*?\.(info|json)$`i' , $file , $matches ) ) {
-			$config = $this->get_config($file,$matches[1]);
+			$config = $this->get_config( $file , $matches[1] );
 		}
 		if( $config === false && preg_match( '`^(.*?/)(.*?)\.xml$`i' , $file , $matches) ) {
-			$config = $this->get_config($matches[1].'config_'.$matches[2].'.');
+			$config = $this->get_config( $matches[1].'config_'.$matches[2].'.' );
 		}
 		if( $config === false )
 		{
-			$config = $this->get_config(dirname($file).'/config.');
+			$config = $this->get_config( dirname($file).'/config.' );
 		}
-		if( $config === false )
+		if( is_array($runtime) && !empty($runtime) )
 		{
-			// throw error "Could not find a valid config file."
-		}
-
-		$tmp = array('output','partials');
-		for( $a = 0 ; $a < 2 ; $a += 1 )
-		{
-			if( isset($this->config_vars[$tmp[$a]]) )
+			foreach( $runtime as $key => $value )
 			{
-				if( !is_dir($this->config_vars[$tmp[$a]]) )
-				{
-					$prop = $tmp[$a].'_dir';
-					if( is_dir($this->path.$this->config_vars[$tmp[$a]]) )
-					{
-						$this->$prop = $this->config_vars[$tmp[$a]] = realpath($this->path.$this->config_vars[$tmp[$a]]).'/';
-					}
-					else
-					{
-						// throw $output dir does not exist
-					}
-				}
-				else
-				{
-						$this->$prop = $this->config_vars[$tmp[$a]] = realpath($this->config_vars[$tmp[$a]]).'/';
-				}
+				$this->try_to_set($key,$value);
 			}
 		}
-
-		$tmp = array('show_error_extended','fail_on_unprinted');
-		for( $a = 0 ; $a < 2 ; $a += 1 )
-		{
-			if( isset($this->config_vars[$tmp[$a]]) )
-			{
-				if( is_bool($this->config_vars[$tmp[$a]]) )
-				{
-					$this->$tmp[$a] = $this->config_vars[$tmp[$a]];
-				}
-				else
-				{
-					// throw
-				}
-			}
-		}
-
 	}
 
-	public static function get( $file = '' )
+	public static function get( $file = '' , $runtime = array() )
 	{
 		if( self::$me === null)
 		{
-			self::$me = new matrix_parsefile_preprocessor__config($file);
-		}debug(self::$me);
+			self::$me = new matrix_parsefile_preprocessor__config( $file , $runtime );
+		}
 		return self::$me;
 	}
 
 	public function has_var($key)
 	{
-		if( isset($this->config_vars[$key]) )
+		if( property_exists($this,$key) || isset($this->config_vars[$key]) )
 		{
 			return true;
 		}
@@ -164,7 +129,7 @@ class matrix_parsefile_preprocessor__config
 			{
 				$this->path = realpath(dirname($file)).'/';
 				$conf_build_method = "build_config_{$types[$a]}";
-				$this->$conf_build_method(file_get_contents(realpath($file.$types[$a])));
+				$this->$conf_build_method( file_get_contents( realpath($file.$types[$a]) ) );
 				return true;
 			}
 		}
@@ -177,37 +142,163 @@ class matrix_parsefile_preprocessor__config
 		$b = count($config);
 		for( $a = 0 ; $a < $b ; $a += 1 )
 		{
-			$config[$a] = explode(':',trim($config[$a]));
-			if( $config[$a] != '' )
+			if( $config[$a] != ''  )
 			{
-				$key = trim($config[$a][0]);
-				$value = trim($config[$a][1]);
+				$config[$a] = preg_split('`\s*(\:|=)\s*`',trim($config[$a]),2);
 
-				if( 'true' == strtolower($value) )
-				{
-					$value = true;
-				}
-				elseif( 'false' == strtolower($value) )
-				{
-					$value = false;
-				}
-				elseif( is_numeric($value) )
-				{
-					$value = ( $value/1 );
-				}
-				elseif( substr_count($value,',') > 0 )
-				{
-					$value = explode(',',$value);
-				}
-
-				$this->config_vars[$key] = $value;
+				$this->try_to_set( trim($config[$a][0]) , trim($config[$a][1]) );
 			}
 		}
 	}
 
-	private function build_config_json($content)
+
+	private function try_to_set($key,$value)
 	{
-		$config = json_decode($content,true);
+		if( !$this->set_dir($key,$value) &&
+			!$this->set_str($key,$value) &&
+			!$this->set_bool($key,$value) &&
+			!$this->set_array($key,$value)
+		)
+		{
+			if( !property_exists($this,$key) )
+			{
+				$this->config_vars[$key] = $value;
+			}
+			else
+			{
+				// throw Config variable $key is not valid.
+			}
+		}
+	}
+
+	private function build_config_json($config)
+	{
+		$config = json_decode( $config , true );
+	}
+
+	private function set_str($prop,$input)
+	{
+		$options = array(
+			'on_unprinted' => array('show','fail','hide'),
+			'white_space' => array('normal','compact','compress')
+		);
+		if( isset($options[$prop]) && is_string($input) )
+		{
+			$input = strtolower($input);
+			if( in_array($input,$options[$prop]))
+			{
+				$this->$prop = $this->config_vars[$prop] = $input;
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private function set_bool($prop,$input)
+	{
+		$props = array( 'show_error_extended' , 'strip_comments');
+		if( is_string($prop) && in_array($prop,$props) ) {
+			$input = strtolower($input);
+			if( $input == 'true' || $input == 1 )
+			{
+				$input = true;
+			}
+			elseif( $input == 'false' || $input == 0 )
+			{
+				$input = false;
+			}
+			else
+			{
+				return false;
+			}
+			$this->$prop = $this->config_vars[$prop] = $input;
+		}
+	}
+
+	private function set_dir($prop,$input)
+	{
+		$props = array( 'output' , 'partials' );
+		if( is_string($prop) && in_array($prop,$props) )
+		{
+			if( !is_dir($input) )
+			{
+				$prop_ = $prop.'_dir';
+				if( is_dir($this->path.$input) )
+				{
+					$input = $this->path.$input;
+				}
+				else
+				{
+					// throw $output dir does not exist
+					return false;
+				}
+			}
+			$this->$prop_ = $this->config_vars[$prop] = realpath($input).'/';
+			return true;
+		}
+		return false;
+	}
+
+	private function set_array($prop,$input)
+	{
+		$props = array( 'unprinted_exceptions' );
+		if( is_string($prop) && in_array($prop,$props) )
+		{
+			if( !is_array($input) )
+			{
+				if( is_string($input) )
+				{
+					if(preg_match_all(
+						'`(?<=^|,)\s*("|\')?(?(1)(.*?)(?<!\\\\)\1|([^,]+))(?=\s*(?:,|$))`',
+						$input,
+						$matches,
+						PREG_SET_ORDER
+					))
+					{
+						$tmp = array();
+						for($a = 0 ; $a < count($matches) ; $a += 1 )
+						{
+							$str = trim($mathces[$a][2].$mathces[$a][3]);
+							if( $str != '')
+							{
+								$str = str_replace("\\{$matches[$a][1]}",$matches[$a][1],$str);
+							}
+							if( is_numeric($str) && substr($str,0,1) != '0' )
+							{
+								$str = ($str/1);
+							}
+							$tmp[] = $str;
+						}
+						$input = $tmp;
+					}
+					else
+					{
+						$input = array($input);
+					}
+				}
+				else
+				{
+					// throw $output dir does not exist
+					return false;
+				}
+			}
+			if( !empty($input) )
+			{
+				for( $a = 0 ; $a < count($input) ; $a += 1 )
+				{
+					if( in_array($input[$a],$this->$prop) )
+					{
+						array_push($this->$prop,$input[$a]);
+					}
+					if( !in_array($input[$a],$this->config_vars[$prop]) )
+					{
+						$this->config_vars[$prop][] = $input[$a];
+					}
+				}
+				return true;
+			}
+		}
+		return false;
 	}
 }
 
