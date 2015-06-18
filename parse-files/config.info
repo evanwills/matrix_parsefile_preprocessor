@@ -12,10 +12,10 @@ show_error_extended: false;
 
 // {string} on_unprinted If there are unprinted design areas
 //					 by the end of parsing, don't output.
-//		options: 'ignore' - [default] show but do nothing
+//		options: 'show' - [default] show but do nothing
 //				 'fail' - stop processing (i.e. do not write out file)
 //				 'hide' - same as ignore but don't even tell me.
-on_unprinted: ignore;
+on_unprinted: show;
 
 // {boolean} strip_comments Strip HTML comments as output is being created.
 strip_comments: true;

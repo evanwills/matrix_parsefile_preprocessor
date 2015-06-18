@@ -23,7 +23,7 @@ Inspired by the Sass CSS Preprocessor, SMPFP (for want of a better name) will:
 *	"__path/to/partial/__" relative or absolute path to partial by default partials should be
 *	"__file__" name of partial file
 	<br />__NOTE:__ partials (like in SASS) are prefixed with an underscore '_' and end with the .xml file extension
-*	"__<code>&#96;</code>__" or "__`|`__" or "__`~`__" find/replace delimiter can be either backtick '&#96;', pipe '|' or tilda '~'
+*	"__<code>&#96;</code>__" or "__`|`__" or "__`~`__" or "__;__" find/replace delimiter can be either backtick '&#96;', pipe '|' or tilda '~' or semicolon ';'
 	<br />__NOTE:__ you can use a delimiter character as part of your regex if you escape it.
 *	"__find__"  find string or regex
 *	"__replace__" replacement string or regex pattern
@@ -39,3 +39,20 @@ Currently, syntax checking checks for:
 *	Bad regexes in show_if statements.
 
 As I get a better understanding of how the Matrix Parse file is parsed, I will add features to the syntax checking.
+
+## Config:
+
+There are a few options that can be set either in a config file or at runtime these are:
+*	`__output__` {string} directory to save output (either relative to source file or absolute)
+*	`__partials__` {string} directory to find partial files (either relative to source file or absolute)
+*	`__on_unprinted__` {string} either 'show', 'fail' or 'hide':
+	*	'show' [default] show the unprinted IDs, the line they were found on and the file they were found in
+	*	'fail' same as show but stops processing if there are any unprinted IDs (__NOTE:__ there will be no output written to file)
+	*	'hide' don't show unprinted IDs
+*	`__unprinted_exceptions__` {string} comma separated list of IDs that can be ignored if unprinted.
+*	`__show_error_extended__` {boolean} If there is an error show the whole partial/parse file where the error occured as well as the line and file name.
+*	`__strip_comments__` {boolean} strip_comments Strip HTML comments as output is being created.
+*	`__white_space__` {string} white_space How to handle white space during compile either 'normal', 'compact' or 'compressed':
+	*	'normal' [default] do nothing (leave as is)
+	*	'compact' delete spaces & tabs from start and end of lines
+	*	'compressed' reduce multiple, consecutive white-spaces character to a single space character
