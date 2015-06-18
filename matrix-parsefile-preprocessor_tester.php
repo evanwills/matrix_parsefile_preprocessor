@@ -62,15 +62,45 @@ if(!function_exists('debug'))
 require_once('matrix-parsefile-preprocessor.class.php');
 require_once('matrix-parsefile-preprocessor_assembler.class.php');
 require_once('matrix-parsefile-preprocessor_basic-test.class.php');
+require_once('matrix-parsefile-preprocessor_config.class.php');
 
 
-
-
-if( !isset($_SERVER['arv'][1]) ) {
-
+if( !isset($_SERVER['argv'][1]) || !is_file($_SERVER['argv'][1]) || !is_readable($_SERVER['argv'][1])) {
+	echo "\n\nYou must specify a file to be processed\n\n";
+	exit;
+} elseif( substr(strtolower($_SERVER['argv'][1]), -4 ) != '.xml' ) {
+	echo "\n\nI can only parse XML files.\n\n";
+	exit;
 }
-if( !is_file($_SERVER['argv'][1])) {
 
+$fail_on_unprinted = true;
+$unprinted_exceptions = array();
+if( isset($_SERVER['argv'][2]) )
+{
+
+	if( $_SERVER['argv'][2] == 'true' )
+	{
+		$fail_on_unprinted = true;
+	}
+	elseif( is_file($_SERVER['argv'][2]))
+	{
+		$unprinted_exceptions = explode("\n",file_get_contents($_SERVER['argv'][2]));
+	}
+	else
+	{
+		$unprinted_exceptions = explode(',',$_SERVER['argv'][2]);
+	}
+	if( !empty($unprinted_exceptions) )
+	{
+		for( $a = 0 ; $a < count($unprinted_exceptions) ; $a += 1 )
+		{
+			if( $unprinted_exceptions[$a] == '' )
+			{
+				unset($unprinted_exceptions[$a]);
+			}
+		}
+		sort($unprinted_exceptions);
+	}
 }
 
 $file = realpath($_SERVER['argv'][1]);
@@ -78,7 +108,7 @@ $path = dirname($file).'/';
 $file = str_replace($path,'',$file);
 
 $sample = file_get_contents( 'parse-files/partials/body/content/right_col/_right-col_promo-1.xml');
-$te = new matrix_parsefile_preprocessor__assembler($path,$file);
+$te = new matrix_parsefile_preprocessor__assembler($path,$file,$fail_on_unprinted,$unprinted_exceptions);
 
 $te->set_partials_dir($path.'partials/');
 
