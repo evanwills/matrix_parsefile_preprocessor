@@ -43,16 +43,16 @@ As I get a better understanding of how the Matrix Parse file is parsed, I will a
 ## Config:
 
 There are a few options that can be set either in a config file or at runtime these are:
-*	`__output__` {string} directory to save output (either relative to source file or absolute)
-*	`__partials__` {string} directory to find partial files (either relative to source file or absolute)
-*	`__on_unprinted__` {string} either 'show', 'fail' or 'hide':
+*	__`output`__ {string} directory to save output (either relative to source file or absolute)
+*	__`partials`__ {string} directory to find partial files (either relative to source file or absolute)
+*	__`on_unprinted`__ {string} either 'show', 'fail' or 'hide':
 	*	'show' [default] show the unprinted IDs, the line they were found on and the file they were found in
 	*	'fail' same as show but stops processing if there are any unprinted IDs (__NOTE:__ there will be no output written to file)
 	*	'hide' don't show unprinted IDs
-*	`__unprinted_exceptions__` {string} comma separated list of IDs that can be ignored if unprinted.
-*	`__show_error_extended__` {boolean} If there is an error show the whole partial/parse file where the error occured as well as the line and file name.
-*	`__strip_comments__` {boolean} strip_comments Strip HTML comments as output is being created.
-*	`__white_space__` {string} white_space How to handle white space during compile either 'normal', 'compact' or 'compressed':
+*	__`unprinted_exceptions`__ {string} comma separated list of IDs that can be ignored if unprinted.
+*	__`show_error_extended`__ {boolean} If there is an error show the whole partial/parse file where the error occured as well as the line and file name.
+*	__`strip_comments`__ {boolean} strip_comments Strip HTML comments as output is being created.
+*	__`white_space`__ {string} white_space How to handle white space during compile either 'normal', 'compact' or 'compressed':
 	*	'normal' [default] do nothing (leave as is)
 	*	'compact' delete spaces & tabs from start and end of lines
 	*	'compressed' reduce multiple, consecutive white-spaces character to a single space character
