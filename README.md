@@ -4,12 +4,27 @@ This is an attempt at making a preprocessor to allow for reusable parsefile chun
 
 Inspired by the Sass CSS Preprocessor, SMPFP (for want of a better name) will:
 
-1.	read through a file finding keywords delimited by `{{...}}` or `{[...]}` and what ever HTML or Matrix code preceeds the keyword
-2.	syntax check Matrix code preceeding matched keyword
-3.	search for file partials identified by the keywords
-4.	modify partials using basic find/replace or regex/replace as required
-5.	syntax check partial
-6.	and replace the keyword with the (possibly modified) contents of the partial file
+1.	Read through a file finding keywords delimited by `{{...}}` or `{[...]}` and what ever HTML or Matrix code preceeds the keyword
+2.	Syntax check Matrix code preceeding matched keyword (or between previous keyword and current keyword)
+3.	Search for file partials identified by the keywords
+4.	Modify partials using basic find/replace or regex/replace as required
+5.	Syntax check partial
+6.	Replace the keyword with the (possibly modified) contents of the partial file
+7.	[optional] Identifies any unprinted design areas
+8.	[optional] Strips HTML comments
+9.	[optional] Strips unnecessary white space
+
+## Syntax checking:
+
+Currently, syntax checking checks for:
+*	Duplicate IDs in `<MySource_AREA>` design areas;
+*	Undefined IDs in `<MySource_Print>` statements; and
+*	Unprinted `<MySource_AREA>` design areas  i.e. unique design areas that are defined but never printed;
+	<br />__NOTE:__ This will be off by default but can be switched on and can have exceptions for intentionally unprinted design areas;
+*	Bad regexes in show_if statements.
+
+As I get a better understanding of how the Matrix Parse file is parsed, I will add features to the syntax checking.
+
 
 ## Keyword structure:
 ```
@@ -28,17 +43,6 @@ Inspired by the Sass CSS Preprocessor, SMPFP (for want of a better name) will:
 *	"__find__"  find string or regex
 *	"__replace__" replacement string or regex pattern
 *	"__modifiers__" if regex is to be used, modifiers must containt '`R`' (for Regex) or any valid regex modifier
-
-## Syntax checking:
-
-Currently, syntax checking checks for:
-*	Duplicate IDs in `<MySource_AREA>` design areas;
-*	Undefined IDs in `<MySource_Print>` statements; and
-*	Unprinted `<MySource_AREA>` design areas  i.e. unique design areas that are defined but never printed;
-	<br />__NOTE:__ This will be off by default but can be switched on and can have exceptions for intentionally unprinted design areas;
-*	Bad regexes in show_if statements.
-
-As I get a better understanding of how the Matrix Parse file is parsed, I will add features to the syntax checking.
 
 ## Config:
 

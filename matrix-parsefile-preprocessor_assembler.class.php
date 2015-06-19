@@ -82,6 +82,8 @@ class matrix_parsefile_preprocessor__assembler extends matrix_parsefile_preproce
 	 */
 	const COMMENT_REGEX = '^\s*/\*';
 
+	const STRIP_COMMENT_REGEX = '`<!--(?!=\[).*?-->|/\*.*?\*/`s';
+	const STRIP_WHITE_SPACE_COMPACT = '`(?<=^|[\r\n])[\t ]+|[\t ](?=[\r\n|$)`';
 	/**
 	 * @var string $path the directory path of the current file being
 	 * processed
@@ -110,10 +112,13 @@ class matrix_parsefile_preprocessor__assembler extends matrix_parsefile_preproce
 
 	private $matrix_tester = false;
 	private $fail_on_unprinted = false;
-	private $first_call = false;
+	static private $first_call = false;
 	private $show_error_extended = false;
 	private $output_dir = '';
 	private $output_file = '';
+	private $handle_comments = null;
+	private $handle_white_space = null;
+	private $handle_wrap = null;
 
 // ==================================================================
 // START: property validation and processing
@@ -153,28 +158,43 @@ class matrix_parsefile_preprocessor__assembler extends matrix_parsefile_preproce
 
 		$this->output_dir = $config->get_var('output_dir');
 
-		if( $config->check_type('bool','show_error_extended') ) {
-			$this->show_error_extended = $config->get_var('show_error_extended');
+		$this->show_error_extended = $config->get_var('show_error_extended');
+		$this->fail_on_unprinted = $config->get_var('fail_on_unprinted');
+		$this->show_error_extended = $config->get_var('show_error_extended');
+		$this->unprinted_exceptions = $config->get_var('unprinted_exceptions');
+		$this->matrix_tester = matrix_parsefile_preprocessor__basic_test::get( $unprinted_exceptions );
+
+		$ws = $config->get_var('white_space');
+		if( $ws == 'normal' )
+		{
+			$this->handle_white_space = 'white_space_normal';
+		}
+		else
+		{
+			$this->handle_white_space = 'strip_white_space';
+			if( $ws == 'compress' )
+			{
+				$this->white_space_regex = '`\s+`';
+			}
+			else
+			{
+				$this->white_space_regex = self::STRIP_WHITE_SPACE_COMPACT;
+			}
 		}
 
-
-		if( $config->has_var('fail_on_unprinted') ) {
-			$fail_on_unprinted = $config->get_var('fail_on_unprinted');
+		if( $config->get_var('strip_comments') === true )
+		{
+			$this->handle_comments = 'strip_comments';
+			$this->handle_wrap = 'dont_wrap';
 		}
-		if( is_bool($fail_on_unprinted) ) {
-			$this->fail_on_unprinted = $fail_on_unprinted;
-		}
-		if( $config->has_var('show_error_extended') ) {
-			$this->show_error_extended = $config->get_var('show_error_extended');
-		}
-
-		if( $config->has_var('unprinted_exceptions') ) {
-			$unprinted_exceptions = $config->get_var('unprinted_exceptions');
+		else
+		{
+			$this->handle_comments = 'leave_comments';
+			$this->handle_wrap = 'wrap_in_commnets';
 		}
 
-		if( $this->matrix_tester === false ) {
-			$this->matrix_tester = matrix_parsefile_preprocessor__basic_test::get( $unprinted_exceptions );
-			$this->first_call = true;
+		if( self::$first_call === false ) {
+			self::$first_call = true;
 		}
 	}
 
@@ -301,7 +321,7 @@ class matrix_parsefile_preprocessor__assembler extends matrix_parsefile_preproce
 			// there was a matrix parse file error in the code preceeding this keyword
 			$this->display_error($test_result[1],$test_result[2],$test_result[0]);
 		}
-		$partial_content = $match[1];
+		$match[1] = $this->{$this->handle_comments}($match[1]);
 
 
 		$ok = false;
@@ -379,26 +399,18 @@ class matrix_parsefile_preprocessor__assembler extends matrix_parsefile_preproce
 		// wrap partial in comments (if appropriate)
 		if( $no_comments === false )
 		{
-			$open = '<!--';
-			$close = '-->';
-			if( preg_match( '`^\s*/\*`' , $partial_content ) )
-			{
-				$open = '/*';
-				$close = '*/';
-			}
-			$open = "\n$open|| ";
-			$close = "||$close\n";
-
-			$partial_content = "{$open}START: {$match[2]} {$close}{$partial_content}{$open} END:  {$match[2]} $close";
+			$partial_content = $this->{$this->handle_wrap}($partial_content,$match[2]);
 		}
 		else
 		{
-			$partial_content = "\n".$partial_content."\n";
+			$partial_content = "\n".$this->{$this->handle_comments}($partial_content)."\n";
 		}
+
+		$partial_content =
 
 		$this->prop_restore($bk);
 
-		return $match[1].$partial_content;
+		return $this->{$this->handle_white_space}($match[1].$partial_content);
 	}
 
 	/**
@@ -539,6 +551,63 @@ class matrix_parsefile_preprocessor__assembler extends matrix_parsefile_preproce
 		}
 		echo "\n\n-----------------------------------------\n\n";
 		exit;
+	}
+
+	private function dont_wrap($partial_content,$keyword)
+	{
+		return $this->strip_comments($partial_content);
+	}
+
+	private function wrap_in_comments($partial_content,$keyword)
+	{
+		$open = '<!--';
+		$close = '-->';
+		if( preg_match( '`^\s*/\*`' , $partial_content ) )
+		{
+			$open = '/*';
+			$close = '*/';
+		}
+		$open = "\n$open|| ";
+		$close = "||$close\n";
+
+		return "{$open}START: $keyword {$close}{$partial_content}{$open} END:  $keyword $close";
+	}
+
+	private function strip_comments($partial_content)
+	{
+		return preg_replace( '`<!--(?!=\[).*?-->|/\*.*?\*/`s' , '' , $partial_content );
+	}
+
+	private function leave_comments($partial_content)
+	{
+		return $partial_content;
+	}
+
+	private function white_space_normal($input) {
+		return $input;
+	}
+
+	private function strip_white_space($input) {
+		$pre = $erp = array();
+		preg_match_all('`<pre[^>]*>.*?</pre>`is',$input,$matches);
+		for( $a = 0 ; $a > $matches[0] ; $a += 1 )
+		{
+			$pre[] = $matches[$a];
+			$erp[] = '<<{PRE'.$a.'}>>';
+		}
+		return str_replace(
+				$erp,
+				$pre,
+				preg_replace(
+					$this->white_space_regex,
+					' ' ,
+					str_replace(
+						$pre,
+						$erp,
+						$input
+					)
+				)
+			);
 	}
 }
 
