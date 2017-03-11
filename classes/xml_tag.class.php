@@ -3,14 +3,19 @@
 class xml_tag
 {
 	protected $name = '';
+	protected $whole_tag = '';
 	protected $id = '';
 	protected $attrs = array();
 	protected $line = 0;
 
-	const ATTR_REGEX = '`(?<=\s)([a-z_-]+)(?:=(?:"([^"]+?)"|\'([^\']+?\'|([a-z0-9_-]+)))?(?=\s|>)`i';
+	const ATTR_REGEX = '`(?<=\s)([a-z_-]+)(?:=(?:"([^"]+?)"|\'([^\']+?)\'|([a-z0-9_-]+)))?(?=\s|$)`i';
 
-	public function __construct( $element , $attrs , $ln_number )
+	public function __construct( $whole , $element , $attrs , $ln_number )
 	{
+		if( !is_string($whole) || trim($whole) == '' )
+		{
+			throw new exception(get_class($this).' constructor expects first parameter $whole to be a non-empty string');
+		}
 		if( !is_string($element) || trim($element) == '' )
 		{
 			throw new exception(get_class($this).' constructor expects first parameter $element to be a non-empty string');
@@ -24,9 +29,9 @@ class xml_tag
 			throw new exception(get_class($this).' constructor expects second parameter $ln_number to be an integer greater than 1');
 		}
 
+		$this->whole_tag = $whole;
 		$this->name = $element;
 		$this->line = $ln_number;
-
 
 		if( preg_match_all( self::ATTR_REGEX , $attrs , $matches , PREG_SET_ORDER ) )
 		{
@@ -34,7 +39,7 @@ class xml_tag
 			{
 				$c = count($matches[$a]);
 				$key = strtolower($matches[$a][1]);
-				if( $c > 3 )
+				if( $c >= 3 )
 				{
 					$c -= 1;
 					$value = $matches[$a][$c];
@@ -66,6 +71,11 @@ class xml_tag
 		return $this->id;
 	}
 
+	public function get_whole_tag()
+	{
+		return $this->whole_tag;
+	}
+
 	public function get_line()
 	{
 		return $this->line;
@@ -73,7 +83,7 @@ class xml_tag
 
 	public function get_attr( $attr )
 	{
-		if( !is_str($attr) && !is_numeric($attr) )
+		if( !is_string($attr) && !is_numeric($attr) )
 		{
 			throw new exception(get_class($this).'::get_attr() expects only parameter to be a string or number');
 		}

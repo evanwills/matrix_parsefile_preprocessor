@@ -4,24 +4,28 @@ require_once('classes/xml_tag.class.php');
 
 class mysource_tag extends xml_tag
 {
-	protected $printed = false;
+	protected $printed = true;
 	protected $called = false;
 	protected $error = false;
 	protected $error_msg = '';
 
-	public function __construct( $element , $attrs , $ln_number )
+	public function __construct( $whole , $element , $attrs , $ln_number )
 	{
-		parent::__construct( $element, $attrs, $ln_number );
+		parent::__construct( $whole , $element, $attrs, $ln_number );
 
 		foreach($this->attrs as $key => $value )
 		{
 			if( $key === 'print' )
 			{
 				$value = strtolower($value);
-				$this->attr[$key] = $value;
-				if( $value === 'yes' )
+				$this->attrs[$key] = $value;
+				if( $value === 'no' )
 				{
-					$this->printed = true;
+					$this->printed = false;
+				}
+				else
+				{
+					$printed = false;
 				}
 			}
 			if( $key === 'id_name' )
@@ -52,7 +56,7 @@ class mysource_tag extends xml_tag
 
 	public function set_error( $error_msg )
 	{
-		if( !is_string($error_msg) || trim($error_msg) !== '' )
+		if( !is_string($error_msg) && trim($error_msg) !== '' )
 		{
 			throw new exception('mysource_tag::set_error() expects only parameter $error_msg to be a non-empty string');
 		}
@@ -62,10 +66,10 @@ class mysource_tag extends xml_tag
 
 	public function get_error()
 	{
-		return $error_msg;
+		return $this->error_msg;
 	}
 
-	protected function has_error()
+	public function has_error()
 	{
 		return $this->error;
 	}

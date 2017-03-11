@@ -2,6 +2,8 @@
 
 require_once('classes/matrix-parsefile-preprocessor.class.php');
 require_once('classes/matrix-parsefile-preprocessor_config.class.php');
+require_once('classes/xml_tag.class.php');
+require_once('classes/MySource_tag.class.php');
 
 class matrix_parsefile_preprocessor__basic_test extends matrix_parsefile_preprocessor
 {
@@ -9,6 +11,8 @@ class matrix_parsefile_preprocessor__basic_test extends matrix_parsefile_preproc
 	private $not_printed_IDs = array();
 	private $fail_on_unprinted = true;
 	private $unprinted_exceptions = array('__global__');
+
+	private $tags = array();
 
 	static private $me = null;
 
@@ -68,14 +72,19 @@ class matrix_parsefile_preprocessor__basic_test extends matrix_parsefile_preproc
 			{
 				for( $a = 0 ; $a < count($tags) ; $a += 1 )
 				{
+					$status = false;
 					$element = strtolower($tags[$a][1]);
-					$tag = new mysource_tag( $element , $tags[$a][2] , $this->get_line_number($input,$tags[$a][0]) , $source );
+					$tag = new mysource_tag( $tags[$a][0] , $element , $tags[$a][2] , $this->get_line_number($input,$tags[$a][0]) , $source );
 					$id = $tag->get_id();
+					$this->tags[$id] = $tag;
 
 					if( $element === 'print' )
 					{
-						$this->remove_non_printed_ID($id);
-						$status = $this->undefined_area($id);
+						if( $id !== '' )
+						{
+							$this->remove_non_printed_ID($id);
+							$status = $this->undefined_area($id);
+						}
 					}
 					else
 					{
@@ -126,7 +135,7 @@ class matrix_parsefile_preprocessor__basic_test extends matrix_parsefile_preproc
 										if( $regex_error !== false )
 										{
 											// regex has an error show error and terminate
-											return array( $tag->get_line() , $tags[$a][0], "Regular expression \"$regex\" has an error: ".$regex_error);
+											$status =  "Regular expression \"$regex\" has an error: ".$regex_error;
 										}
 
 									}
@@ -135,7 +144,20 @@ class matrix_parsefile_preprocessor__basic_test extends matrix_parsefile_preproc
 
 						}
 					}
+					if( is_string($status) && $status !== '' )
+					{
+						$tag->set_error($status);
+					}
 				}
+			}
+		}
+		$errors = 0;
+		foreach($this->tags as $id => $tag )
+		{
+			if( $tag->has_error() )
+			{
+				echo "\n\n------------------------------------\n line: ".$tag->get_line()."\n tag: ".$tag->get_whole_tag()."\n error: ".$tag->get_error();
+				$errors += 1;
 			}
 		}
 		return true;
@@ -252,6 +274,10 @@ class matrix_parsefile_preprocessor__basic_test extends matrix_parsefile_preproc
 		if( isset($this->not_printed_IDs[$id]) )
 		{
 			unset($this->not_printed_IDs[$id]);
+		}
+		if( isset($this->tags[$id]) )
+		{
+			$this->tags[$id]->set_called();
 		}
 	}
 
