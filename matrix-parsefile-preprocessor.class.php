@@ -1,6 +1,6 @@
 <?php
 
-require_once($cls.'regex/regex_error.inc.php');
+require_once('includes/regex_error.inc.php');
 
 class matrix_parsefile_preprocessor
 {

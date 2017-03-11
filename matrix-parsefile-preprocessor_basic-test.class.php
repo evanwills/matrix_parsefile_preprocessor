@@ -57,7 +57,8 @@ class matrix_parsefile_preprocessor__basic_test extends matrix_parsefile_preproc
 		if( is_string($input) ) {
 			if( preg_match_all(self::TAG_regex,$input,$tags,PREG_SET_ORDER) )
 			{
-				for( $a = 0 ; $a < count($tags) ; $a += 1 ) {
+				for( $a = 0 ; $a < count($tags) ; $a += 1 )
+				{
 					$tags[$a][1] = strtolower($tags[$a][1]);
 					if( preg_match_all(SELF::TAG_ATTR_regex,$tags[$a][2],$attrs,PREG_SET_ORDER) )
 					{
@@ -82,6 +83,7 @@ class matrix_parsefile_preprocessor__basic_test extends matrix_parsefile_preproc
 										return array( $this->get_line_number($input,$tags[$a][0]), $tags[$a][0] , $status );
 									}
 									break;
+
 								case 'print':
 									if( 'no' == strtolower($attrs[$b][3]) )
 									{
@@ -89,6 +91,7 @@ class matrix_parsefile_preprocessor__basic_test extends matrix_parsefile_preproc
 										$this->add_non_print_ID( $id , $this->get_line_number($input,$tags[$a][0]) , $source);
 									}
 									break;
+
 								case 'design_area':
 									if($attrs[$b][3] == 'show_if') {
 										$show_if = preg_replace( SELF::SHOWIF_START_REGEX.preg_quote($tags[$a][0]).SELF::SHOWIF_END_REGEX,'\1</MySource_AREA>',$input);
@@ -232,5 +235,4 @@ class matrix_parsefile_preprocessor__basic_test extends matrix_parsefile_preproc
 			unset($this->not_printed_IDs[$id]);
 		}
 	}
-
 }

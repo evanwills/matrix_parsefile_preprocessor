@@ -60,6 +60,7 @@ if(!function_exists('debug'))
 // END: debug include
 // ==================================================================
 
+require_once('includes/regex_error.inc.php');
 require_once('matrix-parsefile-preprocessor.class.php');
 require_once('matrix-parsefile-preprocessor_assembler.class.php');
 require_once('matrix-parsefile-preprocessor_basic-test.class.php');
