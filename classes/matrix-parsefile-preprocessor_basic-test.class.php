@@ -12,10 +12,11 @@ class matrix_parsefile_preprocessor__basic_test extends matrix_parsefile_preproc
 
 	static private $me = null;
 
-	const TAG_regex = '`<MySource_(AREA|PRINT)(.*?)/?>`s';
-	const TAG_ATTR_regex = '`(?<=\s)(id_name|print|design_area)=("|\')([^\2]*?)(?=\2)`';
+	const TAG_REGEX = '`<MySource_(AREA|PRINT)(.*?)/?>`s';
 	const SHOWIF_START_REGEX = '`^.*?(';
 	const SHOWIF_END_REGEX = '.*?)(?=\s*<MySource_(?:THEN|ELSE>)).*$`s';
+	const SHOWIF_CALLBACK_REGEX = '`(?<=value=")(.*?)(?=")`';
+
 
 	private function __construct( $unprinted_exceptions )
 	{
@@ -55,81 +56,75 @@ class matrix_parsefile_preprocessor__basic_test extends matrix_parsefile_preproc
 	public function test_parsefile( $input , $source )
 	{
 		if( is_string($input) ) {
-			if( preg_match_all(self::TAG_regex,$input,$tags,PREG_SET_ORDER) )
+			if( preg_match_all(self::TAG_REGEX,$input,$tags,PREG_SET_ORDER) )
 			{
 				for( $a = 0 ; $a < count($tags) ; $a += 1 )
 				{
-					$tags[$a][1] = strtolower($tags[$a][1]);
-					if( preg_match_all(SELF::TAG_ATTR_regex,$tags[$a][2],$attrs,PREG_SET_ORDER) )
+					$element = strtolower($tags[$a][1]);
+					$tag = new mysource_tag( $element , $tags[$a][2] , $this->get_line_number($input,$tags[$a][0]) , $source );
+					$id = $tag->get_id();
+
+					if( $element === 'print' )
 					{
-						$id = '';
-						for( $b = 0 ; $b < count($attrs) ; $b += 1 )
+						$this->remove_non_printed_ID($id);
+						$status = $this->undefined_area($id);
+					}
+					else
+					{
+						$status = $this->existing_id($id);
+						if( $tag->get_attr('print') === 'no' )
 						{
-							switch($attrs[$b][1]) {
-								case 'id_name':
-									$id = $attrs[$b][3];
-									$status = false;
-									if( $tags[$a][1] == 'area')
-									{
-										$status = $this->existing_id($attrs[$b][3]);
-									}
-									elseif( $tags[$a][1] == 'print')
-									{
-										$status = $this->undefined_area($attrs[$b][3]);
-										$this->remove_non_printed_ID($attrs[$b][3]);
-									}
-									if( $status !== false )
-									{
-										return array( $this->get_line_number($input,$tags[$a][0]), $tags[$a][0] , $status );
-									}
-									break;
+							$printed = false;
+							$this->add_non_print_ID( $id , $tag->get_line() , $source);
+						}
 
-								case 'print':
-									if( 'no' == strtolower($attrs[$b][3]) )
-									{
-										$printed = false;
-										$this->add_non_print_ID( $id , $this->get_line_number($input,$tags[$a][0]) , $source);
-									}
-									break;
+						if( $tag->get_attr('design_area') === 'show_if' )
+						{
+							$show_if_regex = SELF::SHOWIF_START_REGEX.preg_quote($tags[$a][0]).SELF::SHOWIF_END_REGEX;
 
-								case 'design_area':
-									if($attrs[$b][3] == 'show_if') {
-										$show_if = preg_replace( SELF::SHOWIF_START_REGEX.preg_quote($tags[$a][0]).SELF::SHOWIF_END_REGEX,'\1</MySource_AREA>',$input);
-										$show_if = preg_replace_callback('`(?<=value=")(.*?)(?=")`',function($matches){return htmlspecialchars($matches[1]);},$show_if);
-										$show_if_xml = simplexml_load_string($show_if);
-										$fields = array();
-										if( $show_if_xml !== false )
+							$show_if_xml = simplexml_load_string(
+								preg_replace_callback(
+									 '`(?<=value=")(.*?)(?=")`'
+									,array( $this , 'SHOW_IF_CALLBACK' )
+									,preg_replace(
+										 $show_if_regex
+										,'\1</MySource_AREA>'
+										,$input
+									 )
+								 )
+							);
+
+							$fields = array();
+							if( $show_if_xml !== false )
+							{
+								// todo work out why XML sometimes breaks;
+								foreach( $show_if_xml->MySource_SET as $area_set )
+								{
+									$name = '';
+									$value = '';
+									foreach ($area_set->attributes() as $key => $VALUE ) {
+										settype($key,'string');
+										settype($VALUE,'string');
+										$$key = $VALUE;
+									}
+									$fields[$name] = $value;
+								}
+								if( isset($fields['condition']) && $fields['condition'] == 'keyword_regexp' )
+								{
+									if( isset($fields['condition_keyword_match']) )
+									{
+										$regex = '/'.$fields['condition_keyword_match'].'/';
+										$regex_error = regex_error( $regex );
+										if( $regex_error !== false )
 										{
-											// todo work out why XML sometimes breaks;
-											foreach( $show_if_xml->MySource_SET as $area_set )
-											{
-												$name = '';
-												$value = '';
-												foreach ($area_set->attributes() as $key => $VALUE ) {
-													settype($key,'string');
-													settype($VALUE,'string');
-													$$key = $VALUE;
-												}
-												$fields[$name] = $value;
-											}
-											if( isset($fields['condition']) && $fields['condition'] == 'keyword_regexp' )
-											{
-												if( isset($fields['condition_keyword_match']) )
-												{
-													$regex = '/'.$fields['condition_keyword_match'].'/';
-													$regex_error = regex_error( $regex );
-													if( $regex_error !== false )
-													{
-														// regex has an error show error and terminate
-														return array($this->get_line_number($input,$tags[$a][0]), $tags[$a][0], "Regular expression \"$regex\" has an error: ".$regex_error);
-													}
-
-												}
-											}
+											// regex has an error show error and terminate
+											return array( $tag->get_line() , $tags[$a][0], "Regular expression \"$regex\" has an error: ".$regex_error);
 										}
+
 									}
-									break;
+								}
 							}
+
 						}
 					}
 				}
@@ -234,5 +229,9 @@ class matrix_parsefile_preprocessor__basic_test extends matrix_parsefile_preproc
 		{
 			unset($this->not_printed_IDs[$id]);
 		}
+	}
+
+	private function SHOW_IF_CALLBACK($input) {
+		return htmlspecialchars($matches[1]);
 	}
 }
