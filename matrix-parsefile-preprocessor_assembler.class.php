@@ -1,6 +1,6 @@
 <?php
 
-require_once($cls.'regex/regex_error.inc.php');
+require_once('includes/regex_error.inc.php');
 require_once('matrix-parsefile-preprocessor.class.php');
 require_once('matrix-parsefile-preprocessor_config.class.php');
 require_once('matrix-parsefile-preprocessor_basic-test.class.php');
@@ -237,8 +237,8 @@ class matrix_parsefile_preprocessor__assembler extends matrix_parsefile_preproce
 
 
 		if( $includes === 0 ) {
-			echo "\n\n--------- ERROR --------\nThere were no partial patterns found in\n\t{$this->path}{$this->file}\n\n";
-			exit;
+			echo "\n\n--------- NOTE --------\nThere were no partial patterns found in\n\t{$this->path}{$this->file}\n\n";
+			$this->matrix_tester->test_parsefile( $this->original , $this->file );
 		}
 		else {
 			echo "\n\nThere were $includes partial patterns found in\n\t{$this->path}{$this->file}\n\n";
@@ -246,7 +246,7 @@ class matrix_parsefile_preprocessor__assembler extends matrix_parsefile_preproce
 
 		$this->prop_restore($bk);
 
-		if( $this->first_call )
+		if( self::$first_call )
 		{
 			if( $this->fail_on_unprinted )
 			{
