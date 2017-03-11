@@ -61,10 +61,10 @@ if(!function_exists('debug'))
 // ==================================================================
 
 require_once('includes/regex_error.inc.php');
-require_once('matrix-parsefile-preprocessor.class.php');
-require_once('matrix-parsefile-preprocessor_assembler.class.php');
-require_once('matrix-parsefile-preprocessor_basic-test.class.php');
-require_once('matrix-parsefile-preprocessor_config.class.php');
+require_once('classes/matrix-parsefile-preprocessor.class.php');
+require_once('classes/matrix-parsefile-preprocessor_assembler.class.php');
+require_once('classes/matrix-parsefile-preprocessor_basic-test.class.php');
+require_once('classes/matrix-parsefile-preprocessor_config.class.php');
 
 
 if( !isset($_SERVER['argv'][1]) || !is_file($_SERVER['argv'][1]) || !is_readable($_SERVER['argv'][1])) {

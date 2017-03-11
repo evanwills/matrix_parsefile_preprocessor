@@ -1,7 +1,7 @@
 <?php
 
-require_once('matrix-parsefile-preprocessor.class.php');
-require_once('matrix-parsefile-preprocessor_config.class.php');
+require_once('classes/matrix-parsefile-preprocessor.class.php');
+require_once('classes/matrix-parsefile-preprocessor_config.class.php');
 
 class matrix_parsefile_preprocessor__basic_test extends matrix_parsefile_preprocessor
 {
