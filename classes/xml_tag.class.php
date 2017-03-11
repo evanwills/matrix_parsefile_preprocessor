@@ -7,7 +7,7 @@ class xml_tag
 	protected $attrs = array();
 	protected $line = 0;
 
-	const ATTR_REGEX = '`(?<=\s)([a-z_-]+)(?:=(?:([\'"])([^\2]+?)\2|([a-z0-9_-]+)))?(?=\s|>)`i';
+	const ATTR_REGEX = '`(?<=\s)([a-z_-]+)(?:=(?:"([^"]+?)"|\'([^\']+?\'|([a-z0-9_-]+)))?(?=\s|>)`i';
 
 	public function __construct( $element , $attrs , $ln_number )
 	{
@@ -33,7 +33,7 @@ class xml_tag
 			for( $a = 0 ; $a < count($matches) ; $a += 1 )
 			{
 				$c = count($matches[$a]);
-				$key = $matches[$a][1];
+				$key = strtolower($matches[$a][1]);
 				if( $c > 3 )
 				{
 					$c -= 1;
@@ -44,7 +44,7 @@ class xml_tag
 					$value = $key;
 				}
 
-				if( $key === 'id_name' || $key === 'id' )
+				if( $key === 'id' )
 				{
 					$this->id = $value;
 				}
