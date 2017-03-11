@@ -18,6 +18,8 @@ class matrix_parsefile_preprocessor__basic_test extends matrix_parsefile_preproc
 	const SHOWIF_CALLBACK_REGEX = '`(?<=value=")(.*?)(?=")`';
 
 
+
+
 	private function __construct( $unprinted_exceptions )
 	{
 		$config = matrix_parsefile_preprocessor__config::get();
@@ -41,6 +43,9 @@ class matrix_parsefile_preprocessor__basic_test extends matrix_parsefile_preproc
 		}
 	}
 
+
+
+
 	public static function get( $unprinted_exceptions = array() ) {
 		if( self::$me === null )
 		{
@@ -52,6 +57,9 @@ class matrix_parsefile_preprocessor__basic_test extends matrix_parsefile_preproc
 		}
 		return self::$me;
 	}
+
+
+
 
 	public function test_parsefile( $input , $source )
 	{
@@ -133,6 +141,9 @@ class matrix_parsefile_preprocessor__basic_test extends matrix_parsefile_preproc
 		return true;
 	}
 
+
+
+
 	public function fail_on_unprinted()
 	{
 		$config = matrix_parsefile_preprocessor__config::get();
@@ -173,6 +184,10 @@ class matrix_parsefile_preprocessor__basic_test extends matrix_parsefile_preproc
 		return false;
 	}
 
+
+
+
+
 	private function existing_id($input)
 	{
 		if( is_string($input) )
@@ -201,6 +216,9 @@ class matrix_parsefile_preprocessor__basic_test extends matrix_parsefile_preproc
 		return '"'.$input.'" '.$output.'!';
 	}
 
+
+
+
 	private function undefined_area($input) {
 		if( in_array($input,$this->IDs) )
 		{
@@ -211,6 +229,9 @@ class matrix_parsefile_preprocessor__basic_test extends matrix_parsefile_preproc
 			return 'Matrix design area "'.$input.'" has not yet been defined!';
 		}
 	}
+
+
+
 
 	private function add_non_print_ID( $id, $line , $file )
 	{
@@ -223,6 +244,9 @@ class matrix_parsefile_preprocessor__basic_test extends matrix_parsefile_preproc
 		}
 	}
 
+
+
+
 	private function remove_non_printed_ID($id)
 	{
 		if( isset($this->not_printed_IDs[$id]) )
@@ -230,6 +254,9 @@ class matrix_parsefile_preprocessor__basic_test extends matrix_parsefile_preproc
 			unset($this->not_printed_IDs[$id]);
 		}
 	}
+
+
+
 
 	private function SHOW_IF_CALLBACK($input) {
 		return htmlspecialchars($matches[1]);
