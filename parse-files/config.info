@@ -18,7 +18,7 @@ show_error_extended: false;
 on_unprinted: show;
 
 // {boolean} strip_comments Strip HTML comments as output is being created.
-strip_comments: true;
+strip_comments: false;
 
 
 // {string} white_space How to handle white space during compile
@@ -26,4 +26,4 @@ strip_comments: true;
 //			normal - [default] do nothing (leave as is)
 //			compact - delete spaces & tabs from start and end of lines
 //			compressed - reduce multiple, consecutive white-spaces character to a single space character
-white_space : compress ; normal - default]
+white_space : normal;

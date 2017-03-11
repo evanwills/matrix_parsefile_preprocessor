@@ -1,5 +1,7 @@
 <?php
 
+require_once('matrix-parsefile-preprocessor.class.php');
+require_once('matrix-parsefile-preprocessor_config.class.php');
 
 class matrix_parsefile_preprocessor__basic_test extends matrix_parsefile_preprocessor
 {
@@ -141,25 +143,46 @@ class matrix_parsefile_preprocessor__basic_test extends matrix_parsefile_preproc
 		if( !empty($this->not_printed_IDs) )
 		{
 			$c = count($this->not_printed_IDs);
-			if( $c > 1 ) { $areas = "$c design areas were"; } else { $areas = 'design area was'; }
+			if( $c > 1 )
+			{
+				$areas = "$c design areas were";
+			}
+			else
+			{
+				$areas = 'design area was';
+			}
 
 			echo "\n\n-----------------------------------------\n-- WARNING --\n\nThe following $areas unprinted:";
+
 			foreach( $this->not_printed_IDs as $ID => $where )
 			{
 				$short_file = str_replace($partials,'',$where['file']);
 				echo "\n    \"{$ID}\"\n\ton line {$where['line']}\n\tof $short_file\n\t{$where['file']}\n";
 			}
-			if( $c > 1 ) { $it_they = 'They'; $it_them = 'them'; } else { $it_they = 'It'; $it_them = 'it'; }
+			if( $c > 1 )
+			{
+				$it_they = 'They';
+				$it_them = 'them';
+			}
+			else
+			{
+				$it_they = 'It';
+				$it_them = 'it';
+			}
 			echo "\n$it_they may not be needed. If so, you should delete $it_them from the parse file.\n\n";
 			//exit;
 		}
 		return false;
 	}
 
-	private function existing_id($input) {
-		if( is_string($input) ) {
-			if( preg_match('`^[a-z0-9][a-z0-9_]+$`i', $input)) {
-				if( !in_array($input,$this->IDs) ) {
+	private function existing_id($input)
+	{
+		if( is_string($input) )
+		{
+			if( preg_match('`^[a-z0-9][a-z0-9_]+$`i', $input))
+			{
+				if( !in_array($input,$this->IDs) )
+				{
 					$this->IDs[] = $input;
 					return false;
 				}
@@ -195,7 +218,10 @@ class matrix_parsefile_preprocessor__basic_test extends matrix_parsefile_preproc
 	{
 		if( !isset($this->not_printed_IDs[$id]) && !in_array($id,$this->unprinted_exceptions) )
 		{
-			$this->not_printed_IDs[$id] = array( 'line' => $line , 'file' => $file );
+			$this->not_printed_IDs[$id] = array(
+				 'line' => $line
+				,'file' => $file
+			);
 		}
 	}
 

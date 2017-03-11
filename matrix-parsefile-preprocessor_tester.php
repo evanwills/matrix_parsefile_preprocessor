@@ -14,6 +14,7 @@ if(!function_exists('debug'))
 		case 'antechinus':	// work laptop (debian)
 		case 'localhost':	// home laptop
 		case 'evan':		// home laptop
+		case 'antechinas':		// home laptop
 		case 'wombat':	$root = '/var/www/';	$inc = $root.'includes/'; $classes = $cls = $root.'classes/'; break; // home laptop
 
 		case 'burrawangcoop.net.au':	// DreamHost
