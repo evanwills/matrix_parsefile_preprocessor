@@ -1,71 +1,82 @@
 <?php
 
-class matrix_parsefile_preprocessor__config
+namespace matrix_parsefile_preprocessor;
+
+
+/**
+ * config is a singlton object used to store shared info between
+ * validator and compiler classes
+ */
+class config
 {
-	private $config_vars = array();
-	private $path = '';
+
+	/**
+	 * @private
+	 * @var matrix_parsefile_preprocessor\config $me the single instance of this object
+	 */
+	static private $me = null;
+
+	/**
+	 * @private
+	 * @var array $config_vars list of random extra key/value pairs stored for later use.
+	 */
+	private $config_vars = [];
+
+	/**
+	 * @private
+	 * @var string $input_dir absolute path to directory where
+	 *             base parse file is stored
+	 */
 	private $input_dir = '';
+
+	/**
+	 * @private
+	 * @var string $output_dir absolute path to directory where
+	 *             the output file is to be written to.
+	 */
 	private $output_dir = '';
-	private $partials_dir = '';
-	private $partials_sub_dirs = array();
-	private $tmp_partials_sub_dirs = false;
+
 	private $show_error_extended = false;
+
 	private $on_unprinted = 'show';
+
 	private $white_space = 'normal';
+
 	private $strip_comments = true;
-	private $unprinted_exceptions = array('__global__');
 
 
-	private static $me = null;
+//  END:  properties
+// ========================================================
+// START: public methods
 
-	private function __construct( $file , $runtime )
+
+	/**
+	 * get() is the singleton access method to get the one
+	 * instance of this object
+	 * @param string $file path to base parse file or specific config
+	 *               file (can be .info or JSON format)
+	 */
+	static public function get( $file = '' , $runtime = array() )
 	{
-		$config = false;
-		$conf_type = 'info';
-		$conf_types = array('info','json');
-
-
-
-		$file = trim($file);
-
-		if( $file == '' || !is_file($file) || !is_dir($file) )
-		{
-			// throw error "$file must be either the pre-parsefile (.xml) or a config file (.info or .json) or the path to a directory in which a config file can be found";
-		}
-
-		if( preg_match( '`^.*?/config.*?\.(info|json)$`i' , $file , $matches ) ) {
-			debug($file,$matches);
-			$config = $this->get_config( $file , $matches[1] );
-		}
-		elseif( preg_match( '`^(.*?/)(.*?)\.xml$`i' , $file , $matches) ) {
-			$config = $this->get_config( $matches[1].'config_'.$matches[2].'.' );
-		}
-		else
-		{
-			$config = $this->get_config( dirname($file).'/config.' );
-		}
-
-		if( is_array($runtime) && !empty($runtime) )
-		{
-			foreach( $runtime as $key => $value )
-			{
-				$this->try_to_set($key,$value);
-			}
-		}
-		debug(get_object_vars($this));
-	}
-
-	public static function get( $file = '' , $runtime = array() )
-	{
-		if( self::$me === null)
-		{
-			self::$me = new matrix_parsefile_preprocessor__config( $file , $runtime );
+		if( self::$me === null ){
+			self::$me = new self( $file , $runtime );
 		}
 		return self::$me;
 	}
 
+
+	/**
+	 * check whether the object has a particular property
+	 * @param  string $key name of property to be checked
+	 * @return boolean  true if the property exists
+	 */
 	public function has_var($key)
 	{
+		if( !is_string($key) && trim($key) !== '' )
+		{
+			throw new \exception(get_class($this).'::has_var() expects only param $key to be a non-empty string. '.gettype($key).' given.');
+		}
+
 		if( property_exists($this,$key) || isset($this->config_vars[$key]) )
 		{
 			return true;
@@ -75,301 +86,141 @@ class matrix_parsefile_preprocessor__config
 
 	public function get_var($key)
 	{
+		if( !is_string($key) && trim($key) !== '' )
+		{
+			throw new \exception(get_class($this).'::get_var() expects only param $key to be a non-empty string. '.gettype($key).' given.');
+		}
+
 		if( property_exists($this,$key) )
 		{
 			return $this->$key;
 		}
-		if( isset($this->config_vars[$key]) )
+		elseif( isset($this->config_vars[$key]) )
 		{
 			return $this->config_vars[$key];
 		}
-	}
-
-	public function check_type($var_type,$key) {
-		if( is_string($var_type) && isset($this->config[$key]) ) {
-			$var_type = strtolower($var_type);
-			switch($var_type) {
-				case 'boolean':
-				case 'integer':
-				case 'float':
-				case 'string':
-				case 'array':
-				case 'object':
-				case 'null':
-					if( gettype($this->config[$key]) == $var_type ) {
-						return true;
-					}
-					break;
-				case 'dir':
-					if( is_dir($this->config[$key]) ) {
-						return true;
-					}
-					break;
-				case 'file':
-					if( is_file($this->config[$key]) ) {
-						return true;
-					}
-					break;
-			}
-		}
-		return false;
-	}
-
-
-	public function add_partials_dir($path)
-	{
-		if( !is_string($path) || trim($path) === '' )
-		{
-			throw new exception(get_class($this).'::add_new_partials() expects only parameter to be a non-empty string. '.gettype($path).' given.');
-		}
-		$ok = false;
-		$c = count($this->partials_sub_dirs) - 1;
-
-		if( substr($path,0,1) === '/' || $c < 0 ) // path is relative to partials directory
-		{
-			$path = $this->partials_dir.$path;
-		}
-		elseif( is_dir($this->partials_sub_dir[$c].$path) ) // path is local to current parse file partial
-		{
-			$path = $this->partials_sub_dir[$c].$path;
-		}
 		else
 		{
-			throw new exception(get_class($this).'::add_new_partials() expects only parameter to be a valid path to a directory. "'.$path.'" cannot be found.');
-		}
-
-		$this->partials_dir[] = $path;
-		$this->tmp_partials_sub_dirs = $this->partials_sub_dirs;
-		return $path;
-	}
-
-	public function remove_partials_dir()
-	{
-		$c = count($this->partials_sub_dirs) - 1;
-		unset($this->partials_dir[$c]);
-		$this->tmp_partials_sub_dirs = $this->partials_sub_dirs;
-	}
-
-	public function get_next_partial_dir()
-	{
-		if( $this->tmp_partials_sub_dirs === false )
-		{
-			$this->tmp_partials_sub_dirs = $this->partials_sub_dirs;
-		}
-		$c = count($this->tmp_partials_sub_dirs);
-		if( $c > 0 )
-		{
-			$c -= 1;
-			return $this->tmp_partials_sub_dirs[$c];
-		}
-		else
-		{
-			$this->tmp_partials_sub_dirs = false;
-			return false;
+			throw new \exception(get_class($this).'::get_var() expects only param $key to be a valid config property. Use config->has_var() to check the property exists before you try getting it.');
 		}
 	}
 
-	public function reset_partials_iterator()
+	public function get_all()
 	{
-		$this->tmp_partials_sub_dirs = $this->partials_sub_dirs;
+		return get_object_vars($this);
 	}
 
-	//  END:  public methods
-	// ====================================================
-	// START: private methods
+//  END:  public methods
+// ========================================================
+// START: private methods
 
 
-	private function get_config($file, $type = false)
+	/**
+	 * [[Description]]
+	 * @private
+	 * @param string $file full path to location of config file or
+	 *               location of base parse file
+	 */
+	private function __construct($file)
 	{
-		$types = array('info','json');
-		$b = 0;
-		$c = 2;
-
-		if( $type == 'json')
+		if( !is_string($file) || trim($file) === '' )
 		{
-			$b = 1;
-		}
-		elseif( $type == 'info' )
-		{
-			$c = 1;
+			throw new \exception(get_class($this).'::__construct() expects only parameter $file to be a non-empty string. '.gettype($file)." given.\n");
 		}
 
-		for( $a = $b ; $a < $c ; $a += 1 )
+		$file = realpath($file);
+		if( $file === false )
 		{
-			if( is_file($file.$types[$a]) )
+			throw new \exception(get_class($this).'::__construct() expects only parameter $file to be a path to an existing file or direcotry/folder. "'.$file." .\n");
+		}
+
+		$path = pathinfo($file);
+
+		$type = false;
+		if( isset($path['extension']) )
+		{
+			if( $path['extension'] === 'info' )
 			{
-				$this->path = realpath(dirname($file)).'/';
-				$conf_build_method = "build_config_{$types[$a]}";
-				$this->$conf_build_method( file_get_contents( realpath($file.$types[$a]) ) );
-				return true;
+				$type = 'info';
+				$input = $file;
 			}
-		}
-		return false;
-	}
-
-	private function build_config_info($config)
-	{
-		$config = explode("\n",preg_replace('`[\t ]*(?:#|;|//).*$`m','',$config));
-		$b = count($config);
-		for( $a = 0 ; $a < $b ; $a += 1 )
-		{
-			if( $config[$a] != ''  )
+			elseif( $path['extension'] === 'json' )
 			{
-				$config[$a] = preg_split('`\s*(\:|=)\s*`',trim($config[$a]),2);
-
-				$this->try_to_set( trim($config[$a][0]) , trim($config[$a][1]) );
+				$type = 'json';
+				$input = $file;
 			}
-		}
-	}
-
-
-	private function try_to_set($key,$value)
-	{
-		if( !$this->set_dir($key,$value) &&
-			!$this->set_str($key,$value) &&
-			!$this->set_bool($key,$value) &&
-			!$this->set_array($key,$value)
-		)
-		{
-			if( !property_exists($this,$key) )
+			elseif( $path['extension'] === 'xml' )
 			{
-				$this->config_vars[$key] = $value;
-			}
-			else
-			{
-				// throw Config variable $key is not valid.
-			}
-		}
-	}
-
-	private function build_config_json($config)
-	{
-		$config = json_decode( $config , true );
-	}
-
-	private function set_str($prop,$input)
-	{
-		$options = array(
-			'on_unprinted' => array('show','fail','hide'),
-			'white_space' => array('normal','compact','compress')
-		);
-		if( isset($options[$prop]) && is_string($input) )
-		{
-			$input = strtolower($input);
-			if( in_array($input,$options[$prop]))
-			{
-				$this->$prop = $this->config_vars[$prop] = $input;
-				return true;
-			}
-		}
-		return false;
-	}
-
-	private function set_bool($prop,$input)
-	{
-		$props = array( 'show_error_extended' , 'strip_comments');
-		if( is_string($prop) && in_array($prop,$props) ) {
-			$input = strtolower($input);
-			if( $input == 'true' || $input == 1 )
-			{
-				$input = true;
-			}
-			elseif( $input == 'false' || $input == 0 )
-			{
-				$input = false;
-			}
-			else
-			{
-				return false;
-			}
-			$this->$prop = $this->config_vars[$prop] = $input;
-		}
-	}
-
-	private function set_dir($prop,$input)
-	{
-		$props = array( 'output' , 'partials' );
-		if( is_string($prop) && in_array($prop,$props) )
-		{
-			$prop_ = $prop.'_dir';debug($prop_,property_exists($this,$prop_));
-			if( !is_dir($input) )
-			{
-				if( is_dir($this->path.$input) )
+				$tmp = $path['dirname'].'/'.$path['filename'].'.';
+				$tmp_type = ['info', 'json'];
+				for( $a = 0 ; $a < 2 ; $a += 1 )
 				{
-					$input = $this->path.$input;
-				}
-				else
-				{
-					// throw $output dir does not exist
-					return false;
-				}
-			}
-			$this->$prop_ = $this->config_vars[$prop] = realpath($input).'/';
-			return true;
-		}
-		return false;
-	}
-
-	private function set_array($prop,$input)
-	{
-		$props = array( 'unprinted_exceptions' );
-		if( is_string($prop) && in_array($prop,$props) )
-		{
-			if( !is_array($input) )
-			{
-				if( is_string($input) )
-				{
-					if(preg_match_all(
-						'`(?<=^|,)\s*("|\')?(?(1)(.*?)(?<!\\\\)\1|([^,]+))(?=\s*(?:,|$))`',
-						$input,
-						$matches,
-						PREG_SET_ORDER
-					))
+					if( file_exists($tmp.$tmp_type[$a]) )
 					{
-						$tmp = array();
-						for($a = 0 ; $a < count($matches) ; $a += 1 )
-						{
-							$str = trim($mathces[$a][2].$mathces[$a][3]);
-							if( $str != '')
-							{
-								$str = str_replace("\\{$matches[$a][1]}",$matches[$a][1],$str);
-							}
-							if( is_numeric($str) && substr($str,0,1) != '0' )
-							{
-								$str = ($str/1);
-							}
-							$tmp[] = $str;
-						}
+						$type = $tmp_type[$a];
 						$input = $tmp;
+					}
+					elseif( file_exists($tmp.'config.'.$tmp_type[$a]) )
+					{
+						$type = $tmp_type[$a];
+						$input = $tmp.'config.';
 					}
 					else
 					{
-						$input = array($input);
+						// no custom config could be found
+						// lets try generic ones
+						$tmp = $path['dirname'].'/config.';
+						if( file_exists($tmp.$tmp_type[$a]) )
+						{
+							// found parse-file generic config
+							$type = $tmp_type[$a];
+							$input = $tmp;
+						}
+						else
+						{
+							// found system generic config
+							$tmp = $_SERVER['PWD'].'/config.';
+							if( file_exists($tmp.$tmp_type[$a]))
+							{
+								$type = $tmp_type[$a];
+								$input = $tmp;
+							}
+						}
 					}
 				}
-				else
-				{
-					// throw $output dir does not exist
-					return false;
-				}
-			}
-			if( !empty($input) )
-			{
-				for( $a = 0 ; $a < count($input) ; $a += 1 )
-				{
-					if( in_array($input[$a],$this->$prop) )
-					{
-						array_push($this->$prop,$input[$a]);
-					}
-					if( !in_array($input[$a],$this->config_vars[$prop]) )
-					{
-						$this->config_vars[$prop][] = $input[$a];
-					}
-				}
-				return true;
+				unset($tmp);
 			}
 		}
-		return false;
+		if( $type === false )
+		{
+			throw new \exception(get_class($this).'::__construct() expects only parameter $file to point to a .info or .json file '.gettype($file)." given.\n");
+		}
+		elseif( $type === 'info' )
+		{
+			require_once($_SERVER['PWD'].'/includes/extract_dot_info.inc.php');
+			$info = extract_dot_info(file_get_contents($input.$type));
+		}
+		else
+		{
+			$info = json_parse(file_get_contents($input.$type), true);
+		}
+
+		$this->input_dir = $path['dirname'];
+
+		foreach( $info as $key => $value )
+		{
+			if( property_exists($this,$key) )
+			{
+				if( gettype($this->$key) !== gettype($value) )
+				{
+					settype( $value , gettype($this->$key) );
+				}
+				$this->$key = $value;
+			}
+			else
+			{
+				$this->config_vars[$key] = $value;
+			}
+		}
 	}
 }
-
