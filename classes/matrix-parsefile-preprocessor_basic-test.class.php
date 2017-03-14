@@ -151,15 +151,6 @@ class matrix_parsefile_preprocessor__basic_test extends matrix_parsefile_preproc
 				}
 			}
 		}
-		$errors = 0;
-		foreach($this->tags as $id => $tag )
-		{
-			if( $tag->has_error() )
-			{
-				echo "\n\n------------------------------------\n line: ".$tag->get_line()."\n tag: ".$tag->get_whole_tag()."\n error: ".$tag->get_error();
-				$errors += 1;
-			}
-		}
 		return true;
 	}
 
@@ -207,7 +198,36 @@ class matrix_parsefile_preprocessor__basic_test extends matrix_parsefile_preproc
 	}
 
 
+	public function get_errors()
+	{
+		$output = array();
+		foreach($this->tags as $id => $tag )
+		{
+			if( $tag->has_error() )
+			{
+				$output[] = array(
+					'line' => $tag->get_line(),
+					'id' => $tag->get_id(),
+					'xml' => $tag->get_whole_tag(),
+					'msg' => $tag->get_error()
+				);
+			}
+		}
+		return $output;
+	}
 
+	public function get_bad_tags()
+	{
+		$output = array();
+		foreach($this->tags as $id => $tag )
+		{
+			if( $tag->has_error() )
+			{
+				$output[] = $tag;
+			}
+		}
+		return $output;
+	}
 
 
 	private function existing_id($input)
