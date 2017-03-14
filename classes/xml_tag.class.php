@@ -7,10 +7,11 @@ class xml_tag
 	protected $id = '';
 	protected $attrs = array();
 	protected $line = 0;
+	protected $file = '';
 
 	const ATTR_REGEX = '`(?<=\s)([a-z_-]+)(?:=(?:"([^"]+?)"|\'([^\']+?)\'|([a-z0-9_-]+)))?(?=\s|$)`i';
 
-	public function __construct( $whole , $element , $attrs , $ln_number )
+	public function __construct( $whole , $element , $attrs , $file , $ln_number )
 	{
 		if( !is_string($whole) || trim($whole) == '' )
 		{
@@ -26,12 +27,17 @@ class xml_tag
 		}
 		if( !is_int($ln_number) || $ln_number < 1 )
 		{
-			throw new exception(get_class($this).' constructor expects second parameter $ln_number to be an integer greater than 1');
+			throw new exception(get_class($this).' constructor expects second parameter $ln_number to be an integer greater than zero');
+		}
+		if( !is_string($file) || trim($file) === '' )
+		{
+			throw new exception(get_class($this).' constructor expects fifth parameter $file to be a non-empty string');
 		}
 
 		$this->whole_tag = $whole;
 		$this->name = $element;
 		$this->line = $ln_number;
+		$this->file = $file;
 
 		if( preg_match_all( self::ATTR_REGEX , $attrs , $matches , PREG_SET_ORDER ) )
 		{
