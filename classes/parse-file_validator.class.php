@@ -40,11 +40,17 @@ class validator {
 	public function get_errors()
 	{
 		$output = [];
-		foreach( $this->tags as $ID => $tags )
+		foreach( $this->tags as $tag )
 		{
 			if( $tag->has_error() )
 			{
-				$output[] = $tag;
+				$output[] = [
+					 'line' => $tag->get_line()
+					,'file' => $tag->get_file()
+					,'id' => $tag->get_id()
+					,'xml' => $tag->get_whole_tag()
+					,'msg' => $tag->get_error()
+				];
 			}
 		}
 		if( count($output) === 0 )
@@ -55,5 +61,18 @@ class validator {
 		{
 			return $output;
 		}
+	}
+
+	public function get_bad_tags()
+	{
+		$output = [];
+		foreach( $this->tags as $ID => $tags )
+		{
+			if( $tag->has_error() )
+			{
+				$output[] = $tag;
+			}
+		}
+		return $output;
 	}
 }
