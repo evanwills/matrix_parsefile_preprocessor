@@ -1,0 +1,39 @@
+
+<MySource_AREA id_name="bootstrap_grid_classes" design_area="declared_vars" print="no">
+	<MySource_DECLARE
+		name="main_col_hidden_right_only"
+		value="cols-hidden-right-only col-xs-12 col-sm-8 col-md-9 col-lg-9 col-sm-push-4 col-md-push-3 col-lg-push-3"
+		type="text"
+		description="Bootstrap Grid clases for main column with content menu (left hand) column visible and right hand column hidden" />
+	<MySource_DECLARE
+		name="main_col_hidden_left_only"
+		value="cols-hidden-left-only col-xs-12 col-sm-12 col-md-9 col-lg-9"
+		type="text"
+		description="Bootstrap Grid clases for main column with content menu (left hand) column hidden and right hand column visible" />
+	<MySource_DECLARE
+		name="main_col_none_hidden"
+		value="cols-hidden-none col-xs-12 col-sm-8 col-md-6 col-lg-6 col-sm-push-4 col-md-push-3 col-lg-push-3"
+		type="text"
+		description="Bootstrap Grid clases for main column with both content menu (left hand) column and right hand column visible" />
+	<MySource_DECLARE
+		name="right_col_hidden_left"
+		value="col-sm-12 col-md-3 col-lg-3 left-col-not-visible"
+		type="text"
+		description="Bootstrap Grid clases for right hand column with content menu (left hand) column Hidden" />
+	<MySource_DECLARE
+		name="right_col_none_hidden"
+		value="col-sm-8 col-md-3 col-lg-3 col-sm-push-4 hidden-print left-col-visible"
+		type="text"
+		description="Bootstrap Grid clases for right hand column with content menu (left hand) column visible" />
+	<MySource_DECLARE
+		name="left_col_hidden_right"
+		value="col-xs-12 col-sm-4 col-md-3 col-sm-pull-8 col-md-pull-9 right-col-not-visible"
+		type="text"
+		description="Bootstrap Grid clases for content menu (left hand) column with right column hidden" />
+	<MySource_DECLARE
+		name="left_col_none_hidden"
+		value="col-xs-12 col-sm-4 col-md-3 col-sm-pull-8 col-md-pull-6 right-col-visible"
+		type="text"
+		description="Bootstrap Grid clases for content menu (left hand) column with right column visible" />
+</MySource_AREA>
+

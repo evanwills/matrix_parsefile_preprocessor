@@ -83,6 +83,7 @@ class matrix_parsefile_preprocessor__assembler extends matrix_parsefile_preproce
 	const COMMENT_REGEX = '^\s*/\*';
 
 	const STRIP_COMMENT_REGEX = '`<!--(?!=\[).*?-->|/\*.*?\*/`s';
+
 	const STRIP_WHITE_SPACE_COMPACT = '`(?<=^|[\r\n])[\t ]+|[\t ](?=[\r\n|$)`';
 	/**
 	 * @var string $path the directory path of the current file being
@@ -96,11 +97,10 @@ class matrix_parsefile_preprocessor__assembler extends matrix_parsefile_preproce
 	private $file = '';
 
 	/**
-	 * @var string $partials the directory parth to the partials
+	 * @var string $partials the directory path to the partials
 	 * directory
 	 */
 	static private $partials_dir = false;
-	private $partials = '';
 
 	/**
 	 * @var string $original the contents of the preparse file being
@@ -112,49 +112,40 @@ class matrix_parsefile_preprocessor__assembler extends matrix_parsefile_preproce
 
 	private $matrix_tester = false;
 	private $fail_on_unprinted = false;
-	static private $first_call = false;
+	static private $first_call = true;
 	private $show_error_extended = false;
 	private $output_dir = '';
 	private $output_file = '';
 	private $handle_comments = null;
 	private $handle_white_space = null;
 	private $handle_wrap = null;
+	private $is_base = false;
 
 // ==================================================================
 // START: property validation and processing
 
-	public function __construct( $source_path = '' , $source_file = '' , $fail_on_unprinted = false , $unprinted_exceptions = array() ){
+	public function __construct( $source_path = '' , $source_file = '' , $fail_on_unprinted = false , $unprinted_exceptions = array() )
+	{
 
 		if( !is_string($source_path) )
 		{
-			echo "\n\n--------- ERROR --------\nmatrix_parsefile_preprocessor__assembler::__constructor() expects first paramater to be a string!\n".gettype($source_path)." given\n\n";
-			exit;
+			throw new exception(get_class($this)."::__constructor() expects first paramater \$source_path to be a string! ".gettype($source_path)." given.");
 		}
-		elseif( !is_dir($source_path) )
+		if( !is_string($source_file) )
 		{
-			echo "\n\n--------- ERROR --------\nmatrix_parsefile_preprocessor__assembler::__constructor() expects first paramater to be a string path to a directory\nCould not find directory: \"$source_path\"!\n\n";
-			exit;
+			throw new exception(get_class($this)."::__constructor() expects second paramater \$source_file to be a string! ".gettype($source_file)." given.");
 		}
-		else
+		if( !is_bool($fail_on_unprinted) )
 		{
-			$this->path = realpath($source_path).'/';
+			throw new exception(get_class($this)."::__constructor() expects third paramater \$fail_on_unprinted to be a boolean! ".gettype($source_file)." given.");
 		}
-
-		if( $this->check_file($this->path,$source_file) )
+		if( !is_array($unprinted_exceptions) )
 		{
-			$this->file = $source_file;
+			throw new exception(get_class($this)."::__constructor() expects fourth paramater \$unprinted_exceptions to be an array! ".gettype($source_file)." given.");
 		}
 
 		$config = matrix_parsefile_preprocessor__config::get($source_path.$source_file);
 
-		if( $config->has_var('partials'))
-		{
-			$this->set_partials_dir($config->get_var('partials'));
-		}
-		elseif( self::$partials_dir === false )
-		{
-			$this->set_partials_dir($source_path.'partials/');
-		}
 
 		$this->output_dir = $config->get_var('output_dir');
 
@@ -190,11 +181,36 @@ class matrix_parsefile_preprocessor__assembler extends matrix_parsefile_preproce
 		else
 		{
 			$this->handle_comments = 'leave_comments';
-			$this->handle_wrap = 'wrap_in_commnets';
+			$this->handle_wrap = 'wrap_in_comments';
 		}
 
-		if( self::$first_call === false ) {
-			self::$first_call = true;
+
+		if( self::$first_call === true ) {
+			self::$first_call = false;
+			$this->is_base = true;
+		}
+
+
+		if( $this->is_base === false )
+		{
+			if( is_dir(self::$partials.$source_path) )
+			{
+				$this->path = realpath(self::$partials.$source_path).'/';
+			}
+		}
+		elseif( is_dir($source_path) )
+		{
+			$this->path = realpath($source_path).'/';
+		}
+
+		if( $this->path === '' )
+		{
+			throw new exception(get_class($this)."::__constructor() expects first paramater \$source_path to be a string path to a directory. Could not find directory: \"$source_path\"!");
+		}
+
+		if( $this->check_file($this->path,$source_file) )
+		{
+			$this->file = $source_file;
 		}
 	}
 
@@ -229,6 +245,7 @@ class matrix_parsefile_preprocessor__assembler extends matrix_parsefile_preproce
 		 */
 		$includes = 0;
 
+		debug($this->path.$this->file);
 		// make the contents of this file the $this->original (for use when showing errors)
 		$this->original = file_get_contents($this->path.$this->file);
 
@@ -246,7 +263,7 @@ class matrix_parsefile_preprocessor__assembler extends matrix_parsefile_preproce
 
 		$this->prop_restore($bk);
 
-		if( self::$first_call )
+		if( $this->is_base )
 		{
 			if( $this->fail_on_unprinted )
 			{
@@ -266,24 +283,7 @@ class matrix_parsefile_preprocessor__assembler extends matrix_parsefile_preproce
 		// todo pull all post parsing functionality out of matrix_parsefile_preprocessor__assembler::parse()
 	}
 
-	public function set_partials_dir($partials_dir) {
-		if( is_string($partials_dir) )
-		{
-			if( is_dir($partials_dir) )
-			{
-				self::$partials_dir = realpath($partials_dir).'/';
-				$this->partials = self::$partials_dir;
-			}
-			else
-			{
-				// throw set_partials_dir() expects paramater 1 to be path to a valid directory
-			}
-		}
-		else
-		{
-			// throw set_partials_dir() expects paramater 1 to be a string
-		}
-	}
+
 
 //  END:  public functions
 // ==================================================================
@@ -316,7 +316,7 @@ class matrix_parsefile_preprocessor__assembler extends matrix_parsefile_preproce
 		$bk = $this->prop_backup('partials','path','file');
 		$partial_content = '';
 
-		$test_result = $this->matrix_tester->test_parsefile($match[1],$this->partials.$this->file);
+		$test_result = $this->matrix_tester->test_parsefile($match[1],self::$partials_dir.$this->file);
 		if( $test_result !== true ) {
 			// there was a matrix parse file error in the code preceeding this keyword
 			$this->display_error($test_result[1],$test_result[2],$test_result[0]);
@@ -336,7 +336,7 @@ class matrix_parsefile_preprocessor__assembler extends matrix_parsefile_preproce
 			$this->display_error($match[2], "Keyword delimiters '{$match[3]}' and '{$match[10]}' are not valid");
 		}
 
-
+		debug($match,$this->path, $this->path.$match[4], realpath($this->path.$match[4]),$match[5]);
 		// get the partial
 		if( $this->check_file($match[4],'_'.$match[5].'.xml') )
 		{
@@ -345,7 +345,8 @@ class matrix_parsefile_preprocessor__assembler extends matrix_parsefile_preproce
 		}
 		elseif( $this->check_file($match[4],$match[5].'.xml') )
 		{
-			$source = $match[4].'_'.$match[5].'.xml';
+			$source = $match[4].$match[5].'.xml';
+			debug($source);
 			$partial_content = new SELF( $source );
 		} else {
 
@@ -425,20 +426,30 @@ class matrix_parsefile_preprocessor__assembler extends matrix_parsefile_preproce
 		{
 			if( is_string($file) )
 			{
-				if( !is_dir($path) )
+				$config = matrix_parsefile_preprocessor__config::get();
+
+				while( $tmp = $config->get_next_partial_dir() )
 				{
-					if( is_dir($this->partials.$path) )
+					debug($tmp, $path, $file, $tmp.'/'.$path.'/'.$file, is_file($tmp.'/'.$path.'/'.$file));
+					if( is_file($tmp.'/'.$path.'/'.$file) )
 					{
-						$path = realpath($this->partials.$path).'/';
-					}
-					else
-					{
-						return false;
+						$path = realpath($tmp.'/'.$path.'/'.$file).'/';
+						return true;
 					}
 				}
+//				if( !is_dir($path) )
+//				{
+//					if( is_dir(self::$partials_path.$path) )
+//					{
+//						$path = realpath(self::$partials_path.$path).'/';
+//					}
+//					else
+//					{
+//						return false;
+//					}
+//				}
 				if( is_file($path.$file) )
 				{
-					$this->partials = $path;
 					$this->file = $file;
 					return true;
 				}

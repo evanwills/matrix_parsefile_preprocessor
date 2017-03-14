@@ -9,9 +9,9 @@ class mysource_tag extends xml_tag
 	protected $error = false;
 	protected $error_msg = '';
 
-	public function __construct( $whole , $element , $attrs , $ln_number )
+	public function __construct( $whole , $element , $attrs , $file , $ln_number )
 	{
-		parent::__construct( $whole , $element, $attrs, $ln_number );
+		parent::__construct( $whole , $element , $attrs , $file , $ln_number );
 
 		foreach($this->attrs as $key => $value )
 		{

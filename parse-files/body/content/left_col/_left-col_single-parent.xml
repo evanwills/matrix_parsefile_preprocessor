@@ -1,0 +1,17 @@
+
+<MySource_AREA id_name="left_col_single_parent_list" design_area="asset_lineage" print="no">
+	<MySource_SET name="levels_to_print" value="-1" />
+	<MySource_SET name="prefix_with_home_link" value="false" />
+	<MySource_SET name="show_hidden_links" value="yes" />
+	<MySource_SET name="suffix_with_current_link" value="false" />
+	<MySource_SET name="prefix_with_divider" value="false" />
+	<MySource_SET name="suffix_with_divider" value="false" />
+	<MySource_SET name="unwanted_asset_types" value="user, file, news_item, calendar_event_recurring, calendar_event_single, excel_doc, flv_file, image, mp3_file, pdf_file, powerpoint_doc, rtf_file, text_file, video_file, word_doc, xml_file, xsl_file" />
+	<MySource_SET name="reverse_lineage" value="false" />
+	<MySource_ASSET>
+													<a href="<MySource_PRINT var='asset_link' />">
+														<MySource_PRINT var='asset_short_name' />
+													</a>
+	</MySource_ASSET>
+</MySource_AREA>
+

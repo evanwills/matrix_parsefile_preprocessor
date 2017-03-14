@@ -60,11 +60,8 @@ if(!function_exists('debug'))
 // END: debug include
 // ==================================================================
 
-require_once('includes/regex_error.inc.php');
-require_once('classes/matrix-parsefile-preprocessor.class.php');
-require_once('classes/matrix-parsefile-preprocessor_assembler.class.php');
-require_once('classes/matrix-parsefile-preprocessor_basic-test.class.php');
-require_once('classes/matrix-parsefile-preprocessor_config.class.php');
+require_once('classes/parse-file_compiler.class.php');
+
 
 
 if( !isset($_SERVER['argv'][1]) || !is_file($_SERVER['argv'][1]) || !is_readable($_SERVER['argv'][1])) {
@@ -75,40 +72,10 @@ if( !isset($_SERVER['argv'][1]) || !is_file($_SERVER['argv'][1]) || !is_readable
 	exit;
 }
 
-$fail_on_unprinted = true;
-$unprinted_exceptions = array();
-if( isset($_SERVER['argv'][2]) )
-{
 
-	if( $_SERVER['argv'][2] == 'true' )
-	{
-		$fail_on_unprinted = true;
-	}
-	elseif( is_file($_SERVER['argv'][2]))
-	{
-		$unprinted_exceptions = explode("\n",file_get_contents($_SERVER['argv'][2]));
-	}
-	else
-	{
-		$unprinted_exceptions = explode(',',$_SERVER['argv'][2]);
-	}
-	if( !empty($unprinted_exceptions) )
-	{
-		for( $a = 0 ; $a < count($unprinted_exceptions) ; $a += 1 )
-		{
-			if( $unprinted_exceptions[$a] == '' )
-			{
-				unset($unprinted_exceptions[$a]);
-			}
-		}
-		sort($unprinted_exceptions);
-	}
-}
+$file = realpath($_SERVER['argv']['1']);
 
-$file = realpath($_SERVER['argv'][1]);
-$path = dirname($file).'/';
-$file = str_replace($path,'',$file);
 
-$te = new matrix_parsefile_preprocessor__assembler($path,$file,$fail_on_unprinted,$unprinted_exceptions);
+$builder = new matrix_parsefile_preprocessor\compiler($file);
+$builder->parse($file);
 
-$te->parse();

@@ -1,0 +1,36 @@
+
+<MySource_AREA id_name="main_col_dynamic_images_below_extra" design_area="nest_content" print="no"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
+<MySource_AREA id_name="main_col_dynamic_images_below_only" design_area="nest_content" print="no"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
+<MySource_AREA id_name="main_col_dynamic_images_below_2" design_area="show_if" print="no">
+	<MySource_SET name="condition" value="keyword_regexp" />
+	<MySource_SET name="condition_keyword" value="asset_metadata__dynamic_images" />
+	<MySource_SET name="condition_keyword_match" value="Single main image with additional images below content" />
+	<MySource_THEN>
+												<!-- START: main_col_dynamic_images_below_extra  -->
+<MySource_PRINT id_name="main_col_dynamic_images_below_extra" />
+												<!-- END: main_col_dynamic_images_below_extra -->
+	</MySource_THEN>
+	<MySource_ELSE>
+												<!-- START: main_col_dynamic_images_below_only  -->
+<MySource_PRINT id_name="main_col_dynamic_images_below_only" />
+												<!-- END: main_col_dynamic_images_below_only -->
+	</MySource_ELSE>
+</MySource_AREA>
+										<!-- START show_if: #main_col_dynamic_images_below_1 -->
+<MySource_AREA id_name="main_col_dynamic_images_below_1" design_area="show_if">
+	<MySource_SET name="condition" value="keyword_regexp" />
+	<MySource_SET name="condition_keyword" value="asset_metadata__dynamic_images" />
+	<MySource_SET name="condition_keyword_match" value="Single main image with additional images below content|Images below content only" />
+	<MySource_THEN>
+											<!-- START: main_col_dynamic_images_below_2  -->
+		<MySource_PRINT id_name="main_col_dynamic_images_below_2" />
+											<!-- END: main_col_dynamic_images_below_2 -->
+	</MySource_THEN>
+	<MySource_ELSE>
+											<!-- main_col_dynamic_images_below_1 >> ELSE
+											 ! No dynamic images below content
+											 ! -->
+	</MySource_ELSE>
+</MySource_AREA>
+										<!-- END show_if: #main_col_dynamic_images_below_1 -->
+

@@ -4,13 +4,17 @@ class matrix_parsefile_preprocessor__config
 {
 	private $config_vars = array();
 	private $path = '';
+	private $input_dir = '';
 	private $output_dir = '';
 	private $partials_dir = '';
+	private $partials_sub_dirs = array();
+	private $tmp_partials_sub_dirs = false;
 	private $show_error_extended = false;
 	private $on_unprinted = 'show';
 	private $white_space = 'normal';
 	private $strip_comments = true;
 	private $unprinted_exceptions = array('__global__');
+
 
 	private static $me = null;
 
@@ -30,15 +34,17 @@ class matrix_parsefile_preprocessor__config
 		}
 
 		if( preg_match( '`^.*?/config.*?\.(info|json)$`i' , $file , $matches ) ) {
+			debug($file,$matches);
 			$config = $this->get_config( $file , $matches[1] );
 		}
-		if( $config === false && preg_match( '`^(.*?/)(.*?)\.xml$`i' , $file , $matches) ) {
+		elseif( preg_match( '`^(.*?/)(.*?)\.xml$`i' , $file , $matches) ) {
 			$config = $this->get_config( $matches[1].'config_'.$matches[2].'.' );
 		}
-		if( $config === false )
+		else
 		{
 			$config = $this->get_config( dirname($file).'/config.' );
 		}
+
 		if( is_array($runtime) && !empty($runtime) )
 		{
 			foreach( $runtime as $key => $value )
@@ -46,6 +52,7 @@ class matrix_parsefile_preprocessor__config
 				$this->try_to_set($key,$value);
 			}
 		}
+		debug(get_object_vars($this));
 	}
 
 	public static function get( $file = '' , $runtime = array() )
@@ -107,6 +114,70 @@ class matrix_parsefile_preprocessor__config
 		}
 		return false;
 	}
+
+
+	public function add_partials_dir($path)
+	{
+		if( !is_string($path) || trim($path) === '' )
+		{
+			throw new exception(get_class($this).'::add_new_partials() expects only parameter to be a non-empty string. '.gettype($path).' given.');
+		}
+		$ok = false;
+		$c = count($this->partials_sub_dirs) - 1;
+
+		if( substr($path,0,1) === '/' || $c < 0 ) // path is relative to partials directory
+		{
+			$path = $this->partials_dir.$path;
+		}
+		elseif( is_dir($this->partials_sub_dir[$c].$path) ) // path is local to current parse file partial
+		{
+			$path = $this->partials_sub_dir[$c].$path;
+		}
+		else
+		{
+			throw new exception(get_class($this).'::add_new_partials() expects only parameter to be a valid path to a directory. "'.$path.'" cannot be found.');
+		}
+
+		$this->partials_dir[] = $path;
+		$this->tmp_partials_sub_dirs = $this->partials_sub_dirs;
+		return $path;
+	}
+
+	public function remove_partials_dir()
+	{
+		$c = count($this->partials_sub_dirs) - 1;
+		unset($this->partials_dir[$c]);
+		$this->tmp_partials_sub_dirs = $this->partials_sub_dirs;
+	}
+
+	public function get_next_partial_dir()
+	{
+		if( $this->tmp_partials_sub_dirs === false )
+		{
+			$this->tmp_partials_sub_dirs = $this->partials_sub_dirs;
+		}
+		$c = count($this->tmp_partials_sub_dirs);
+		if( $c > 0 )
+		{
+			$c -= 1;
+			return $this->tmp_partials_sub_dirs[$c];
+		}
+		else
+		{
+			$this->tmp_partials_sub_dirs = false;
+			return false;
+		}
+	}
+
+	public function reset_partials_iterator()
+	{
+		$this->tmp_partials_sub_dirs = $this->partials_sub_dirs;
+	}
+
+	//  END:  public methods
+	// ====================================================
+	// START: private methods
+
 
 	private function get_config($file, $type = false)
 	{
@@ -220,9 +291,9 @@ class matrix_parsefile_preprocessor__config
 		$props = array( 'output' , 'partials' );
 		if( is_string($prop) && in_array($prop,$props) )
 		{
+			$prop_ = $prop.'_dir';debug($prop_,property_exists($this,$prop_));
 			if( !is_dir($input) )
 			{
-				$prop_ = $prop.'_dir';
 				if( is_dir($this->path.$input) )
 				{
 					$input = $this->path.$input;

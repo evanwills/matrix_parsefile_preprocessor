@@ -1,0 +1,87 @@
+
+<MySource_AREA id_name="showif_right_col_metadata_hidden_left" design_area="show_if" print="no">
+	<MySource_SET name="condition" value="keyword_regexp" />
+	<MySource_SET name="condition_keyword" value="asset_metadata_hide_content_menu" />
+	<MySource_SET name="condition_keyword_match" value="hide(?:-content-menu)?" />
+	<MySource_THEN>col-sm-12 col-md-3 col-lg-3 left-col-not-visible</MySource_THEN>
+	<MySource_ELSE>col-sm-8 col-md-3 col-lg-3 col-sm-push-4 hidden-print left-col-visible</MySource_ELSE>
+</MySource_AREA>
+<MySource_AREA id_name="metadata_right_col" design_area="metadata" print="no"><MySource_SET name="metadata_field" value="hide_right_column" /></MySource_AREA>
+<MySource_AREA id_name="showif_metadata_right_col_class" design_area="show_if" print="no">
+	<MySource_SET name="condition" value="keyword_regexp" />
+	<MySource_SET name="condition_keyword" value="asset_metadata_hide_right_column" />
+	<MySource_SET name="condition_keyword_match" value="hide(-right-col)?" />
+	<MySource_THEN><MySource_PRINT id_name="metadata_right_col" /></MySource_THEN>
+</MySource_AREA>
+<MySource_AREA id_name="rightCol_webTile_1_customisation" design_area="nest_content" print="no"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
+<MySource_AREA id_name="rightCol_webTile_1_byMetadata" design_area="nest_content" print="no"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
+<MySource_AREA id_name="showif_rightCol_webTile_1" design_area="show_if" print="no">
+	<MySource_SET name="condition" value="keyword_regexp" />
+	<MySource_SET name="condition_keyword" value="asset_metadata__right-col_web-tile_1_display-type" />
+	<MySource_SET name="condition_keyword_match" value="^(?!default)$" />
+	<MySource_THEN>
+		<!-- START: #rightCol_webTile_1_byMetadata -->
+		<MySource_PRINT id_name="rightCol_webTile_1_byMetadata" />
+		<!--  END:  #rightCol_webTile_1_byMetadata -->
+	</MySource_THEN>
+	<MySource_ELSE>
+		<!-- START: #rightCol_webTile_1_customisation -->
+		<MySource_PRINT id_name="rightCol_webTile_1_customisation" />
+		<!--  END:  #rightCol_webTile_1_customisation -->
+	</MySource_ELSE>
+</MySource_AREA>
+<MySource_AREA id_name="rightCol_webTile_2_customisation" design_area="nest_content" print="no"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
+<MySource_AREA id_name="rightCol_webTile_2_byMetadata" design_area="nest_content" print="no"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
+<MySource_AREA id_name="showif_rightCol_webTile_2" design_area="show_if" print="no">
+	<MySource_SET name="condition" value="keyword_regexp" />
+	<MySource_SET name="condition_keyword" value="asset_metadata__right-col_web-tile_2_display-type" />
+	<MySource_SET name="condition_keyword_match" value="^(?!default)$" />
+	<MySource_THEN>
+		<!-- START: #rightCol_webTile_2_byMetadata -->
+		<MySource_PRINT id_name="rightCol_webTile_2_byMetadata" />
+		<!--  END:  #rightCol_webTile_2_byMetadata -->
+	</MySource_THEN>
+	<MySource_ELSE>
+		<!-- START: #rightCol_webTile_2_customisation -->
+		<MySource_PRINT id_name="rightCol_webTile_2_customisation" />
+		<!--  END:  #rightCol_webTile_2_customisation -->
+	</MySource_ELSE>
+</MySource_AREA>
+<MySource_AREA id_name="rightCol_webTile_3_customisation" design_area="nest_content" print="no"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
+<MySource_AREA id_name="rightCol_webTile_3_byMetadata" design_area="nest_content" print="no"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
+<MySource_AREA id_name="showif_rightCol_webTile_3" design_area="show_if" print="no">
+	<MySource_SET name="condition" value="keyword_regexp" />
+	<MySource_SET name="condition_keyword" value="asset_metadata__right-col_web-tile_3_display-type" />
+	<MySource_SET name="condition_keyword_match" value="^(?!default)$" />
+	<MySource_THEN>
+		<!-- START: #rightCol_webTile_3_byMetadata -->
+		<MySource_PRINT id_name="rightCol_webTile_3_byMetadata" />
+		<!--  END:  #rightCol_webTile_3_byMetadata -->
+	</MySource_THEN>
+	<MySource_ELSE>
+		<!-- START: #rightCol_webTile_3_customisation -->
+		<MySource_PRINT id_name="rightCol_webTile_3_customisation" />
+		<!--  END:  #rightCol_webTile_3_customisation -->
+	</MySource_ELSE>
+</MySource_AREA>
+<MySource_AREA id_name="rightCol_webTile_4_customisation" design_area="nest_content" print="no"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
+<MySource_AREA id_name="rightCol_webTile_4_byMetadata" design_area="nest_content" print="no"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
+<MySource_AREA id_name="showif_rightCol_webTile_4" design_area="show_if" print="no">
+	<MySource_SET name="condition" value="keyword_regexp" />
+	<MySource_SET name="condition_keyword" value="asset_metadata__right-col_web-tile_4_display-type" />
+	<MySource_SET name="condition_keyword_match" value="^(?!default)$" />
+	<MySource_THEN>
+		<!-- START: #rightCol_webTile_4_byMetadata -->
+		<MySource_PRINT id_name="rightCol_webTile_4_byMetadata" />
+		<!--  END:  #rightCol_webTile_4_byMetadata -->
+	</MySource_THEN>
+	<MySource_ELSE>
+		<!-- START: #rightCol_webTile_4_customisation -->
+		<MySource_PRINT id_name="rightCol_webTile_4_customisation" />
+		<!--  END:  #rightCol_webTile_4_customisation -->
+	</MySource_ELSE>
+</MySource_AREA>
+<MySource_AREA id_name="right_col_top_1_area" design_area="nest_content" print="no"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
+<MySource_AREA id_name="right_col_top_2_area" design_area="nest_content" print="no"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
+<MySource_AREA id_name="right_col_extra_1_area" design_area="nest_content" print="no"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
+<MySource_AREA id_name="right_col_extra_2_area" design_area="nest_content" print="no"><MySource_SET name="type_codes" value="page" /></MySource_AREA>

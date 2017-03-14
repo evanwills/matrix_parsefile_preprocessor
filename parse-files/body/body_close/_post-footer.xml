@@ -1,0 +1,11 @@
+
+		<!-- START nested: #footer_feedback_slideout -->
+<MySource_AREA id_name="footer_feedback_slideout" design_area="nest_content"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
+		<!--  END nested:  #footer_feedback_slideout -->
+
+
+
+		<!-- START nested: #footer_popup_content -->
+<MySource_AREA id_name="footer_popup_content" design_area="nest_content"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
+		<!--  END nested:  #footer_popup_content -->
+

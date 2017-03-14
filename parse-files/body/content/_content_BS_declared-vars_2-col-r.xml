@@ -1,0 +1,20 @@
+
+<MySource_AREA id_name="bootstrap_grid_classes" design_area="declared_vars" print="no">
+	<MySource_DECLARE
+		name="main_col_hidden_right_only"
+		value="cols-hidden-right-only col-xs-12"
+		type="text"
+		description="Bootstrap Grid clases for main column with content menu (left hand) column visible and right hand column hidden" />
+	<MySource_DECLARE
+		name="main_col_none_hidden"
+		value="cols-hidden-none col-xs-12 col-sm-8 col-md-9"
+		type="text"
+		description="Bootstrap Grid clases for main column with both content menu (left hand) column and right hand column visible" />
+	<MySource_DECLARE
+		name="right_col_none_hidden"
+		value="col-sm-8 col-md-3 col-lg-3 col-sm-push-4 hidden-print"
+		value="cols-hidden-none col-xs-12 col-sm-8 col-md-9"
+		type="text"
+		description="Bootstrap Grid clases for right hand column" />
+</MySource_AREA>
+

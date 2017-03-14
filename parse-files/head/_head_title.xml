@@ -1,0 +1,5 @@
+
+			<MySource_AREA id_name="metadata_customised_page_title" design_area="metadata"><MySource_SET name="metadata_field" value="DC.Title" /></MySource_AREA>
+			-
+			<MySource_PRINT id_name="__global__" var="site_name" />
+

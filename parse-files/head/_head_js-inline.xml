@@ -1,0 +1,15 @@
+
+		<script type="text/javascript">
+			/* START: js_head_jquery_extra */
+<MySource_AREA id_name="jss_head_jquery_extra" design_area="nest_content"> <MySource_SET name="type_codes" value="page" /> </MySource_AREA>
+			/* END: js_head_jquery_extra */
+		</script>
+
+		<!-- START nested: js_head_random_extra -->
+<MySource_AREA id_name="js_head_random_extra" design_area="nest_content"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
+		<!--  END nested:  js_head_random_extra -->
+
+		<!-- START nested: js_head_analytics -->
+<MySource_AREA id_name="js_head_analytics" design_area="nest_content"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
+		<!--  END nested:  js_head_analytics -->
+
