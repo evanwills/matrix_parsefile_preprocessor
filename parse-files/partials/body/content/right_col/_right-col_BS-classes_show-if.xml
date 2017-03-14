@@ -1,9 +1,0 @@
-
-<MySource_AREA id_name="right_col_metadata_hidden_left" design_area="show_if" print="no">
-	<MySource_SET name="condition" value="keyword_regexp" />
-	<MySource_SET name="condition_keyword" value="asset_metadata_hide_content_menu" />
-	<MySource_SET name="condition_keyword_match" value="hide-content-menu" />
-	<MySource_THEN><MySource_print id_name="bootstrap_grid_classes" var="right_col_hidden_left" /></MySource_THEN>
-	<MySource_ELSE><MySource_print id_name="bootstrap_grid_classes" var="right_col_none_hidden" /></MySource_ELSE>
-</MySource_AREA>
-
