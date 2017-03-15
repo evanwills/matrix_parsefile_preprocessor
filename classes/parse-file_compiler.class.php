@@ -6,6 +6,8 @@ require_once(dirname(__FILE__).'/parse-file_config.class.php');
 require_once(dirname(__FILE__).'/parse-file_validator.class.php');
 require_once(dirname(__FILE__).'/parse-file_nested-partials.class.php');
 
+require_once($_SERVER['PWD'].'/includes/regex_error.inc.php');
+
 class compiler {
 
 	private $config = null;
@@ -14,16 +16,16 @@ class compiler {
 
 
 	/**
-	 * @var string absolute file path of the current
-	 *		parse-file/partial being processed
+	 * @var array list of absolute file paths of the
+	 *		parse-file/partial currently being processed
 	 */
-	private $current_file = '';
+	private $current_file = [];
 
 	/**
-	 * @var string full contents of the current parse-file/partial
-	 *		being processed
+	 * @var array list of full contents of the parse-file/partial
+	 *		currently being processed being processed
 	 */
-	private $current_content = '';
+	private $current_content = [];
 
 	/**
 	 * @var string $output_file name of file to be used as output of
@@ -56,14 +58,14 @@ class compiler {
 	 * @const string INCLUDES_REGEX a regular expression for
 	 * matching preparse file keywords
 	 *		[0] the full match of the keyword string
-	 *  	[1] whole keyword
-	 *  	[2] preceeding content
+	 *  	[1] preceeding content
+	 *  	[2] whole keyword
 	 *  	[3] opening wrapper
 	 *		[4] the directory path to find the preparse
 	 *			block or sub-preparse file (relative to the
 	 *			current preparse file)
 	 *		[5] the name of the file to be included
-	 *  	[6] (optional) find/replace delimiter [`~|]
+	 *  	[6] (optional) find/replace delimiter [`~|;]
 	 *		[7] (optional) find string/regex to do find and
 	 *			replace on the praparse block/sub-preparse
 	 *			file
@@ -90,6 +92,11 @@ class compiler {
 		)
 		(?:
 			( # [6] find/replace delimiter
+			  # can be either "`" (back-tick), "|" (pipe), "~" (tilda) or ";" (semi-colon)
+			  # NOTE: if your replace is a regex, the regex that matches the keywords
+			  #       is an "\@" so you will need to escape any "\@" symbols in your regex
+			  # NOTE ALSO: the delimiter you use to identify your find/replace will be
+			  #       used to delimit your regex
 				[\`\|\~\;]
 			)
 			( # [7] find string/pattern
@@ -110,10 +117,10 @@ class compiler {
 		)?
 	)
 	( # [10] closing wrapper
-		[\{\}\[\]]{2}
+		(?:(?<!\\\\)[\{\}\[\]]){2}
 	)
 )
-@x';
+@xs';
 
 	/**
 	 * @const string TRIM_LINE_REGEX for trimming lines from the
@@ -142,9 +149,13 @@ class compiler {
 
 		$file_parts = pathinfo(realpath($base_file));
 
-		$this->output_file = $this->config->get_var('output_dir').$file_parts['basename'];
-		$this->output = fopen( $this->output_file , 'w+' );
-
+		$this->output_file = realpath($this->config->get_var('output_dir').$file_parts['basename']);
+		if( (file_exists($this->output_file) && is_writable($this->output_file)) || is_writable(dirname($this->output_file)) )
+		{
+			$this->output = fopen( $this->output_file , 'w' );
+		} else {
+			throw new exception(get_class($this).' constructor cannot create file '.$file_parts['basename'].' in directory '.dirname($this->output_file).'/');
+		}
 
 		$ws = $this->config->get_var('white_space');
 		if( $ws == 'normal' )
@@ -181,31 +192,63 @@ class compiler {
 		fclose($this->output);
 	}
 
-	public function parse( $file_name )
+	/**
+	 * recursively parses parse-file/partials to build final
+	 * SquizMatrix parse-file
+	 * @param string $file_name
+	 * @param [[Type]] [$modifiers = false] [[Description]]
+	 */
+	public function parse( $file_name , $modifiers = false )
 	{
 		if( !is_string($file_name) || trim($file_name) === '' )
 		{
-			throw new \exception(get_class($this).'::parse() expects only parameter $file_name to be a non-empty string. '.gettype($file_name).' given.');
+			throw new \exception(get_class($this).'::parse() expects first parameter $file_name to be a non-empty string. '.gettype($file_name).' given.');
+		}
+		if(
+			$modifiers !== false && (
+				!is_array($modifiers) ||
+				empty($modifiers) ||
+				!isset($modifiers['find']) || !is_string($modifiers['find']) || trim($modifiers['find']) === '' ||
+				!isset($modifiers['replace']) || !is_string($modifiers['replace']) ||
+				!isset($modifiers['is_regex']) || !is_bool($modifiers['is_regex'])
+			)
+		)
+		{
+			throw new \exception(get_class($this).'::parse() expects second parameter $modifiers to be either false or a non-empty array containing the following keys: \'find\', \'replace\', \'regex\'.');
 		}
 
 		if( substr(strtolower($file_name),-4,4) !== '.xml' )
 		{
 			$file_name .= '.xml';
 		}
-		$file_parts = pathinfo($file_name);
-		$path = $this->nested_partials->add( $file_parts['dirname'].'/' , $file_parts['filename'] );
 
-		$file = $path.$file_parts['basename'];
-		debug(
-			 '$file = '.$file
-			,'$path = '.$path
-			,'$file_name = '.$file_name
-			,'$file_parts = '.print_r($file_parts,true)
-		);
+		$file_parts = pathinfo($file_name);
+		$path = $this->nested_partials->add( $file_parts['dirname'].'/' , $file_parts['basename'] );
+
+		$file = $this->nested_partials->get_inner_most_file_whole();
+
 		if( file_exists($file) )
 		{
-
 			$content = file_get_contents($file);
+			if( $modifiers !== false )
+			{
+				if( $modifiers['is_regex'] === true )
+				{
+					if( \regex_error($modifiers['find']) === false )
+					{
+						$content = preg_replace( $modifiers['find'] , $modifiers['replace'] , $content );
+					}
+					else
+					{
+						// document bad regex
+					}
+				}
+				else
+				{
+					$content = str_replace( $modifiers['find'] , $modifiers['replace'] , $content );
+				}
+			}
+
 			$this->current_file[] = $file;
 			$this->current_content[] = $content;
 
@@ -217,11 +260,13 @@ class compiler {
 			if( $matches < 1 )
 			{
 				$this->validator->parse( $content , $file );
+				debug('about to write output (parse - no keywords)');
 				fwrite( $this->output , $content );
 			}
-			elseif( preg_match('`'.preg_quote($this->last_match).'(.*)$`s' , $content , $matches ) )
+			elseif( preg_match('`'.str_replace('`','\\`',preg_quote($this->last_match)).'(.*)$`s' , $content , $matches ) )
 			{
 				$this->validator->parse( $matches[1] , $file , $content );
+				debug('about to write output (parse - after keywords)');
 				fwrite( $this->output , $matches[1] );
 			}
 
@@ -249,14 +294,14 @@ class compiler {
 	 * returns the defined contents after doing some stuff with it.
 	 * @param  array $inc an array of seven items:
 	 *		[0] the full match of the keyword string
-	 *  	[1] whole keyword
-	 *  	[2] preceeding content
+	 *  	[1] preceeding content
+	 *  	[2] whole keyword
 	 *  	[3] opening wrapper
 	 *		[4] the directory path to find the preparse
 	 *			block or sub-preparse file (relative to the
 	 *			current preparse file)
 	 *		[5] the name of the file to be included
-	 *  	[6] (optional) find/replace delimiter [`~|]
+	 *  	[6] (optional) find/replace delimiter [`~|;]
 	 *		[7] (optional) find string/regex to do find and
 	 *			replace on the praparse block/sub-preparse
 	 *			file
@@ -266,25 +311,57 @@ class compiler {
 	 *			"R" (if no modifiers)
 	 *		[10] closing wrapper
 	 */
-	private function PARSE_KEYWORDS_CALLBACK($matches)
+	private function PARSE_KEYWORDS_CALLBACK($match)
 	{
-		$this->validator->parse( $matches[1] , $this->current_file , $this->current_content );
-		$this->last_match = $matches[0];
+		$this->validator->parse( $match[1] , $this->current_file , $this->current_content );
+		$this->last_match = $match[0];
 
+		debug('about to write output (PARSE_KEYWORDS_CALLBACK)');
+
+		fwrite($this->output,$match[1]);
 
 		$ok = false;
 		$no_comments = false;
-		if( $matches[3] == '{{' && $matches[10] == '}}' ) {
+		if( $match[3] == '{{' && $match[10] == '}}' ) {
 			$ok = true;
-		} elseif( $matches[3] == '{[' && $matches[10] == ']}'  ) {
+		} elseif( $match[3] == '{[' && $match[10] == ']}'  ) {
 			$ok = true;
 			$no_comments = true;
 		} else {
 			// keyword dlimiters
-			$this->_display_error($matches[2], "Keyword delimiters '{$matches[3]}' and '{$matches[10]}' are not valid");
+			$this->_display_msg($match[2], "Keyword delimiters '{$match[3]}' and '{$match[10]}' are not valid");
 		}
 
+		if( $match[7] !== '' )
+		{
+			$modifiers = [
+				'find' => $match[7],
+				'replace' => stripslashes($match[8]),
+				'is_regex' => false
+			];
+			if( $match[9] !== '' )
+			{
+				$modifiers['is_regex'] = true;
+				$modifiers['find'] = $match[6].stripslashes($match[7]).$match[6];
+				if( $match[9] !== 'R' )
+				{
+					$modifiers['find'] .= $match[9];
+				}
+				if( $msg = \regex_error($modifiers['find']) )
+				{
+					// TODO: document bad regex
+					$this->_display_msg($match[2], "keyword find/replace regex is not valid\n\tError message: \"$msg\"\n\tDelimiter: \"{$match[6]}\"\n\tRaw pattern: \"{$match[7]}\"\n\tModifiers: \"{$match[9]}\"\n\tCompiled pattern: \"{$modifiers['find']}\"\n\n" );
+					$modifiers = false;
+				}
+			}
+		}
+		else
+		{
+			$modifiers = false;
+		}
 
+		debug('about to parse '.$match[4].$match[5]);
+		$this->parse($match[4].$match[5],$modifiers);
 	}
 
 
@@ -301,9 +378,9 @@ class compiler {
 		$arr =	preg_split(
 						 '`(\r\n|\n\r|\r|\n)`'
 						,preg_replace(
-							 '`(?<='.preg_quote($pattern).').*$`s'
+							 '`(?<='.str_replace('`','\\`',preg_quote($pattern)).').*$`s'
 							,''
-							,$this->current_content
+							,$this->_get_current('content')
 						)
 				);
 		return count($arr);
@@ -365,5 +442,29 @@ class compiler {
 					)
 				)
 			);
+	}
+
+	private function _get_current( $type = 'content' )
+	{
+		if( $type !== 'file' && $type !== 'content' )
+		{
+			throw new \exception(get_class($this).'::_get_current() expects only parameter to be string with a value of either "file" OR "content".');
+		}
+		$tmp = 'current_'.$type;
+		$c = count($this->{$tmp}) - 1;
+		return $this->{$tmp}[$c];
+	}
+
+	/**
+	 * @function display_error() renders an error message
+	 * @param string $pattern the keyword where the error has occured
+	 * @param string $msg     the error message to be displayed
+	 */
+	private function _display_msg( $pattern , $msg , $type = 'error' )
+	{
+		echo "\n\n-----------------------------------------\n-- ERROR --\n\n   $msg\n   $pattern\n\n   Line ".
+			 $this->_get_error_line($pattern,$this->_get_current('content')).
+			 " in ".
+			 $this->_get_current('file').".";
 	}
 }

@@ -73,6 +73,10 @@ class nested_partials
 	 */
 	public function add( $path , $file )
 	{
+		if( $path === $this->path && $file === $this->file )
+		{
+			return ;
+		}
 		if( !is_string($path) || trim($path) === '' )
 		{
 			throw new \exception(get_class($this).'::add() expects first parameter $path to be a non-empty string. '.gettype($path).' given.');
@@ -87,13 +91,31 @@ class nested_partials
 			{
 				$path = $this->path.$path;
 			}
-		}
-		elseif( is_dir($this->partials_dirs[$c].$path) ) // path is local to current parse file partial
-		{
-			$path = $this->partials_dirs[$c].$path;
 			if( !is_file($path.$file) )
 			{
-				throw new \exception(get_class($this).'::add() expects second parameter $file to be an existing file. "'.$file.'" cannot be found.');
+				if( is_file($path.'_'.$file) )
+				{
+					$file = '_'.$file;
+				}
+				else
+				{
+					throw new \exception(get_class($this).'::add() expects second parameter $file to be an existing file. "'.$file.'" cannot be found.');
+				}
+			}
+		}
+		elseif( is_dir($this->get_inner_most_path().$path) ) // path is local to current parse file partial
+		{
+			$path = $this->get_inner_most_path().$path;
+			if( !is_file($path.$file) )
+			{
+				if( is_file($path.'_'.$file) )
+				{
+					$file = '_'.$file;
+				}
+				else
+				{
+					throw new \exception(get_class($this).'::add() expects second parameter $file to be an existing file. "'.$file.'" cannot be found.');
+				}
 			}
 		}
 		else
@@ -101,10 +123,8 @@ class nested_partials
 			throw new \exception(get_class($this).'::add() expects first parameter $path to be a valid path to a directory. "'.$path.'" cannot be found.');
 		}
 
-		$this->partials_dir[] = [ 'path' => $path , 'file' => $file ];
+		$this->partials_dirs[] = [ 'path' => $path , 'file' => $file ];
 		$this->tmp_partials_dirs = $this->partials_dirs;
-
-		return $path;
 	}
 
 	/**
@@ -113,7 +133,7 @@ class nested_partials
 	 */
 	public function remove()
 	{
-		array_pop($this->partials_dir);
+		array_pop($this->partials_dirs);
 		$this->tmp_partials_dirs = $this->partials_dirs;
 	}
 
@@ -155,8 +175,8 @@ class nested_partials
 	 */
 	public function get_inner_most()
 	{
-		$c = count($this->partials_dirs);
-		if( isset($this->partials_dir[$c]) )
+		$c = count($this->partials_dirs) - 1;
+		if( isset($this->partials_dirs[$c]) )
 		{
 			return $this->partials_dirs[$c];
 		}
