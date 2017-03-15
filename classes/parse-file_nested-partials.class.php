@@ -10,6 +10,8 @@ class nested_partials
 	 */
 	static private $me = null;
 
+	private $log = null;
+
 	/**
 	 * full/absolute path to directory of initial parse file
 	 * being proccessed.
@@ -265,5 +267,7 @@ class nested_partials
 
 		$this->path = $file_parts['dirname'].'/';
 		$this->file = $file_parts['basename'];
+
+		$this->log = logger::get();
 	}
 }

@@ -5,6 +5,7 @@ namespace matrix_parsefile_preprocessor;
 require_once(dirname(__FILE__).'/parse-file_config.class.php');
 require_once(dirname(__FILE__).'/parse-file_validator.class.php');
 require_once(dirname(__FILE__).'/parse-file_nested-partials.class.php');
+require_once(dirname(__FILE__).'/parse-file_logger.class.php');
 
 require_once($_SERVER['PWD'].'/includes/regex_error.inc.php');
 
@@ -13,6 +14,10 @@ class compiler {
 	private $config = null;
 
 	private $validator = null;
+
+	private $log = null;
+
+	private $nested_partials = null;
 
 
 	/**
@@ -144,6 +149,7 @@ class compiler {
 	public function __construct( $base_file )
 	{
 		$this->config = config::get($base_file);
+		$this->log = logger::get($base_file);
 		$this->nested_partials = nested_partials::get($base_file);
 		$this->validator = new validator();
 
@@ -234,13 +240,13 @@ class compiler {
 			{
 				if( $modifiers['is_regex'] === true )
 				{
-					if( \regex_error($modifiers['find']) === false )
+					if( $msg = regex_error($modifiers['find']) )
 					{
-						$content = preg_replace( $modifiers['find'] , $modifiers['replace'] , $content );
+						throw new exception(get_class($this).'::parse() expects second parameter $modifiers to contain a valid regex when $modifiers[is_regex] is TRUE. Regex error: "'.$msg.'"');
 					}
 					else
 					{
-						// document bad regex
+						$content = preg_replace( $modifiers['find'] , $modifiers['replace'] , $content );
 					}
 				}
 				else
@@ -259,14 +265,13 @@ class compiler {
 
 			if( $matches < 1 )
 			{
-				$this->validator->parse( $content , $file );
-				debug('about to write output (parse - no keywords)');
+				$this->validator->parse( $content , $file , $content );
+				$this->log->add('notice', "no keywords were found in {$file_parts['dirname']}/{$file_parts['basename']}" , $file );
 				fwrite( $this->output , $content );
 			}
 			elseif( preg_match('`'.str_replace('`','\\`',preg_quote($this->last_match)).'(.*)$`s' , $content , $matches ) )
 			{
 				$this->validator->parse( $matches[1] , $file , $content );
-				debug('about to write output (parse - after keywords)');
 				fwrite( $this->output , $matches[1] );
 			}
 
@@ -284,7 +289,7 @@ class compiler {
 	 */
 	public function get_errors()
 	{
-		return $this->validator->get_errors();
+		return $this->log->get_all();
 	}
 
 
@@ -313,10 +318,8 @@ class compiler {
 	 */
 	private function PARSE_KEYWORDS_CALLBACK($match)
 	{
-		$this->validator->parse( $match[1] , $this->current_file , $this->current_content );
+		$this->validator->parse( $match[1] , $this->_get_current('file') , $this->_get_current('content') );
 		$this->last_match = $match[0];
-
-		debug('about to write output (PARSE_KEYWORDS_CALLBACK)');
 
 		fwrite($this->output,$match[1]);
 
@@ -329,7 +332,7 @@ class compiler {
 			$no_comments = true;
 		} else {
 			// keyword dlimiters
-			$this->_display_msg($match[2], "Keyword delimiters '{$match[3]}' and '{$match[10]}' are not valid");
+			$this->_display_msg( 'error' , "Keyword delimiters '{$match[3]}' and '{$match[10]}' are not valid" , $match[2], $this->get_current['file'] , $this->get_current());
 		}
 
 		if( $match[7] !== '' )
@@ -347,10 +350,9 @@ class compiler {
 				{
 					$modifiers['find'] .= $match[9];
 				}
-				if( $msg = \regex_error($modifiers['find']) )
+				if( $msg = regex_error($modifiers['find']) )
 				{
-					// TODO: document bad regex
-					$this->_display_msg($match[2], "keyword find/replace regex is not valid\n\tError message: \"$msg\"\n\tDelimiter: \"{$match[6]}\"\n\tRaw pattern: \"{$match[7]}\"\n\tModifiers: \"{$match[9]}\"\n\tCompiled pattern: \"{$modifiers['find']}\"\n\n" );
+					$this->log->add( 'error' , "keyword find/replace regex is not valid\n\tError message: \"$msg\"\n\tDelimiter: \"{$match[6]}\"\n\tRaw pattern: \"{$match[7]}\"\n\tModifiers: \"{$match[9]}\"\n\tCompiled pattern: \"{$modifiers['find']}\"\n\n", $match[2], $this->get_current['file'] , $this->get_current() );
 					$modifiers = false;
 				}
 			}
@@ -360,31 +362,16 @@ class compiler {
 			$modifiers = false;
 		}
 
-		debug('about to parse '.$match[4].$match[5]);
-		$this->parse($match[4].$match[5],$modifiers);
+//		debug('about to parse '.$match[4].$match[5]);
+		try {
+			$this->parse($match[4].$match[5],$modifiers);
+		}
+		catch( exception $e ) {
+			debug($e);
+			$this->log->add( 'error' , $e->getMessage() , $match[2] ,  $this->get_current('file') , $this->get_current() );
+		}
 	}
 
-
-
-
-	/**
-	 * @function _get_error_line() returns the line the current
-	 * keyword is on in the preparse file being processed
-	 * @param  string $pattern (equivelent to $inc[0]) the full
-	 *                keyword string where an error has occured
-	 * @return integer the line number of the current keyword
-	 */
-	private function _get_error_line($pattern) {
-		$arr =	preg_split(
-						 '`(\r\n|\n\r|\r|\n)`'
-						,preg_replace(
-							 '`(?<='.str_replace('`','\\`',preg_quote($pattern)).').*$`s'
-							,''
-							,$this->_get_current('content')
-						)
-				);
-		return count($arr);
-	}
 
 
 	private function _dont_wrap($partial_content,$keyword)
@@ -453,18 +440,5 @@ class compiler {
 		$tmp = 'current_'.$type;
 		$c = count($this->{$tmp}) - 1;
 		return $this->{$tmp}[$c];
-	}
-
-	/**
-	 * @function display_error() renders an error message
-	 * @param string $pattern the keyword where the error has occured
-	 * @param string $msg     the error message to be displayed
-	 */
-	private function _display_msg( $pattern , $msg , $type = 'error' )
-	{
-		echo "\n\n-----------------------------------------\n-- ERROR --\n\n   $msg\n   $pattern\n\n   Line ".
-			 $this->_get_error_line($pattern,$this->_get_current('content')).
-			 " in ".
-			 $this->_get_current('file').".";
 	}
 }

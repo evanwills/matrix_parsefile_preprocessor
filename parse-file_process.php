@@ -73,9 +73,39 @@ if( !isset($_SERVER['argv'][1]) || !is_file($_SERVER['argv'][1]) || !is_readable
 }
 
 
+
+
+	function render_to_cli( $log_item )
+	{
+		$tmp = $log_item->get_prop();
+		echo "\n\n ------------------------- ".ucfirst($tmp['type'])." -------------------------\n\n  ";
+		echo $tmp['msg']."\n\n";
+		$sep = false;
+		if( $tmp['file'] !== '' )
+		{
+			echo "  file: {$tmp['file']}\n";
+			$sep = true;
+		}
+		if( $tmp['line'] > 0 )
+		{
+			echo "  line: {$tmp['line']}\n";
+		}
+		if( $tmp['sample'] !== '' )
+		{
+			echo "  {$tmp['sample']}\n";
+		}
+		echo "\n";
+	}
+
+
 $file = realpath($_SERVER['argv']['1']);
 
 
 $builder = new matrix_parsefile_preprocessor\compiler($file);
 $builder->parse($file);
 
+$errors = $builder->get_errors();
+for( $a = 0 ; $a < count($errors) ; $a += 1 )
+{
+	render_to_cli($errors[$a]);
+}

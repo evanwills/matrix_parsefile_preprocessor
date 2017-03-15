@@ -206,7 +206,6 @@ class config
 		}
 
 		$this->input_dir = $path['dirname'].'/';
-		debug($this->input_dir);
 
 		foreach( $info as $key => $value )
 		{

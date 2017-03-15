@@ -1,4 +1,7 @@
 <?php
+
+namespace matrix_parsefile_preprocessor;
+
 /**
  * @function regex_error() outputs PHP error message (if any) for a particular regex
  *

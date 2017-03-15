@@ -1,4 +1,8 @@
 <?php
+
+namespace matrix_parsefile_preprocessor;
+
+
 /**
  * extract_dot_info() takes the contents of an info file and converts
  * it to a multi dimensional array.
@@ -40,7 +44,7 @@ function extract_dot_info($info_content, $file_path = false )
 (.*)	# $key_value[x][8]
 (?:[;\n\r])
 /iUx';
-	preg_match_all( $info_regex , $info_content , $key_value , PREG_SET_ORDER);	
+	preg_match_all( $info_regex , $info_content , $key_value , PREG_SET_ORDER);
 
 	foreach($key_value as $info_item)
 	{
