@@ -205,7 +205,8 @@ class config
 			$info = json_parse(file_get_contents($input.$type), true);
 		}
 
-		$this->input_dir = $path['dirname'];
+		$this->input_dir = $path['dirname'].'/';
+		debug($this->input_dir);
 
 		foreach( $info as $key => $value )
 		{

@@ -142,7 +142,7 @@ class compiler {
 
 		$file_parts = pathinfo(realpath($base_file));
 
-		$this->output_file = $this->config->get_var('output_dir').'/'.$file_parts['basename'];
+		$this->output_file = $this->config->get_var('output_dir').$file_parts['basename'];
 		$this->output = fopen( $this->output_file , 'w+' );
 
 
@@ -190,11 +190,18 @@ class compiler {
 
 		if( substr(strtolower($file_name),-4,4) !== '.xml' )
 		{
-			$file .= '.xml';
+			$file_name .= '.xml';
 		}
 		$file_parts = pathinfo($file_name);
-		$path = $this->nested_partials->add($file_parts['dirname'],$file_parts['filename']);
-		$file = $path.$file_parts['filename'];
+		$path = $this->nested_partials->add( $file_parts['dirname'].'/' , $file_parts['filename'] );
+
+		$file = $path.$file_parts['basename'];
+		debug(
+			 '$file = '.$file
+			,'$path = '.$path
+			,'$file_name = '.$file_name
+			,'$file_parts = '.print_r($file_parts,true)
+		);
 		if( file_exists($file) )
 		{
 
@@ -261,20 +268,20 @@ class compiler {
 	 */
 	private function PARSE_KEYWORDS_CALLBACK($matches)
 	{
-		$this->validate->parse( $matches[1] , $this->current_file , $this->current_content );
+		$this->validator->parse( $matches[1] , $this->current_file , $this->current_content );
 		$this->last_match = $matches[0];
 
 
 		$ok = false;
 		$no_comments = false;
-		if( $match[3] == '{{' && $match[10] == '}}' ) {
+		if( $matches[3] == '{{' && $matches[10] == '}}' ) {
 			$ok = true;
-		} elseif( $match[3] == '{[' && $match[10] == ']}'  ) {
+		} elseif( $matches[3] == '{[' && $matches[10] == ']}'  ) {
 			$ok = true;
 			$no_comments = true;
 		} else {
 			// keyword dlimiters
-			$this->_display_error($match[2], "Keyword delimiters '{$match[3]}' and '{$match[10]}' are not valid");
+			$this->_display_error($matches[2], "Keyword delimiters '{$matches[3]}' and '{$matches[10]}' are not valid");
 		}
 
 

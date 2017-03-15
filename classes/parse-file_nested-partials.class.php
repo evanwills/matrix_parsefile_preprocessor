@@ -83,7 +83,10 @@ class nested_partials
 
 		if( substr($path,0,1) === '/' || $c < 0 ) // path is relative to partials directory
 		{
-			$path = $this->path.$path;
+			if( $path !== $this->path)
+			{
+				$path = $this->path.$path;
+			}
 		}
 		elseif( is_dir($this->partials_dirs[$c].$path) ) // path is local to current parse file partial
 		{
