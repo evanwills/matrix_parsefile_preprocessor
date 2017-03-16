@@ -75,24 +75,25 @@ if( !isset($_SERVER['argv'][1]) || !is_file($_SERVER['argv'][1]) || !is_readable
 
 
 
-function render_to_cli( $log_item )
+function render_to_cli( $log_item , $b )
 {
+	$b += 1;
 	$tmp = $log_item->get_prop();
-	echo "\n\n ------------------------- ".ucfirst($tmp['type'])." -------------------------\n\n  ";
+	echo "\n\n ------------------------- ".ucfirst($tmp['type'])." (".$b.") -------------------------\n\n  ";
 	echo $tmp['msg']."\n\n";
 	$sep = false;
-	if( $tmp['file'] !== '' )
+	if( $tmp['sample'] !== '' )
 	{
-		echo "  file: {$tmp['file']}\n";
-		$sep = true;
+		echo "  sample: \"{$tmp['sample']}\"\n\n";
 	}
 	if( $tmp['line'] > 0 )
 	{
 		echo "  line: {$tmp['line']}\n";
 	}
-	if( $tmp['sample'] !== '' )
+	if( $tmp['file'] !== '' )
 	{
-		echo "  {$tmp['sample']}\n";
+		echo "  file: {$tmp['file']}\n";
+		$sep = true;
 	}
 	echo "\n";
 }
@@ -104,8 +105,27 @@ $file = realpath($_SERVER['argv']['1']);
 $builder = new matrix_parsefile_preprocessor\compiler($file);
 $builder->parse($file);
 
-$errors = $builder->get_errors();
+if( isset($_SERVER['argv'][2]) && $_SERVER['argv'][2] === 'brief' )
+{
+	$errors = $builder->get_logs('error','warning');
+}
+else
+{
+	$errors = $builder->get_logs();
+}
+$e = 0;
+$w = 0;
+$n = 0;
+
 for( $a = 0 ; $a < count($errors) ; $a += 1 )
 {
-	render_to_cli($errors[$a]);
+	switch($errors[$a]->get_type())
+	{
+		case 'error': $e += 1; break;
+		case 'warning': $w += 1; break;
+		case 'notice': $n += 1; break;
+	}
+	render_to_cli( $errors[$a] , $a );
 }
+
+echo "\n\n==============================================\n All done!\n\n   ".$builder->get_processed_partials_count()." files processed.\n   ".$builder->get_keyword_count()." keywords found\n\n   There were:\n\t$e errors\n\t$w warnings\n\t$n notices\n\n";
