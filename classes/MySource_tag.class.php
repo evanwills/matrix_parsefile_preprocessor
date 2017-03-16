@@ -9,9 +9,9 @@ class mysource_tag extends xml_tag
 	protected $error = false;
 	protected $error_msg = '';
 
-	public function __construct( $whole , $element , $attrs , $ln_number )
+	public function __construct( $whole , $element , $attrs , $file , $ln_number )
 	{
-		parent::__construct( $whole , $element, $attrs, $ln_number );
+		parent::__construct( $whole , $element , $attrs , $file , $ln_number );
 
 		foreach($this->attrs as $key => $value )
 		{
@@ -58,7 +58,7 @@ class mysource_tag extends xml_tag
 	{
 		if( !is_string($error_msg) && trim($error_msg) !== '' )
 		{
-			throw new exception('mysource_tag::set_error() expects only parameter $error_msg to be a non-empty string');
+			throw new \Exception('mysource_tag::set_error() expects only parameter $error_msg to be a non-empty string');
 		}
 		$this->error = true;
 		$this->error_msg = $error_msg;

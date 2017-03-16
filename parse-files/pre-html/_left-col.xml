@@ -1,0 +1,153 @@
+
+<MySource_AREA id_name="metadata_left_menu_prefix" design_area="metadata" print="no">
+	<MySource_SET name="metadata_field" value="_content_menu_prefix" />
+</MySource_AREA>
+<MySource_AREA id_name="metadata_content_menu" design_area="metadata" print="no"><MySource_SET name="metadata_field" value="hide_content_menu" /></MySource_AREA>
+<MySource_AREA id_name="showif_metadata_content_menu_class" design_area="show_if" print="no">
+	<MySource_SET name="condition" value="keyword_regexp" />
+	<MySource_SET name="condition_keyword" value="asset_metadata_hide_content_menu" />
+	<MySource_SET name="condition_keyword_match" value="hide(?:-content-menu)" />
+	<MySource_THEN><MySource_PRINT id_name="metadata_content_menu" /> </MySource_THEN>
+</MySource_AREA>
+<MySource_AREA id_name="showif_left_col_metadata_hidden_right" design_area="show_if" print="no">
+	<MySource_SET name="condition" value="keyword_regexp" />
+	<MySource_SET name="condition_keyword" value="asset_metadata_hide_right_column" />
+	<MySource_SET name="condition_keyword_match" value="hide(?:-right-col)?" />
+	<MySource_THEN>col-md-pull-9 right-col-not-visible</MySource_THEN>
+	<MySource_ELSE>col-md-pull-6 right-col-visible</MySource_ELSE>
+</MySource_AREA>
+<MySource_AREA id_name="left_menu_prefix_static" design_area="nest_content" print="no"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
+<MySource_AREA id_name="left_menu_prefix_dynamic" design_area="nest_content" print="no"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
+<MySource_AREA id_name="static_level_left_menu" design_area="menu_normal" print="no">
+	<MySource_SET name="level" value="1"/>
+	<MySource_SET name="show_subs" value="on_current" />
+	<MySource_SET name="settings.class.normal" value="Sibling"/>
+	<MySource_SET name="settings.class.current" value="Nav_Selected"/>
+	<MySource_SET name="settings.class.hierarchy" value="Hierarchy" />
+	<MySource_SET name="unwanted_asset_types" value="file, news_item, calendar_event_recurring, calendar_event_single, excel_doc, flv_file, image, mp3_file, pdf_file, powerpoint_doc, rtf_file, text_file, video_file, word_doc, xml_file, xsl_file" />
+	<!-- START: #static_level_left_menu -->
+	<ul id="menu_static" class="level1">
+		<!-- START asset_lineage: #metadata_left_menu_prefix -->
+		<MySource_PRINT id_name="metadata_left_menu_prefix" />
+		<!--  END  asset_lineage: #metadata_left_menu_prefix -->
+
+		<!-- START asset_lineage: #left_menu_prefix_dynamic -->
+		<MySource_PRINT id_name="left_menu_prefix_static" />
+		<!--  END  asset_lineage: #left_menu_prefix_dynamic -->
+
+		<MySource_ASSET>
+		<!-- START: #static_level_left_menu: item -->
+		<li class="<MySource_PRINT var='settings.class' />
+				   <MySource_PRINT var='asset_type^lowercase^css_safe' />">
+			<a href="<MySource_PRINT var='asset_link' />">
+				<MySource_PRINT var="asset_short_name" />
+			</a>
+			<MySource_SUB design_area="menu_normal">
+				<MySource_SET name="show_subs" value="on_current" />
+				<MySource_SET name="settings.class.normal" value="Sibling"/>
+				<MySource_SET name="settings.class.current" value="Nav_Selected"/>
+				<MySource_SET name="settings.class.hierarchy" value="Hierarchy" />
+				<MySource_SET name="unwanted_asset_types" value="file, news_item, calendar_event_recurring, calendar_event_single, excel_doc, flv_file, image, mp3_file, pdf_file, powerpoint_doc, rtf_file, text_file, video_file, word_doc, xml_file, xsl_file" />
+			<!-- START: #static_level_left_menu__sub_menu -->
+			<ul class="level2">
+					<MySource_ASSET>
+				<!-- START: #static_level_left_menu__sub_menu: item -->
+				<li class="<MySource_PRINT var='settings.class' />
+						   <MySource_PRINT var='asset_type^lowercase^css_safe' />">
+					<a href="<MySource_PRINT var='asset_link' />">
+						<MySource_PRINT var="asset_short_name" />
+					</a>
+						<MySource_SUB design_area="menu_normal">
+							<MySource_SET name="show_subs" value="on_current" />
+							<MySource_SET name="settings.class.normal" value="Sibling"/>
+							<MySource_SET name="settings.class.current" value="Nav_Selected"/>
+							<MySource_SET name="settings.class.hierarchy" value="Hierarchy" />
+							<MySource_SET name="unwanted_asset_types" value="file, news_item, calendar_event_recurring, calendar_event_single, excel_doc, flv_file, image, mp3_file, pdf_file, powerpoint_doc, rtf_file, text_file, video_file, word_doc, xml_file, xsl_file" />
+					<!-- START: #static_level_left_menu__sub_menu__sub_menu -->
+					<ul class="level3">
+								<MySource_ASSET>
+
+						<!-- START: #static_level_left_menu__sub_menu__sub_menu: item -->
+						<li class="<MySource_PRINT var='settings.class' />
+								   <MySource_PRINT var='asset_type^lowercase^css_safe' />">
+							<a href="<MySource_PRINT var='asset_link' />">
+								<MySource_PRINT var="asset_short_name" />
+								</a>
+						</li>
+						<!--  END:  #static_level_left_menu__sub_menu__sub_menu: item -->
+								</MySource_ASSET>
+					</ul>
+					<!--  END:  #static_level_left_menu__sub_menu__sub_menu -->
+						</MySource_SUB>
+				</li>
+				<!--  END:  #static_level_left_menu__sub_menu: item -->
+					</MySource_ASSET>
+			</ul>
+			<!-- START: #static_level_left_menu__sub_menu -->
+			</MySource_SUB>
+		</li>
+		<!--  END:  #static_level_left_menu: item -->
+		</MySource_ASSET>
+	</ul>
+	<!--  END:  #static_level_left_menu -->
+</MySource_AREA>
+<MySource_AREA id_name="single_parent_list" design_area="asset_lineage" print="no">
+	<MySource_SET name="levels_to_print" value="-1" />
+	<MySource_SET name="prefix_with_home_link" value="false" />
+	<MySource_SET name="show_hidden_links" value="yes" />
+	<MySource_SET name="suffix_with_current_link" value="false" />
+	<MySource_SET name="prefix_with_divider" value="false" />
+	<MySource_SET name="suffix_with_divider" value="false" />
+	<MySource_SET name="unwanted_asset_types" value="user, file, news_item, calendar_event_recurring, calendar_event_single, excel_doc, flv_file, image, mp3_file, pdf_file, powerpoint_doc, rtf_file, text_file, video_file, word_doc, xml_file, xsl_file" />
+	<MySource_SET name="reverse_lineage" value="false" />
+	<MySource_ASSET>
+	<a href="<MySource_PRINT var='asset_link' />">
+		<MySource_PRINT var='asset_short_name' />
+	</a>
+	</MySource_ASSET>
+</MySource_AREA>
+<MySource_AREA id_name="dynamic_level_left_menu" design_area="menu_normal" print="no">
+	<MySource_SET name="level" value="-1"/>
+	<MySource_SET name="settings.class.normal" value="Sibling"/>
+	<MySource_SET name="settings.class.current" value="Nav_Selected"/>
+	<MySource_SET name="settings.class.hierarchy" value="Hierarchy" />
+	<MySource_SET name="unwanted_asset_types" value="file, news_item, calendar_event_recurring, calendar_event_single, excel_doc, flv_file, image, mp3_file, pdf_file, powerpoint_doc, rtf_file, text_file, video_file, word_doc, xml_file, xsl_file" />
+	<!-- START: #dynamic_level_left_menu -->
+	<ul class="level2">
+		<MySource_ASSET>
+		<!-- START: #dynamic_level_left_menu: item -->
+		<li class="<MySource_PRINT var='settings.class' />
+				   -m-
+
+				   <MySource_PRINT var='asset_type^lowercase^css_safe' />">
+			<a href="<MySource_PRINT var='asset_link' />">
+				<MySource_PRINT var="asset_short_name" />
+			</a>
+			<MySource_SUB design_area="menu_normal">
+				<MySource_SET name="settings.class.normal" value="Sibling"/>
+				<MySource_SET name="settings.class.current" value="Nav_Selected"/>
+				<MySource_SET name="settings.class.hierarchy" value="Hierarchy" />
+				<MySource_SET name="unwanted_asset_types" value="file, news_item, calendar_event_recurring, calendar_event_single, excel_doc, flv_file, image, mp3_file, pdf_file, powerpoint_doc, rtf_file, text_file, video_file, word_doc, xml_file, xsl_file" />
+			<!-- START: #dynamic_level_left_menu__sub_menu -->
+			<ul class="level3">
+					<MySource_ASSET>
+				<!-- START: #dynamic_level_left_menu__sub_menu item -->
+				<li class="<MySource_PRINT var='settings.class' />
+						   -m-
+
+						   <MySource_PRINT var='asset_type^lowercase^css_safe' />">
+					<a href="<MySource_PRINT var='asset_link' />">
+						<MySource_PRINT var="asset_short_name" />
+					</a>
+				</li>
+				<!-- START: #dynamic_level_left_menu__sub_menu item -->
+					</MySource_ASSET>
+			</ul>
+			<!--  END:  #dynamic_level_left_menu__sub_menu -->
+			</MySource_SUB>
+		</li>
+		<!--  END:  #dynamic_level_left_menu: item -->
+		</MySource_ASSET>
+	</ul>
+	<!--  END:  #dynamic_level_left_menu -->
+</MySource_AREA>

@@ -1,4 +1,7 @@
 <?php
+
+namespace matrix_parsefile_preprocessor;
+
 /**
  * @function regex_error() outputs PHP error message (if any) for a particular regex
  *
@@ -28,16 +31,16 @@ function regex_error( $regex , $pcre = true )
 
 	if( $pcre === true )
 	{
-		@preg_match($test_regex , '');
+		@preg_match($regex , '');
 		$flav = 'PCRE';
 	}
 	else
 	{
-		@ereg($test_regex , '');
+		@ereg($regex , '');
 		$flav = 'POSIX';
 	};
 
-	$output = isset($php_errormsg)?$php_errormsg:'Supplied '.$flav.' regular expression is valid';
+	$output = isset($php_errormsg)?$php_errormsg:false;
 
 	if($old_track_errors)
 	{

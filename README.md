@@ -39,7 +39,8 @@ As I get a better understanding of how the Matrix Parse file is parsed, I will a
 *	"__file__" name of partial file
 	<br />__NOTE:__ partials (like in SASS) are prefixed with an underscore '_' and end with the .xml file extension
 *	"__<code>&#96;</code>__" or "__`|`__" or "__`~`__" or "__;__" find/replace delimiter can be either backtick '&#96;', pipe '|' or tilda '~' or semicolon ';'
-	<br />__NOTE:__ you can use a delimiter character as part of your regex if you escape it.
+	<br />__NOTE:__ the delimiter you use in the keyword is also the delimiter used in the final regular expression. This may cause your regex problems.
+	<br />__NOTE ALSO:__ The regex used to match the keyword is delimited by an __`@`__ symbol. If your regex needs to match __`@`__ symbols, you'll need to escape them too<br />(e.g. "`jo.smith\@company.org`")
 *	"__find__"  find string or regex
 *	"__replace__" replacement string or regex pattern
 *	"__modifiers__" if regex is to be used, modifiers must containt '`R`' (for Regex) or any valid regex modifier

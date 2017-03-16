@@ -24,29 +24,21 @@
 		<MySource_PRINT id_name="exit_area" />
 	</MySource_THEN>
 </MySource_AREA>
-
-
-
 <MySource_AREA id_name="body_classes" design_area="declared_vars" print="no">
 	<MySource_DECLARE name="body_class_1" value="" type="text" description="first custom class name added to the body tag" />
 	<MySource_DECLARE name="body_class_2" value="" type="text" description="second custom class name added to the body tag" />
 	<MySource_DECLARE name="body_class_3" value="" type="text" description="third custom class name added to the body tag" />
 </MySource_AREA>
-
 <MySource_AREA id_name="main_col_classes" design_area="declared_vars" print="no">
 	<MySource_DECLARE name="main_col_class_1" value="" type="text" description="first custom class name added to the main_col tag" />
 	<MySource_DECLARE name="main_col_class_2" value="" type="text" description="second custom class name added to the main_col tag" />
 	<MySource_DECLARE name="main_col_class_3" value="" type="text" description="third custom class name added to the main_col tag" />
 </MySource_AREA>
-
 <MySource_AREA id_name="wrap_outer_classes" design_area="declared_vars" print="no">
 	<MySource_DECLARE name="wrap_outer_class_1" value="" type="text" description="first custom class name added to the div#outer-wrap tag" />
 	<MySource_DECLARE name="wrap_outer_class_2" value="" type="text" description="second custom class name added to the div#outer-wrap tag" />
 	<MySource_DECLARE name="wrap_outer_class_3" value="" type="text" description="third custom class name added to the div#outer-wrap tag" />
 </MySource_AREA>
-
-
-
 <MySource_AREA id_name="metadata_body_class_1" design_area="metadata" print="no">
 	<MySource_SET name="metadata_field" value="_metadata_body_class_1" />
 </MySource_AREA>
@@ -56,13 +48,9 @@
 <MySource_AREA id_name="metadata_body_class_3" design_area="metadata" print="no">
 	<MySource_SET name="metadata_field" value="_metadata_body_class_3" />
 </MySource_AREA>
-
-
-
 <MySource_AREA id_name="metadata_left_menu_prefix" design_area="metadata" print="no">
 	<MySource_SET name="metadata_field" value="_content_menu_prefix" />
 </MySource_AREA>
-
 <MySource_AREA id_name="metadata_lhs_menu_syblings_show_hide" design_area="metadata" print="no">
 	<MySource_SET name="metadata_field" value="_content_menu_show_hide_siblings" />
 </MySource_AREA>
@@ -75,9 +63,6 @@
 <MySource_AREA id_name="metadata_lhs_menu_show_events" design_area="metadata" print="no">
 	<MySource_SET name="metadata_field" value="_content_menu_hide_events" />
 </MySource_AREA>
-
-
-
 <MySource_AREA id_name="lhs_menu_level_1" design_area="asset_lineage" print="no">
 	<MySource_SET name="start_at_level" value="0" />
 	<MySource_SET name="levels_to_print" value="1" />
@@ -102,9 +87,6 @@
 	<MySource_ASSET> gt_four_level</MySource_ASSET>
 	<MySource_DIVIDER></MySource_DIVIDER>
 </MySource_AREA>
-
-
-
 <MySource_AREA id_name="page_class_lineage_depth" design_area="nest_content" print="no">
 	<MySource_SET name="type_codes" value="page" />
 </MySource_AREA>
@@ -118,33 +100,23 @@
     <MySource_DIVIDER> </MySource_DIVIDER>
     <MySource_PRINT var='asset_name^notempty: ' /><MySource_PRINT var='asset_name^lowercase^css_safe' />
 </MySource_AREA>
-
-
-
 <MySource_AREA id_name="metadata_right_col" design_area="metadata" print="no"><MySource_SET name="metadata_field" value="hide_right_column" /></MySource_AREA>
-<MySource_AREA id_name="metadata_right_col_class" design_area="show_if" print="no">
+<MySource_AREA id_name="showif_metadata_right_col_class" design_area="show_if" print="no">
 	<MySource_SET name="condition" value="keyword_regexp" />
 	<MySource_SET name="condition_keyword" value="asset_metadata_hide_right_column" />
 	<MySource_SET name="condition_keyword_match" value="hide(-right-col)?" />
 	<MySource_THEN><MySource_PRINT id_name="metadata_right_col" /></MySource_THEN>
 </MySource_AREA>
-
-
-
 <MySource_AREA id_name="metadata_long_page_title" design_area="metadata" print="no"><MySource_SET name="metadata_field" value="long_page_name" /></MySource_AREA>
-
-<MySource_AREA id_name="metadata_long_page_title_class" design_area="show_if" print="no">
+<MySource_AREA id_name="showif_metadata_long_page_title_class" design_area="show_if" print="no">
 	<MySource_SET name="condition" value="keyword_regexp" />
 	<MySource_SET name="condition_keyword" value="asset_metadata_long_page_name" />
 	<MySource_SET name="condition_keyword_match" value="page-name_[2-5]_lines" />
 	<MySource_THEN><MySource_PRINT id_name="metadata_long_page_title" /></MySource_THEN>
 </MySource_AREA>
-
-
-
 <MySource_AREA id_name="rightCol_webTile_1_customisation" design_area="nest_content" print="no"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
 <MySource_AREA id_name="rightCol_webTile_1_byMetadata" design_area="nest_content" print="no"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
-<MySource_AREA id_name="rightCol_webTile_1_metadata" design_area="show_if" print="no">
+<MySource_AREA id_name="showif_rightCol_webTile_1" design_area="show_if" print="no">
 	<MySource_SET name="condition" value="keyword_regexp" />
 	<MySource_SET name="condition_keyword" value="asset_metadata__right-col_web-tile_1_display-type" />
 	<MySource_SET name="condition_keyword_match" value="^(?!default)$" />
@@ -159,12 +131,9 @@
 		<!--  END:  #rightCol_webTile_1_customisation -->
 	</MySource_ELSE>
 </MySource_AREA>
-
-
-
 <MySource_AREA id_name="rightCol_webTile_2_customisation" design_area="nest_content" print="no"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
 <MySource_AREA id_name="rightCol_webTile_2_byMetadata" design_area="nest_content" print="no"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
-<MySource_AREA id_name="rightCol_webTile_2_metadata" design_area="show_if" print="no">
+<MySource_AREA id_name="showif_rightCol_webTile_2" design_area="show_if" print="no">
 	<MySource_SET name="condition" value="keyword_regexp" />
 	<MySource_SET name="condition_keyword" value="asset_metadata__right-col_web-tile_2_display-type" />
 	<MySource_SET name="condition_keyword_match" value="^(?!default)$" />
@@ -179,12 +148,9 @@
 		<!--  END:  #rightCol_webTile_2_customisation -->
 	</MySource_ELSE>
 </MySource_AREA>
-
-
-
 <MySource_AREA id_name="rightCol_webTile_3_customisation" design_area="nest_content" print="no"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
 <MySource_AREA id_name="rightCol_webTile_3_byMetadata" design_area="nest_content" print="no"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
-<MySource_AREA id_name="rightCol_webTile_3_metadata" design_area="show_if" print="no">
+<MySource_AREA id_name="showif_rightCol_webTile_3" design_area="show_if" print="no">
 	<MySource_SET name="condition" value="keyword_regexp" />
 	<MySource_SET name="condition_keyword" value="asset_metadata__right-col_web-tile_3_display-type" />
 	<MySource_SET name="condition_keyword_match" value="^(?!default)$" />
@@ -199,12 +165,9 @@
 		<!--  END:  #rightCol_webTile_3_customisation -->
 	</MySource_ELSE>
 </MySource_AREA>
-
-
-
 <MySource_AREA id_name="rightCol_webTile_4_customisation" design_area="nest_content" print="no"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
 <MySource_AREA id_name="rightCol_webTile_4_byMetadata" design_area="nest_content" print="no"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
-<MySource_AREA id_name="rightCol_webTile_4_metadata" design_area="show_if" print="no">
+<MySource_AREA id_name="showif_rightCol_webTile_4" design_area="show_if" print="no">
 	<MySource_SET name="condition" value="keyword_regexp" />
 	<MySource_SET name="condition_keyword" value="asset_metadata__right-col_web-tile_4_display-type" />
 	<MySource_SET name="condition_keyword_match" value="^(?!default)$" />
@@ -219,70 +182,47 @@
 		<!--  END:  #rightCol_webTile_4_customisation -->
 	</MySource_ELSE>
 </MySource_AREA>
-
-
-
 <MySource_AREA id_name="right_col_top_1_area" design_area="nest_content" print="no"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
 <MySource_AREA id_name="right_col_top_2_area" design_area="nest_content" print="no"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
-
 <MySource_AREA id_name="right_col_extra_1_area" design_area="nest_content" print="no"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
 <MySource_AREA id_name="right_col_extra_2_area" design_area="nest_content" print="no"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
-<MySource_AREA id_name="right_col_extra_3_area" design_area="nest_content" print="no"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
-<MySource_AREA id_name="right_col_extra_4_area" design_area="nest_content" print="no"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
-
-
-
 <MySource_AREA id_name="metadata_content_menu" design_area="metadata" print="no"><MySource_SET name="metadata_field" value="hide_content_menu" /></MySource_AREA>
-
-<MySource_AREA id_name="metadata_content_menu_class" design_area="show_if" print="no">
+<MySource_AREA id_name="showif_metadata_content_menu_class" design_area="show_if" print="no">
 	<MySource_SET name="condition" value="keyword_regexp" />
 	<MySource_SET name="condition_keyword" value="asset_metadata_hide_content_menu" />
 	<MySource_SET name="condition_keyword_match" value="hide(?:-content-menu)" />
 	<MySource_THEN><MySource_PRINT id_name="metadata_content_menu" /> </MySource_THEN>
 </MySource_AREA>
-
-
-
-
-
 <MySource_AREA id_name="main_col_customisation_override_cols_class" design_area="nest_content" print="no"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
-
-<MySource_AREA id_name="main_col_metadata_hidden_left_right_hidden_right_only" design_area="show_if" print="no">
+<MySource_AREA id_name="showif_main_col_metadata_hidden_left_right_hidden_right_only" design_area="show_if" print="no">
 	<MySource_SET name="condition" value="keyword_regexp" />
 	<MySource_SET name="condition_keyword" value="asset_metadata_hide_content_menu" />
 	<MySource_SET name="condition_keyword_match" value="hide(?:-content-menu)?" />
 	<MySource_THEN>cols-hidden-both col-xs-12 col-sm-12 col-md-12 col-lg-12</MySource_THEN>
 	<MySource_ELSE>cols-hidden-right-only col-xs-12 col-sm-8 col-md-9 col-lg-9 col-sm-push-4 col-md-push-3 col-lg-push-3</MySource_ELSE>
 </MySource_AREA>
-
-<MySource_AREA id_name="main_col_metadata_hidden_left_only_hidden_none" design_area="show_if" print="no">
+<MySource_AREA id_name="showif_main_col_metadata_hidden_left_only_hidden_none" design_area="show_if" print="no">
 	<MySource_SET name="condition" value="keyword_regexp" />
 	<MySource_SET name="condition_keyword" value="asset_metadata_hide_content_menu" />
 	<MySource_SET name="condition_keyword_match" value="hide(?:-content-menu)?" />
 	<MySource_THEN>cols-hidden-left-only col-xs-12 col-sm-12 col-md-9 col-lg-9</MySource_THEN>
 	<MySource_ELSE>cols-hidden-none col-xs-12 col-sm-8 col-md-6 col-lg-6 col-sm-push-4 col-md-push-3 col-lg-push-3</MySource_ELSE>
 </MySource_AREA>
-
-
 <MySource_AREA id_name="right_col_customisation_override_hidden_left_cols_class" design_area="nest_content" print="no"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
-<MySource_AREA id_name="right_col_metadata_hidden_left" design_area="show_if" print="no">
+<MySource_AREA id_name="showif_right_col_metadata_hidden_left" design_area="show_if" print="no">
 	<MySource_SET name="condition" value="keyword_regexp" />
 	<MySource_SET name="condition_keyword" value="asset_metadata_hide_content_menu" />
 	<MySource_SET name="condition_keyword_match" value="hide(?:-content-menu)?" />
 	<MySource_THEN>col-sm-12 col-md-3 col-lg-3 left-col-not-visible</MySource_THEN>
 	<MySource_ELSE>col-sm-8 col-md-3 col-lg-3 col-sm-push-4 hidden-print left-col-visible</MySource_ELSE>
 </MySource_AREA>
-
-<MySource_AREA id_name="left_col_metadata_hidden_right" design_area="show_if" print="no">
+<MySource_AREA id_name="showif_left_col_metadata_hidden_right" design_area="show_if" print="no">
 	<MySource_SET name="condition" value="keyword_regexp" />
 	<MySource_SET name="condition_keyword" value="asset_metadata_hide_right_column" />
 	<MySource_SET name="condition_keyword_match" value="hide(?:-right-col)?" />
 	<MySource_THEN>col-md-pull-9 right-col-not-visible</MySource_THEN>
 	<MySource_ELSE>col-md-pull-6 right-col-visible</MySource_ELSE>
 </MySource_AREA>
-
-
-
 <MySource_AREA id_name="left_menu_prefix_static" design_area="nest_content" print="no"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
 <MySource_AREA id_name="left_menu_prefix_dynamic" design_area="nest_content" print="no"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
 <MySource_AREA id_name="static_level_left_menu" design_area="menu_normal" print="no">
@@ -418,9 +358,6 @@
 	</ul>
 	<!--  END:  #dynamic_level_left_menu -->
 </MySource_AREA>
-
-
-
 <html lang="en">
 	<head>
 		<!-- Asset ID: #<MySource_PRINT id_name="__global__" var="asset_assetid" /> -->
@@ -430,62 +367,43 @@
 			<MySource_AREA id_name="metadata_customised_page_title" design_area="metadata"><MySource_SET name="metadata_field" value="DC.Title" /></MySource_AREA> - <MySource_PRINT id_name="__global__" var="site_name" />
 		</title>
 
+<MySource_AREA id_name="metadata" design_area="metadata" />
+
 <!-- START nested: #head_design_metadata -->
 		<MySource_AREA id_name="head_design_metadata" design_area="nest_content"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
 <!--  END nested:  #head_design_metadata -->
-
-<MySource_AREA id_name="metadata" design_area="metadata" />
-
 
 <!-- START nested: #head_linked_hosted_js -->
 		<MySource_AREA id_name="head_linked_hosted_js" design_area="nest_content"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
 <!--  END nested:  #head_linked_hosted_js -->
 
-
-		<link rel="shortcut icon" href="mysource_files/favicon.ico" />
-
-		<!-- Vendor -->
-		<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous" />
-
-		<!-- Custom style sheet -->
-		<link rel="stylesheet" type="text/css" href="mysource_files/stylesheet.min.css" />
-
+<!-- START nested: #head_linked_css -->
+		<MySource_AREA id_name="head_linked_css" design_area="nest_content"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
+<!--  END nested:  #head_linked_css -->
 
 <!-- START nested: #head_linked_hosted_IE9_js -->
 		<MySource_AREA id_name="head_linked_hosted_IE9_js" design_area="nest_content"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
 <!--  END nested:  #head_linked_hosted_IE9_js -->
 
+<!-- START nested: #head_linked_IE_css -->
+		<MySource_AREA id_name="head_linked_IE_css" design_area="nest_content"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
+<!--  END nested:  #head_linked_IE_css -->
 
-<!--[if IE 9]>
-		<link rel="stylesheet" type="text/css" href="mysource_files/ie9.min.css" media="screen" />
-<![endif]-->
-<!--[if IE 8]>
-		<link rel="stylesheet" type="text/css" href="mysource_files/ie8.min.css" />
-<![endif]-->
-<!--[if IE 7]>
-		<link rel="stylesheet" type="text/css" href="mysource_files/ie7.min.css" />
-<![endif]-->
-
-		<script type="text/javascript">
-/* START: #js_head_jquery_extra */
-<MySource_AREA id_name="js_head_jquery_extra" design_area="nest_content"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
-/*  END:  #js_head_jquery_extra */
-		</script>
-
-		<!-- START nested: #js_head_random_extra -->
-		<MySource_AREA id_name="js_head_random_extra" design_area="nest_content"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
-		<!--  END nested:  #js_head_random_extra -->
-
+<!-- START nested: #head_markeing_only_linked_css -->
+		<MySource_AREA id_name="head_markeing_only_linked_css" design_area="nest_content"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
+<!--  END nested:  #head_markeing_only_linked_css -->
 
 		<style type="text/css">
-/* START: #css_head_basic */
-<MySource_AREA id_name="css_head_basic" design_area="nest_content"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
-/*  END:  #css_head_basic */
+/* START: #head_style_basic */
+<MySource_AREA id_name="head_style_basic" design_area="nest_content"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
+/*  END:  #head_style_basic */
 
-/* START metadata: #css_head_custom_metadata */
-<MySource_AREA id_name="css_head_custom_metadata" design_area="metadata"><MySource_SET name="metadata_field" value="_head_metadata_custom_css" /></MySource_AREA>
-/*  END metadata:  #css_head_custom_metadata */
+/* START metadata: #head_style_custom_metadata [_head_metadata_custom_css] */
+<MySource_AREA id_name="head_style_custom_metadata" design_area="metadata"><MySource_SET name="metadata_field" value="_head_metadata_custom_css" /></MySource_AREA>
+/*  END metadata:  #head_style_custom_metadata */
 		</style>
+
+		<link rel="shortcut icon" href="mysource_files/favicon.ico" />
 
 <!-- START nested: #js_head_analytics -->
 		<MySource_AREA id_name="js_head_analytics" design_area="nest_content"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
@@ -494,8 +412,8 @@
 
 	<body class="
 		<MySource_PRINT id_name="page_class_lineage_depth" />
-		<MySource_PRINT id_name="metadata_right_col_class" />
-		<MySource_PRINT id_name="metadata_content_menu_class" />
+		<MySource_PRINT id_name="showif_metadata_right_col_class" />
+		<MySource_PRINT id_name="showif_metadata_content_menu_class" />
 		<MySource_print id_name="body_classes" var="body_class_1" />
 		<MySource_print id_name="body_classes" var="body_class_2" />
 		<MySource_print id_name="body_classes" var="body_class_3" />
@@ -521,14 +439,14 @@
 						<div class="col-xs-8 col-sm-10 col-md-6 col-lg-6">
 							<div class="row">
 								<div class="col-xs-12 col-sm-5 col-md-6 col-lg-5">
-									<!-- START nested: #logos_ACU -->
-<MySource_AREA id_name="logos_ACU" design_area="nest_content"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
-									<!--  END nested:  #logos_ACU -->
+									<!-- START nested: #header_ACU_logo -->
+<MySource_AREA id_name="header_ACU_logo" design_area="nest_content"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
+									<!--  END nested:  #header_ACU_logo -->
 								</div>
 								<div class="col-xs-12 col-sm-7 col-md-6 col-lg-7">
-									<!-- START nested: #site_heading -->
-<MySource_AREA id_name="site_heading" design_area="nest_content"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
-									<!--  END nested:  #site_heading -->
+									<!-- START nested: #header_site_header -->
+<MySource_AREA id_name="header_site_header" design_area="nest_content"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
+									<!--  END nested:  #header_site_header -->
 
 									<!-- START nested: #header_beside_logo -->
 <MySource_AREA id_name="header_beside_logo" design_area="nest_content"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
@@ -558,7 +476,6 @@
 									<div class="clearfix"></div>
 								</div>
 							</div>
-
 							<div class="row">
 								<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 									<nav class="global-portals pull-right hidden-print">
@@ -596,7 +513,7 @@
 									<!--  END nested:  #breadcrumbs_prefix -->
 
 									<!-- START asset_lineage: #page_lineage -->
-<MySource_AREA id_name="page_lineage" design_area="asset_lineage">
+<MySource_AREA id_name="breadcrumb_page_lineage" design_area="asset_lineage">
 	<MySource_SET name="levels_to_print" value="0" />
 	<MySource_SET name="show_hidden_links" value="false" />
 	<MySource_SET name="prefix_with_home_link" value="false" />
@@ -622,13 +539,25 @@
 					<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 						<div id="wrap-inner">
 
-							<!-- START nested: #content_faculty_name -->
-<MySource_AREA id_name="content_faculty_name" design_area="nest_content"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
-							<!--  END nested:  #content_faculty_name -->
+<MySource_AREA id_name="content_faculty_name_by_customization" design_area="nest_content" print="no"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
+<MySource_AREA id_name="content_faculty_name_by_metadata" design_area="metadata" print="no"><MySource_SET name="metadata_field" value="_faculty_name" /></MySource_AREA>
 
-							<!-- START nested: #faculty_name_by_metadata -->
-<MySource_AREA id_name="faculty_name_by_metadata" design_area="metadata" print="no"><MySource_SET name="metadata_field" value="_faculty_name" /></MySource_AREA>
-							<!--  END nested:  #faculty_name_by_metadata -->
+<MySource_AREA id_name="showif_content_faculty_name" design_area="show_if">
+	<MySource_SET name="condition" value="keyword_regexp" />
+	<MySource_SET name="condition_keyword" value="_faculty_name" />
+	<MySource_SET name="condition_keyword_match" value="^\s*$" />
+	<MySource_THEN>
+							<!-- START nested: #content_faculty_name_by_metadata -->
+							<MySource_print id_name="content_faculty_name_by_customization" />
+							<!--  END nested:  #content_faculty_name_by_metadata -->
+	</MySource_THEN>
+	<MySource_ELSE>
+							<!-- START nested: #content_faculty_name -->
+							<MySource_print id_name="content_faculty_name_by_metadata" />
+							<!--  END nested:  #content_faculty_name -->
+	</MySource_ELSE>
+</MySource_AREA>
+
 
 							<!-- START nested: #page_heading_feature_page -->
 <MySource_AREA id_name="page_heading_feature_page" design_area="nest_content"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
@@ -641,12 +570,12 @@
 
 							<div class="row" id="main-row">
 								<div id="main-col" class="
-									<MySource_AREA id_name="main_col_metadata_both_cols_class" design_area="show_if">
+									<MySource_AREA id_name="showif_main_col_metadata_both_cols_class" design_area="show_if">
 										<MySource_SET name="condition" value="keyword_regexp" />
 										<MySource_SET name="condition_keyword" value="asset_metadata_hide_right_column" />
 										<MySource_SET name="condition_keyword_match" value="hide(?:-right-col)?" />
-										<MySource_THEN><MySource_PRINT id_name="main_col_metadata_hidden_left_right_hidden_right_only" /></MySource_THEN>
-										<MySource_ELSE><MySource_PRINT id_name="main_col_metadata_hidden_left_only_hidden_none" /></MySource_ELSE>
+										<MySource_THEN><MySource_PRINT id_name="showif_main_col_metadata_hidden_left_right_hidden_right_only" /></MySource_THEN>
+										<MySource_ELSE><MySource_PRINT id_name="showif_main_col_metadata_hidden_left_only_hidden_none" /></MySource_ELSE>
 									</MySource_AREA>
 									<MySource_print id_name="main_col_customisation_override_cols_class" />
 									<MySource_print id_name="main_col_classes" var="main_col_class_1" />
@@ -675,11 +604,6 @@
 										<!--  END body:  #body -->
 
 
-										<!-- START nested: #landing_links -->
-<MySource_AREA id_name="landing_links" design_area="nest_content"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
-										<!--  END nested:  #landing_links -->
-
-
 										<!-- START nested: #content_below_main_1 -->
 <MySource_AREA id_name="content_below_main_1" design_area="nest_content"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
 										<!--  END nested:  #content_below_main_1 -->
@@ -699,26 +623,20 @@
 
 								</div>
 
-
-
 								<!-- START show_if: #hide_design_content_menu -->
-								<MySource_AREA id_name="hide_design_content_menu" design_area="show_if">
+								<MySource_AREA id_name="showif_hide_design_content_menu" design_area="show_if">
 									<MySource_SET name="condition" value="keyword_regexp" />
 									<MySource_SET name="condition_keyword" value="asset_metadata_hide_content_menu" />
 									<MySource_SET name="condition_keyword_match" value="hide(?:-content-menu)?" />
 									<MySource_THEN>
 
-
-
 										<!-- (left) content menu removed by metadata field "hide_content-menu" = "hide-content-menu" -->
-
-
 
 									</MySource_THEN>
 									<MySource_ELSE>
 										<!-- START show_if [else]: #hide_design_content_menu -->
 										<div class="col-xs-12 col-sm-4 col-md-3 col-lg-3 col-sm-pull-8
-											<MySource_PRINT id_name="left_col_metadata_hidden_right" />
+											<MySource_PRINT id_name="showif_left_col_metadata_hidden_right" />
 											secondary-navigation-container hidden-print" id="aside-left-col">
 											<aside class="aside-left
 												<MySource_PRINT id_name="metadata_lhs_menu_syblings_show_hide" />">
@@ -763,24 +681,19 @@
 								</MySource_AREA>
 								<!--  END  show_if: #hide_design_content_menu -->
 
-
 								<!-- START show_if: #hide_design_right_col_all -->
-								<MySource_AREA id_name="hide_design_right_col_all" design_area="show_if">
+								<MySource_AREA id_name="showif_hide_design_right_col_all" design_area="show_if">
 									<MySource_SET name="condition" value="keyword_regexp" />
 									<MySource_SET name="condition_keyword" value="asset_metadata_hide_right_column" />
 									<MySource_SET name="condition_keyword_match" value="hide(?:-right-col)?" />
 									<MySource_THEN>
 
-
-
 										<!-- Right column removed by metadata field "hide_right_column" = "hide(?:-right-col)?" -->
-
-
 
 									</MySource_THEN>
 									<MySource_ELSE>
 										<div class="hidden-xs
-											<MySource_PRINT id_name="right_col_metadata_hidden_left" />
+											<MySource_PRINT id_name="showif_right_col_metadata_hidden_left" />
 											<MySource_PRINT id_name="right_col_customisation_override_hidden_left_cols_class" />" id="aside-right-col">
 											<aside class="aside-right" id="aside-right">
 												<!-- START: #right_col_top_2_area -->
@@ -791,21 +704,21 @@
 												<MySource_PRINT id_name="right_col_top_1_area" />
 												<!--  END:  #right_col_top_1_area -->
 
-												  <!-- START: #rightCol_webTile_1_metadata -->
-												<MySource_PRINT id_name="rightCol_webTile_1_metadata" />
-												<!--  END:  #rightCol_webTile_1_metadata -->
+												  <!-- START: #showif_rightCol_webTile_1 -->
+												<MySource_PRINT id_name="showif_rightCol_webTile_1" />
+												<!--  END:  #showif_rightCol_webTile_1 -->
 
-												<!-- START: #rightCol_webTile_2_metadata -->
-												<MySource_PRINT id_name="rightCol_webTile_2_metadata" />
-												<!--  END:  #rightCol_webTile_2_metadata -->
+												<!-- START: #showif_rightCol_webTile_2 -->
+												<MySource_PRINT id_name="showif_rightCol_webTile_2" />
+												<!--  END:  #showif_rightCol_webTile_2 -->
 
-												<!-- START: #rightCol_webTile_3_metadata -->
-												<MySource_PRINT id_name="rightCol_webTile_3_metadata" />
-												<!--  END:  #rightCol_webTile_3_metadata -->
+												<!-- START: #showif_rightCol_webTile_3 -->
+												<MySource_PRINT id_name="showif_rightCol_webTile_3" />
+												<!--  END:  #showif_rightCol_webTile_3 -->
 
-												<!-- START: #rightCol_webTile_4_metadata -->
-												<MySource_PRINT id_name="rightCol_webTile_4_metadata" />
-												<!--  END:  #rightCol_webTile_4_metadata -->
+												<!-- START: #showif_rightCol_webTile_4 -->
+												<MySource_PRINT id_name="showif_rightCol_webTile_4" />
+												<!--  END:  #showif_rightCol_webTile_4 -->
 
 												<!-- START: #right_col_extra_1_area -->
 												<MySource_PRINT id_name="right_col_extra_1_area" />
@@ -814,30 +727,15 @@
 												<!-- START: #right_col_extra_2_area -->
 												<MySource_PRINT id_name="right_col_extra_2_area" />
 												<!--  END:  #right_col_extra_2_area -->
-
-												<!-- START: #right_col_extra_3_area -->
-												<MySource_PRINT id_name="right_col_extra_3_area" />
-												<!--  END:  #right_col_extra_3_area -->
-
-												<!-- START: #right_col_extra_4_area -->
-												<MySource_PRINT id_name="right_col_extra_4_area" />
-												<!--  END:  #right_col_extra_4_area -->
-
-												<!-- START: #right_col_extra_5_area -->
-												<MySource_PRINT id_name="right_col_extra_5_area" />
-												<!--  END:  #right_col_extra_5_area -->
 											</aside>
 										</div>
 									</MySource_ELSE>
 								</MySource_AREA>
 								<!--  END  show_if: #hide_design_right_col_all -->
 
-
 								<!-- START nested: #short_url -->
 <MySource_AREA id_name="short_url" design_area="nest_content"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
 								<!--  END nested:  #short_url -->
-
-
 							</div>
 
 							<!-- START nested: #content_wrap_close -->
@@ -845,13 +743,12 @@
 							<!--  END nested:  #content_wrap_close -->
 						</div>
 
-
 						<!-- START: #content_footer_askacu_showif -->
 <MySource_AREA id_name="content_footer_askacu" design_area="nest_content" print="no"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
-<MySource_AREA id_name="content_footer_askacu_showif" design_area="show_if" print="no">
+<MySource_AREA id_name="showif_content_footer_askacu" design_area="show_if">
 	<MySource_SET name="condition" value="keyword_regexp" />
 	<MySource_SET name="condition_keyword" value="asset_metadata__hide_askACU" />
-	<MySource_SET name="condition_keyword_match" value="Hide askACU" />
+	<MySource_SET name="condition_keyword_match" value="[Hh]ide" />
 	<MySource_THEN>
 		<!-- content_footer_askacu hidden by metadata -->
 	</MySource_THEN>
@@ -870,9 +767,9 @@
 								<!--  END nested:  #content_footer_last_updated_shortURL -->
 							</div>
 							<div class="hidden-xs col-sm-6 col-md-6 col-lg-6">
-								<!-- START nested: #social_icons -->
-<MySource_AREA id_name="social_icons" design_area="nest_content"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
-								<!--  END nested:  #social_icons -->
+								<!-- START nested: #content_footer_social_icons -->
+<MySource_AREA id_name="content_footer_social_icons" design_area="nest_content"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
+								<!--  END nested:  #content_footer_social_icons -->
 							</div>
 						</div>
 					</div>
@@ -891,7 +788,7 @@
 				<div class="pre-footer-strip beyond-box-boundary">
 					<div class="container">
 						<div class="row">
-							<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+							<div class="col-xs-12">
 
 							</div>
 						</div>
@@ -941,7 +838,7 @@
 
 			<!-- START show_if: #js_bottom_design_persist -->
 <MySource_AREA id_name="js_bottom_design_persist" design_area="nest_content" print="no"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
-<MySource_AREA id_name="js_bottom_SQL_DESIGN_NAME_persist" design_area="show_if" print="no">
+<MySource_AREA id_name="showif_js_bottom_SQL_DESIGN_NAME_persist" design_area="show_if" print="no">
 	<MySource_SET name="condition" value="logged_in" />
 	<MySource_THEN>
 				<!-- START: js_bottom_design_persist -->
@@ -956,16 +853,9 @@
 <MySource_AREA id_name="js_bottom_via_metadata" design_area="nest_content"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
 			<!--  END nested:  #js_bottom_via_metadata -->
 
-		<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-		<script type="text/javascript" src="mysource_files/vendor.min.js"></script>
-		<script type="text/javascript" src="mysource_files/main.min.js"></script>
-
-		<script type="text/javascript" src="mysource_files/jquery.mousewheel.js"></script>
-		<script type="text/javascript" src="mysource_files/jquery.requestAnimationFrame.js"></script>
-
-			<!-- START nested: #js_bottom_hosted_scripts -->
-		<MySource_AREA id_name="js_bottom_hosted_scripts" design_area="nest_content"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
-			<!--  END nested:  #js_bottom_hosted_scripts -->
+			<!-- START nested: #js_bottom_linked_scripts -->
+<MySource_AREA id_name="js_bottom_linked_scripts" design_area="nest_content"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
+			<!--  END nested:  #js_bottom_linked_scripts -->
 
 
 		<script type="text/javascript">
@@ -1001,17 +891,17 @@
 		</script>
 
 
-			<!-- START nested: #nested_bottom_random_extra_1 -->
-<MySource_AREA id_name="nested_bottom_random_extra_1" design_area="nest_content"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
-			<!--  END nested:  #nested_bottom_random_extra_1 -->
+			<!-- START nested: #bottom_nested_random_extra_1 -->
+<MySource_AREA id_name="bottom_nested_random_extra_1" design_area="nest_content"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
+			<!--  END nested:  #bottom_nested_random_extra_1 -->
 
-			<!-- START nested: #nested_bottom_random_extra_2 -->
-<MySource_AREA id_name="nested_bottom_random_extra_2" design_area="nest_content"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
-			<!--  END nested:  #nested_bottom_random_extra_2 -->
+			<!-- START nested: #bottom_nested_random_extra_2 -->
+<MySource_AREA id_name="bottom_nested_random_extra_2" design_area="nest_content"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
+			<!--  END nested:  #bottom_nested_random_extra_2 -->
 
-			<!-- START nested: #nested_bottom_random_extra_3 -->
-<MySource_AREA id_name="nested_bottom_random_extra_3" design_area="nest_content"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
-			<!--  END nested:  #nested_bottom_random_extra_3 -->
+			<!-- START nested: #bottom_nested_random_extra_3 -->
+<MySource_AREA id_name="bottom_nested_random_extra_3" design_area="nest_content"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
+			<!--  END nested:  #bottom_nested_random_extra_3 -->
 
 		<!--  END:  JS at the end -->
 
