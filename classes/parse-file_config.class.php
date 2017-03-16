@@ -42,7 +42,8 @@ class config
 
 	private $white_space = 'normal';
 
-	private $strip_comments = true;
+	private $strip_comments = false;
+	private $wrap_in_comments = false;
 
 
 //  END:  properties
@@ -74,7 +75,7 @@ class config
 	{
 		if( !is_string($key) && trim($key) !== '' )
 		{
-			throw new \exception(get_class($this).'::has_var() expects only param $key to be a non-empty string. '.gettype($key).' given.');
+			throw new \Exception(get_class($this).'::has_var() expects only param $key to be a non-empty string. '.gettype($key).' given.');
 		}
 
 		if( property_exists($this,$key) || isset($this->config_vars[$key]) )
@@ -88,7 +89,7 @@ class config
 	{
 		if( !is_string($key) && trim($key) !== '' )
 		{
-			throw new \exception(get_class($this).'::get_var() expects only param $key to be a non-empty string. '.gettype($key).' given.');
+			throw new \Exception(get_class($this).'::get_var() expects only param $key to be a non-empty string. '.gettype($key).' given.');
 		}
 
 		if( property_exists($this,$key) )
@@ -101,7 +102,7 @@ class config
 		}
 		else
 		{
-			throw new \exception(get_class($this).'::get_var() expects only param $key to be a valid config property. Use config->has_var() to check the property exists before you try getting it.');
+			throw new \Exception(get_class($this).'::get_var() expects only param $key to be a valid config property. Use config->has_var() to check the property exists before you try getting it.');
 		}
 	}
 
@@ -125,13 +126,13 @@ class config
 	{
 		if( !is_string($file) || trim($file) === '' )
 		{
-			throw new \exception(get_class($this).'::__construct() expects only parameter $file to be a non-empty string. '.gettype($file)." given.\n");
+			throw new \Exception(get_class($this).'::__construct() expects only parameter $file to be a non-empty string. '.gettype($file)." given.\n");
 		}
 
 		$file = realpath($file);
 		if( $file === false )
 		{
-			throw new \exception(get_class($this).'::__construct() expects only parameter $file to be a path to an existing file or direcotry/folder. "'.$file." .\n");
+			throw new \Exception(get_class($this).'::__construct() expects only parameter $file to be a path to an existing file or direcotry/folder. "'.$file." .\n");
 		}
 
 		$path = pathinfo($file);
@@ -193,7 +194,7 @@ class config
 		}
 		if( $type === false )
 		{
-			throw new \exception(get_class($this).'::__construct() expects only parameter $file to point to a .info or .json file '.gettype($file)." given.\n");
+			throw new \Exception(get_class($this).'::__construct() expects only parameter $file to point to a .info or .json file '.gettype($file)." given.\n");
 		}
 		elseif( $type === 'info' )
 		{

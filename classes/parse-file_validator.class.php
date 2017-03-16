@@ -42,15 +42,15 @@ class validator {
 
 		if( !is_string($code) )
 		{
-			throw new \exception(get_class($this).'::parse() expects first parameter $code to be a string. '.gettype($code).' given.');
+			throw new \Exception(get_class($this).'::parse() expects first parameter $code to be a string. '.gettype($code).' given.');
 		}
 		if( !is_string($file_name) || trim($file_name) === '' )
 		{
-			throw new \exception(get_class($this).'::parse() expects second parameter $file_name to be a non-empty string. '.gettype($file_name).' given.');
+			throw new \Exception(get_class($this).'::parse() expects second parameter $file_name to be a non-empty string. '.gettype($file_name).' given.');
 		}
 		if( !is_string($file_content) )
 		{
-			throw new \exception(get_class($this).'::parse() expects third parameter $file_content to be a string. '.gettype($file_content).' given.');
+			throw new \Exception(get_class($this).'::parse() expects third parameter $file_content to be a string. '.gettype($file_content).' given.');
 		}
 		if( $file_content === '' )
 		{
@@ -90,8 +90,8 @@ class validator {
 				{
 					if( $msg = $this->existing_id($id) )
 					{
-						$this->log(
-							 'errror'
+						$this->log->add(
+							 'error'
 							,$msg
 							,$file_name
 							,$tags[$a][0]

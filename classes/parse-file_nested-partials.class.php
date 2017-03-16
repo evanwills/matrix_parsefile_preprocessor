@@ -81,7 +81,7 @@ class nested_partials
 		}
 		if( !is_string($path) || trim($path) === '' )
 		{
-			throw new \exception(get_class($this).'::add() expects first parameter $path to be a non-empty string. '.gettype($path).' given.');
+			throw new \Exception(get_class($this).'::add() expects first parameter $path to be a non-empty string. '.gettype($path).' given.');
 		}
 
 
@@ -101,7 +101,7 @@ class nested_partials
 				}
 				else
 				{
-					throw new \exception(get_class($this).'::add() expects second parameter $file to be an existing file. "'.$file.'" cannot be found.');
+					throw new \Exception(get_class($this).'::add() expects second parameter $file to be an existing file. "'.$file.'" cannot be found.');
 				}
 			}
 		}
@@ -116,13 +116,13 @@ class nested_partials
 				}
 				else
 				{
-					throw new \exception(get_class($this).'::add() expects second parameter $file to be an existing file. "'.$file.'" cannot be found.');
+					throw new \Exception(get_class($this).'::add() expects second parameter $file to be an existing file. "'.$file.'" cannot be found.');
 				}
 			}
 		}
 		else
 		{
-			throw new \exception(get_class($this).'::add() expects first parameter $path to be a valid path to a directory. "'.$path.'" cannot be found.');
+			throw new \Exception(get_class($this).'::add() expects second parameter $file to be a valid path to a directory. "'.$file.'" cannot be found.');
 		}
 
 		$this->partials_dirs[] = [ 'path' => $path , 'file' => $file ];
@@ -250,19 +250,19 @@ class nested_partials
 	{
 		if( !is_string($base_file) )
 		{
-			throw new \exception(get_class($this)."::__constructor() expects first paramater \$base_file to be a string! ".gettype($base_file)." given.");
+			throw new \Exception(get_class($this)."::__constructor() expects first paramater \$base_file to be a string! ".gettype($base_file)." given.");
 		}
 
 		$base_file = realpath($base_file);
 		if( $base_file === false )
 		{
-			throw new \exception(get_class($this)."::__constructor() expects first paramater \$base_file to be the path to a file! \"$base_file\" cannot be found.");
+			throw new \Exception(get_class($this)."::__constructor() expects first paramater \$base_file to be the path to a file! \"$base_file\" cannot be found.");
 		}
 
 		$file_parts = pathinfo($base_file);
 		if( !isset($file_parts['extension']) || strtolower($file_parts['extension']) !== 'xml' )
 		{
-			throw new \exception(get_class($this)."::__constructor() expects first paramater \$base_file to be an XML file (with the .xml extension)! \"$base_file\" cannot be found.");
+			throw new \Exception(get_class($this)."::__constructor() expects first paramater \$base_file to be an XML file (with the .xml extension)! \"$base_file\" cannot be found.");
 		}
 
 		$this->path = $file_parts['dirname'].'/';

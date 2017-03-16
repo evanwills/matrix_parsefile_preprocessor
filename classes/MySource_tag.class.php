@@ -58,7 +58,7 @@ class mysource_tag extends xml_tag
 	{
 		if( !is_string($error_msg) && trim($error_msg) !== '' )
 		{
-			throw new exception('mysource_tag::set_error() expects only parameter $error_msg to be a non-empty string');
+			throw new \Exception('mysource_tag::set_error() expects only parameter $error_msg to be a non-empty string');
 		}
 		$this->error = true;
 		$this->error_msg = $error_msg;

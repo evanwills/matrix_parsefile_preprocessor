@@ -18,7 +18,7 @@ class log_item
 		$dud_msg = self::invalid_type($type);
 		if( $dud_msg !== false )
 		{
-			throw new \exception($dud_msg);
+			throw new \Exception($dud_msg);
 		}
 
 		$tmp = 'matrix_parsefile_preprocessor\\log_item_'.$type;
@@ -76,19 +76,39 @@ class log_item
 		$this->line = $line;
 		$this->file = $file;
 	}
+
+	public function get_type()
+	{
+		return 'base';
+	}
 }
 
 class log_item_error extends log_item
 {
 	protected $type = 'error';
+
+	public function get_type()
+	{
+		return 'error';
+	}
 }
 
 class log_item_warning extends log_item
 {
 	protected $type = 'warning';
+
+	public function get_type()
+	{
+		return 'warning';
+	}
 }
 
 class log_item_notice extends log_item
 {
 	protected $type = 'notice';
+
+	public function get_type()
+	{
+		return 'notice';
+	}
 }

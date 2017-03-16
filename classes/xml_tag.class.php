@@ -15,23 +15,23 @@ class xml_tag
 	{
 		if( !is_string($whole) || trim($whole) == '' )
 		{
-			throw new exception(get_class($this).' constructor expects first parameter $whole to be a non-empty string');
+			throw new \Exception(get_class($this).' constructor expects first parameter $whole to be a non-empty string');
 		}
 		if( !is_string($element) || trim($element) == '' )
 		{
-			throw new exception(get_class($this).' constructor expects first parameter $element to be a non-empty string');
+			throw new \Exception(get_class($this).' constructor expects first parameter $element to be a non-empty string');
 		}
 		if( !is_string($attrs) || trim($attrs) == '' )
 		{
-			throw new exception(get_class($this).' constructor expects second parameter $attrs to be a non-empty string');
+			throw new \Exception(get_class($this).' constructor expects second parameter $attrs to be a non-empty string');
 		}
 		if( !is_int($ln_number) || $ln_number < 1 )
 		{
-			throw new exception(get_class($this).' constructor expects second parameter $ln_number to be an integer greater than zero');
+			throw new \Exception(get_class($this).' constructor expects second parameter $ln_number to be an integer greater than zero');
 		}
 		if( !is_string($file) || trim($file) === '' )
 		{
-			throw new exception(get_class($this).' constructor expects fifth parameter $file to be a non-empty string');
+			throw new \Exception(get_class($this).' constructor expects fifth parameter $file to be a non-empty string');
 		}
 
 		$this->whole_tag = $whole;
@@ -91,7 +91,7 @@ class xml_tag
 	{
 		if( !is_string($attr) && !is_numeric($attr) )
 		{
-			throw new exception(get_class($this).'::get_attr() expects only parameter to be a string or number');
+			throw new \Exception(get_class($this).'::get_attr() expects only parameter to be a string or number');
 		}
 
 		if( isset($this->attr[$attr]) )
