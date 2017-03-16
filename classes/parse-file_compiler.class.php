@@ -58,6 +58,8 @@ class compiler {
 
 	private $is_initialised = false;
 
+	private $partials_processed = 0;
+	private $keywords = 0;
 
 	/**
 	 * @const string INCLUDES_REGEX a regular expression for
@@ -160,7 +162,7 @@ class compiler {
 		{
 			$this->output = fopen( $this->output_file , 'w' );
 		} else {
-			throw new exception(get_class($this).' constructor cannot create file '.$file_parts['basename'].' in directory '.dirname($this->output_file).'/');
+			throw new \Exception(get_class($this).' constructor cannot create file '.$file_parts['basename'].' in directory '.dirname($this->output_file).'/');
 		}
 
 		$ws = $this->config->get_var('white_space');
@@ -184,12 +186,19 @@ class compiler {
 		if( $this->config->get_var('strip_comments') === true )
 		{
 			$this->handle_comments = '_strip_comments';
-			$this->handle_wrap = '_dont_wrap';
 		}
 		else
 		{
 			$this->handle_comments = '_leave_comments';
+		}
+
+		if( $this->config->get_var('wrap_in_comments') === true )
+		{
 			$this->handle_wrap = '_wrap_in_comments';
+		}
+		else
+		{
+			$this->handle_wrap = '_dont_wrap';
 		}
 	}
 
@@ -208,7 +217,7 @@ class compiler {
 	{
 		if( !is_string($file_name) || trim($file_name) === '' )
 		{
-			throw new \exception(get_class($this).'::parse() expects first parameter $file_name to be a non-empty string. '.gettype($file_name).' given.');
+			throw new \Exception(get_class($this).'::parse() expects first parameter $file_name to be a non-empty string. '.gettype($file_name).' given.');
 		}
 		if(
 			$modifiers !== false && (
@@ -220,7 +229,7 @@ class compiler {
 			)
 		)
 		{
-			throw new \exception(get_class($this).'::parse() expects second parameter $modifiers to be either false or a non-empty array containing the following keys: \'find\', \'replace\', \'regex\'.');
+			throw new \Exception(get_class($this).'::parse() expects second parameter $modifiers to be either false or a non-empty array containing the following keys: \'find\', \'replace\', \'regex\'.');
 		}
 
 		if( substr(strtolower($file_name),-4,4) !== '.xml' )
@@ -229,55 +238,97 @@ class compiler {
 		}
 
 		$file_parts = pathinfo($file_name);
-		$path = $this->nested_partials->add( $file_parts['dirname'].'/' , $file_parts['basename'] );
 
-		$file = $this->nested_partials->get_inner_most_file_whole();
-
-		if( file_exists($file) )
+		$ok = false;
+		try
 		{
-			$content = file_get_contents($file);
-			if( $modifiers !== false )
+			$path = $this->nested_partials->add( $file_parts['dirname'].'/' , $file_parts['basename'] );
+			$ok = true;
+        }
+		catch (\Exception $e)
+		{
+			$this->log->add(
+				 'error'
+				,"Could not find partial: \"$file_name\""
+				,$this->_get_current('file')
+				,$this->_get_nested_files()
+				,$this->_get_current('content')
+			);
+		}
+
+
+		if( $ok === true )
+		{
+			$file = $this->nested_partials->get_inner_most_file_whole();
+
+			if( file_exists($file) )
 			{
-				if( $modifiers['is_regex'] === true )
+				$content = file_get_contents($file);
+				if( $modifiers !== false )
 				{
-					if( $msg = regex_error($modifiers['find']) )
+					if( $modifiers['is_regex'] === true )
 					{
-						throw new exception(get_class($this).'::parse() expects second parameter $modifiers to contain a valid regex when $modifiers[is_regex] is TRUE. Regex error: "'.$msg.'"');
+						if( $msg = regex_error($modifiers['find']) )
+						{
+							throw new \Exception(get_class($this).'::parse() expects second parameter $modifiers to contain a valid regex when $modifiers[is_regex] is TRUE. Regex error: "'.$msg.'"');
+						}
+						else
+						{
+							$content = preg_replace( $modifiers['find'] , $modifiers['replace'] , $content );
+						}
 					}
 					else
 					{
-						$content = preg_replace( $modifiers['find'] , $modifiers['replace'] , $content );
+						$content = str_replace( $modifiers['find'] , $modifiers['replace'] , $content );
 					}
+				}
+
+				$this->{$this->handle_wrap}($file,true);
+				$this->current_file[] = $file;
+				$this->current_content[] = $content;
+
+				$matches = 0;
+
+				$count = 0;
+				// mixed preg_replace_callback ( mixed $pattern , callback $callback , mixed $subject [, int $limit = -1 [, int &$count ]] )
+				$content = preg_replace_callback( self::INCLUDES_REGEX , [ $this , '_PARSE_KEYWORDS_CALLBACK' ] , $content , -1 , $count );
+
+				if( $count < 1 )
+				{
+					$this->validator->parse( $content , $file , $content );
+					$this->log->add(
+						'notice'
+						,"no keywords were found in {$file_parts['dirname']}/{$file_parts['basename']}"
+						,$file
+					);
 				}
 				else
 				{
-					$content = str_replace( $modifiers['find'] , $modifiers['replace'] , $content );
+					debug($count);
+					$this->keywords += $count;
+					if( $count === 1 )
+					{
+						$tmp = "$count keyword was";
+					}
+					else
+					{
+						$tmp = "$count keywords were";
+					}
+					$this->log->add(
+						'notice'
+						,"$tmp found in {$file_parts['dirname']}/{$file_parts['basename']}"
+						,$file
+					);
 				}
-			}
-
-			$this->current_file[] = $file;
-			$this->current_content[] = $content;
-
-			$matches = 0;
-
-			// mixed preg_replace_callback ( mixed $pattern , callback $callback , mixed $subject [, int $limit = -1 [, int &$count ]] )
-			$content = preg_replace_callback( self::INCLUDES_REGEX , [ $this , 'PARSE_KEYWORDS_CALLBACK' ] , $content , -1 , $matches );
-
-			if( $matches < 1 )
-			{
-				$this->validator->parse( $content , $file , $content );
-				$this->log->add('notice', "no keywords were found in {$file_parts['dirname']}/{$file_parts['basename']}" , $file );
 				fwrite( $this->output , $content );
-			}
-			elseif( preg_match('`'.str_replace('`','\\`',preg_quote($this->last_match)).'(.*)$`s' , $content , $matches ) )
-			{
-				$this->validator->parse( $matches[1] , $file , $content );
-				fwrite( $this->output , $matches[1] );
-			}
+				$this->{$this->handle_wrap}($file,false);
 
-			$this->nested_partials->remove();
-			array_pop($this->current_file);
-			array_pop($this->current_content);
+				$this->partials_processed += 1;
+
+				$this->nested_partials->remove();
+				array_pop($this->current_file);
+				array_pop($this->current_content);
+			}
 		}
 	}
 
@@ -287,9 +338,48 @@ class compiler {
 	 * @return array a list in order of all the tags that have
 	 *               errors or warnings.
 	 */
-	public function get_errors()
+	public function get_logs()
 	{
-		return $this->log->get_all();
+		if( $c = func_num_args() )
+		{
+			if( $c > 1 )
+			{
+				$args = func_get_args();
+				$output = [];
+				$logs = $this->log->get_all();
+				for( $a = 0 ; $a < count($logs) ; $a += 1 )
+				{
+					if( in_array( $logs[$a]->get_type() , $args ) )
+					{
+						$output[] = $logs[$a];
+					}
+				}
+				return $output;
+			}
+			else
+			{
+				if( !log_item::invalid_type($args[0]) )
+				{
+					$tmp = 'get_'.$args[0];
+					return $this->log->$tmp();
+				}
+			}
+		}
+		else
+		{
+			return $this->log->get_all();
+		}
+	}
+
+
+	public function get_processed_partials_count()
+	{
+		return $this->partials_processed;
+	}
+
+	public function get_keyword_count()
+	{
+		return $this->keywords;
 	}
 
 
@@ -316,7 +406,7 @@ class compiler {
 	 *			"R" (if no modifiers)
 	 *		[10] closing wrapper
 	 */
-	private function PARSE_KEYWORDS_CALLBACK($match)
+	private function _PARSE_KEYWORDS_CALLBACK($match)
 	{
 		$this->validator->parse( $match[1] , $this->_get_current('file') , $this->_get_current('content') );
 		$this->last_match = $match[0];
@@ -332,7 +422,7 @@ class compiler {
 			$no_comments = true;
 		} else {
 			// keyword dlimiters
-			$this->_display_msg( 'error' , "Keyword delimiters '{$match[3]}' and '{$match[10]}' are not valid" , $match[2], $this->get_current['file'] , $this->get_current());
+			$this->_display_msg( 'error' , "Keyword delimiters '{$match[3]}' and '{$match[10]}' are not valid" , $match[2], $this->get_current['file'] , $this->_get_current());
 		}
 
 		if( $match[7] !== '' )
@@ -352,7 +442,13 @@ class compiler {
 				}
 				if( $msg = regex_error($modifiers['find']) )
 				{
-					$this->log->add( 'error' , "keyword find/replace regex is not valid\n\tError message: \"$msg\"\n\tDelimiter: \"{$match[6]}\"\n\tRaw pattern: \"{$match[7]}\"\n\tModifiers: \"{$match[9]}\"\n\tCompiled pattern: \"{$modifiers['find']}\"\n\n", $match[2], $this->get_current['file'] , $this->get_current() );
+					$this->log->add(
+						 'error'
+						,"keyword find/replace regex is not valid\n\tError message: \"$msg\"\n\tDelimiter: \"{$match[6]}\"\n\tRaw pattern: \"{$match[7]}\"\n\tModifiers: \"{$match[9]}\"\n\tCompiled pattern: \"{$modifiers['find']}\"\n\n"
+						,$match[2]
+						,$this->_get_nested_files()
+						,$this->_get_current()
+					);
 					$modifiers = false;
 				}
 			}
@@ -366,32 +462,55 @@ class compiler {
 		try {
 			$this->parse($match[4].$match[5],$modifiers);
 		}
-		catch( exception $e ) {
+		catch( \Exception $e ) {
 			debug($e);
-			$this->log->add( 'error' , $e->getMessage() , $match[2] ,  $this->get_current('file') , $this->get_current() );
+			$this->log->add(
+				'error'
+				,$e->getMessage()
+				,$match[2]
+				,$this->_get_nested_files()
+				,$this->_get_current() );
 		}
+		return '';
 	}
 
 
 
-	private function _dont_wrap($partial_content,$keyword)
-	{
-		return $this->_strip_comments($partial_content);
-	}
+//	private function _dont_wrap($partial_content,$keyword)
+//	{
+//		return $this->_strip_comments($partial_content);
+//	}
 
-	private function _wrap_in_comments($partial_content,$keyword)
+//	private function _wrap_in_comments($partial_content,$keyword)
+//	{
+//		$open = '<!--';
+//		$close = '-->';
+//		if( preg_match( '`^\s*/\*`' , $partial_content ) )
+//		{
+//			$open = '/*';
+//			$close = '*/';
+//		}
+//		$open = "\n$open|| ";
+//		$close = "||$close\n";
+//
+//		return "{$open}START: $keyword {$close}{$partial_content}{$open} END:  $keyword $close";
+//	}
+
+	private function _dont_wrap($file_name, $open = false)
 	{
-		$open = '<!--';
-		$close = '-->';
-		if( preg_match( '`^\s*/\*`' , $partial_content ) )
+		// don't do anything;
+	}
+	private function _wrap_in_comments( $file_name, $open = false )
+	{
+		if( $open === true )
 		{
-			$open = '/*';
-			$close = '*/';
+			$tmp = 'START:';
 		}
-		$open = "\n$open|| ";
-		$close = "||$close\n";
-
-		return "{$open}START: $keyword {$close}{$partial_content}{$open} END:  $keyword $close";
+		else
+		{
+			$tmp = ' END: ';
+		}
+		fwrite($this->output , "\n<!-- $tmp $file_name -->\n" );
 	}
 
 	private function _strip_comments($partial_content)
@@ -435,10 +554,18 @@ class compiler {
 	{
 		if( $type !== 'file' && $type !== 'content' )
 		{
-			throw new \exception(get_class($this).'::_get_current() expects only parameter to be string with a value of either "file" OR "content".');
+			throw new \Exception(get_class($this).'::_get_current() expects only parameter to be string with a value of either "file" OR "content".');
 		}
 		$tmp = 'current_'.$type;
 		$c = count($this->{$tmp}) - 1;
 		return $this->{$tmp}[$c];
+	}
+
+	private function _get_nested_files()
+	{
+		return implode(
+			"\n      "
+			,array_reverse($this->current_file)
+		);
 	}
 }
