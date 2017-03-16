@@ -2,7 +2,6 @@
 
 namespace matrix_parsefile_preprocessor;
 
-
 /**
  * extract_dot_info() takes the contents of an info file and converts
  * it to a multi dimensional array.
@@ -46,6 +45,39 @@ function extract_dot_info($info_content, $file_path = false )
 /iUx';
 	preg_match_all( $info_regex , $info_content , $key_value , PREG_SET_ORDER);
 
+
+	function prep_key($key)
+	{
+		return trim(strtolower(str_replace( ']' , '' , $key )));
+	}
+
+	function prep_value($value)
+	{
+		$value = trim($value);
+		$tmp = strtolower(trim($value));
+		if($tmp === 'true')
+		{
+			$value = true;
+		}
+		elseif($tmp === 'false')
+		{
+			$value = false;
+		}
+
+		if( is_numeric($value) )
+		{
+			if(is_int($value/1))
+			{
+				settype($value,'int');
+			}
+			else
+			{
+				settype($value,'float');
+			}
+		}
+		return $value;
+	}
+
 	foreach($key_value as $info_item)
 	{
 		$key_0 = prep_key($info_item[1]); // First dimension
@@ -55,7 +87,7 @@ function extract_dot_info($info_content, $file_path = false )
 		$key_test_2 = $info_item[5];	// Third dimension test
 		$key_3 = prep_key($info_item[6]); // Fourth dimension key
 		$key_test_3 = $info_item[7];	// Fourth dimension test
-		$value = trim($info_item[8]);	// item value
+		$value = prep_value($info_item[8]);	// item value
 
 		if( !empty($key_0) && !empty($key_test_1) && !empty($key_test_2) && !empty($key_test_3) )
 		{ // All four dimensions are set
@@ -72,18 +104,12 @@ function extract_dot_info($info_content, $file_path = false )
 		elseif( !empty($key_0) && empty($key_test_1) && empty($key_test_2) && empty($key_test_3) )
 		{ // Only one dimension is set
 			$info_array[$key_0] = $value;
-		};
-	};
+		}
+	}
 	if( isset($info_file) && $file_path === true )
 	{
 		$info_array['info_file'] = $info_file;
-	};
+	}
 	return $info_array;
-};
-
-
-function prep_key($key)
-{
-	return trim(strtolower(str_replace( ']' , '' , $key )));
-};
+}
 
