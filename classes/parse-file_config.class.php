@@ -2,6 +2,7 @@
 
 namespace matrix_parsefile_preprocessor;
 
+require_once($pwd.'/includes/type_or_value.inc.php');
 
 /**
  * config is a singlton object used to store shared info between

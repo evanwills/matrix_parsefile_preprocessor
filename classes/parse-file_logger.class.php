@@ -4,6 +4,7 @@ namespace matrix_parsefile_preprocessor;
 
 require_once(__DIR__.'/parse-file_log-item.class.php');
 require_once($pwd.'/includes/get_line_number.inc.php');
+require_once($pwd.'/includes/type_or_value.inc.php');
 
 
 class logger

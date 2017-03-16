@@ -1,5 +1,7 @@
 <?php
 
+require_once($pwd.'/includes/type_or_value.inc.php');
+
 class xml_tag
 {
 	protected $name = '';
@@ -96,7 +98,7 @@ class xml_tag
 	{
 		if( !is_string($attr) && !is_numeric($attr) )
 		{
-			throw new \Exception(get_class($this).'::get_attr() expects only parameter to be a string or number. '.\type_or_value($attrs,'string').' given.');
+			throw new \Exception(get_class($this).'::get_attr() expects only parameter to be a string or number. '.type_or_value($attrs,'string').' given.');
 		}
 
 		if( isset($this->attr[$attr]) )

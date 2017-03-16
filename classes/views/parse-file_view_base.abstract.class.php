@@ -2,6 +2,8 @@
 
 namespace matrix_parsefile_preprocessor\view;
 
+require_once($pwd.'/includes/type_or_value.inc.php');
+
 abstract class base_view
 {
 	protected $notice_count = 0;

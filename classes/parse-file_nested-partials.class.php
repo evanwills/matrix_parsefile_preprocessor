@@ -2,6 +2,8 @@
 
 namespace matrix_parsefile_preprocessor;
 
+require_once($pwd.'/includes/type_or_value.inc.php');
+
 class nested_partials
 {
 	/**
