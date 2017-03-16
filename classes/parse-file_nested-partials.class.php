@@ -81,7 +81,7 @@ class nested_partials
 		}
 		if( !is_string($path) || trim($path) === '' )
 		{
-			throw new \Exception(get_class($this).'::add() expects first parameter $path to be a non-empty string. '.gettype($path).' given.');
+			throw new \Exception(get_class($this).'::add() expects first parameter $path to be a non-empty string. '.\type_or_value($path,'string').' given.');
 		}
 
 

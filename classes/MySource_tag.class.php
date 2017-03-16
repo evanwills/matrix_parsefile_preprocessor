@@ -1,6 +1,7 @@
 <?php
 
 require_once('classes/xml_tag.class.php');
+require_once($pwd.'/includes/type_or_value.inc.php');
 
 class mysource_tag extends xml_tag
 {
@@ -58,7 +59,7 @@ class mysource_tag extends xml_tag
 	{
 		if( !is_string($error_msg) && trim($error_msg) !== '' )
 		{
-			throw new \Exception('mysource_tag::set_error() expects only parameter $error_msg to be a non-empty string');
+			throw new \Exception('mysource_tag::set_error() expects only parameter $error_msg to be a non-empty string. '.\type_or_value($error_msg,'string').' given.');
 		}
 		$this->error = true;
 		$this->error_msg = $error_msg;

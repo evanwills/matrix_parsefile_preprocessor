@@ -75,7 +75,7 @@ class config
 	{
 		if( !is_string($key) && trim($key) !== '' )
 		{
-			throw new \Exception(get_class($this).'::has_var() expects only param $key to be a non-empty string. '.gettype($key).' given.');
+			throw new \Exception(get_class($this).'::has_var() expects only param $key to be a non-empty string. '.\type_or_value($key,'string').' given.');
 		}
 
 		if( property_exists($this,$key) || isset($this->config_vars[$key]) )
@@ -89,7 +89,7 @@ class config
 	{
 		if( !is_string($key) && trim($key) !== '' )
 		{
-			throw new \Exception(get_class($this).'::get_var() expects only param $key to be a non-empty string. '.gettype($key).' given.');
+			throw new \Exception(get_class($this).'::get_var() expects only param $key to be a non-empty string. '.\type_or_value($key,'string').' given.');
 		}
 
 		if( property_exists($this,$key) )
@@ -126,7 +126,7 @@ class config
 	{
 		if( !is_string($file) || trim($file) === '' )
 		{
-			throw new \Exception(get_class($this).'::__construct() expects only parameter $file to be a non-empty string. '.gettype($file)." given.\n");
+			throw new \Exception(get_class($this).'::__construct() expects only parameter $file to be a non-empty string. '.\type_or_value($file,'string')." given.\n");
 		}
 
 		$file = realpath($file);
@@ -194,7 +194,7 @@ class config
 		}
 		if( $type === false )
 		{
-			throw new \Exception(get_class($this).'::__construct() expects only parameter $file to point to a .info or .json file '.gettype($file)." given.\n");
+			throw new \Exception(get_class($this).'::__construct() expects only parameter $file to point to a .info or .json file. "'.$file."\" given.\n");
 		}
 		elseif( $type === 'info' )
 		{

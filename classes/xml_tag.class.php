@@ -15,23 +15,23 @@ class xml_tag
 	{
 		if( !is_string($whole) || trim($whole) == '' )
 		{
-			throw new \Exception(get_class($this).' constructor expects first parameter $whole to be a non-empty string');
+			throw new \Exception(get_class($this).' constructor expects first parameter $whole to be a non-empty string. '.\type_or_value($whole,'string').' given');
 		}
 		if( !is_string($element) || trim($element) == '' )
 		{
-			throw new \Exception(get_class($this).' constructor expects first parameter $element to be a non-empty string');
+			throw new \Exception(get_class($this).' constructor expects first parameter $element to be a non-empty string. '.\type_or_value($element,'string').' given');
 		}
 		if( !is_string($attrs) || trim($attrs) == '' )
 		{
-			throw new \Exception(get_class($this).' constructor expects second parameter $attrs to be a non-empty string');
+			throw new \Exception(get_class($this).' constructor expects second parameter $attrs to be a non-empty string. '.\type_or_value($attrs,'string').' given');
 		}
 		if( !is_int($ln_number) || $ln_number < 1 )
 		{
-			throw new \Exception(get_class($this).' constructor expects second parameter $ln_number to be an integer greater than zero');
+			throw new \Exception(get_class($this).' constructor expects second parameter $ln_number to be an integer greater than zero. '.\type_or_value($ln_number,'integer').' given');
 		}
 		if( !is_string($file) || trim($file) === '' )
 		{
-			throw new \Exception(get_class($this).' constructor expects fifth parameter $file to be a non-empty string');
+			throw new \Exception(get_class($this).' constructor expects fifth parameter $file to be a non-empty string. '.\type_or_value($file,'string').' given');
 		}
 
 		$this->whole_tag = $whole;
@@ -87,11 +87,16 @@ class xml_tag
 		return $this->line;
 	}
 
+	public function get_file()
+	{
+		return $this->file;
+	}
+
 	public function get_attr( $attr )
 	{
 		if( !is_string($attr) && !is_numeric($attr) )
 		{
-			throw new \Exception(get_class($this).'::get_attr() expects only parameter to be a string or number');
+			throw new \Exception(get_class($this).'::get_attr() expects only parameter to be a string or number. '.\type_or_value($attrs,'string').' given.');
 		}
 
 		if( isset($this->attr[$attr]) )

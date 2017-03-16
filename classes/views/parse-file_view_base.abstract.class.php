@@ -37,11 +37,11 @@ abstract class base_view
 		}
 		if( !is_int($partials_count) || $partials_count < 0 )
 		{
-			throw new \Exception(get_class($this).'constructor expects first parameter $partials_count to be an integer, zero or higher. '.gettype($partials_count).' given.');
+			throw new \Exception(get_class($this).'constructor expects first parameter $partials_count to be an integer, zero or higher. '.\type_or_value($partials_count,'integer').' given.');
 		}
 		if( !is_int($keyword_count) || $keyword_count < 0 )
 		{
-			throw new \Exception(get_class($this).'constructor expects first parameter $keyword_count to be an integer, zero or higher. '.gettype($keyword_count).' given.');
+			throw new \Exception(get_class($this).'constructor expects first parameter $keyword_count to be an integer, zero or higher. '.\type_or_value($keyword_count,'integer').' given.');
 		}
 		$this->partials = $partials_count;
 		$this->keywords = $keyword_count;
