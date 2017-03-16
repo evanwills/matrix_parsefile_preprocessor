@@ -10,6 +10,7 @@ require_once(dirname(__FILE__).'/parse-file_logger.class.php');
 
 require_once($pwd.'/includes/regex_error.inc.php');
 require_once($pwd.'/includes/get_line_number.inc.php');
+require_once($pwd.'/includes/type_or_value.inc.php');
 
 
 class validator {
@@ -42,11 +43,11 @@ class validator {
 
 		if( !is_string($code) )
 		{
-			throw new \Exception(get_class($this).'::parse() expects first parameter $code to be a string. '.gettype($code).' given.');
+			throw new \Exception(get_class($this).'::parse() expects first parameter $code to be a string. '.\type_or_value($code,'string').' given.');
 		}
 		if( !is_string($file_name) || trim($file_name) === '' )
 		{
-			throw new \Exception(get_class($this).'::parse() expects second parameter $file_name to be a non-empty string. '.gettype($file_name).' given.');
+			throw new \Exception(get_class($this).'::parse() expects second parameter $file_name to be a non-empty string. '.\type_or_value($file_name,'string').' given.');
 		}
 		if( !is_string($file_content) )
 		{
@@ -205,6 +206,24 @@ class validator {
 	}
 
 
+	public function log_unprinted()
+	{
+		$output = [];
+		foreach( $this->tags as $tag )
+		{
+			if( $tag->get_printed() === false && $tag->get_called() === false )
+			{
+				$this->log->add(
+					'warning'
+					,'"'.$tag->get_id().'" was never printed'
+					,$tag->get_file()
+					,$tag->get_whole_tag()
+					,''
+					,$tag->get_line()
+				);
+			}
+		}
+	}
 
 
 	private function undefined_area($input) {

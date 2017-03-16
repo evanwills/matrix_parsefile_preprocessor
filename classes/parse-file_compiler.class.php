@@ -150,6 +150,10 @@ class compiler {
 
 	public function __construct( $base_file )
 	{
+		if( !is_string($base_file) || trim($base_file) == '' )
+		{
+			throw new \Exception(get_class($this).' constructor expects first parameter $base_file to be a non-empty string. '.\type_or_value($base_file,'string').' given');
+		}
 		$this->config = config::get($base_file);
 		$this->log = logger::get($base_file);
 		$this->nested_partials = nested_partials::get($base_file);
@@ -217,7 +221,7 @@ class compiler {
 	{
 		if( !is_string($file_name) || trim($file_name) === '' )
 		{
-			throw new \Exception(get_class($this).'::parse() expects first parameter $file_name to be a non-empty string. '.gettype($file_name).' given.');
+			throw new \Exception(get_class($this).'::parse() expects first parameter $file_name to be a non-empty string. '.\type_or_value($file_name,'string').' given.');
 		}
 		if(
 			$modifiers !== false && (
@@ -343,6 +347,14 @@ class compiler {
 		return $this->log;
 	}
 
+	/**
+	 * a pass through method to log any unprinted tags
+	 * @return void
+	 */
+	public function log_unprinted()
+	{
+		$this->validator->log_unprinted();
+	}
 
 	public function get_processed_partials_count()
 	{
@@ -526,7 +538,7 @@ class compiler {
 	{
 		if( $type !== 'file' && $type !== 'content' )
 		{
-			throw new \Exception(get_class($this).'::_get_current() expects only parameter to be string with a value of either "file" OR "content".');
+			throw new \Exception(get_class($this).'::_get_current() expects only parameter to be string with a value of either "file" OR "content". '.\type_or_value($type,'string').' given.');
 		}
 		$tmp = 'current_'.$type;
 		$c = count($this->{$tmp}) - 1;

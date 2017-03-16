@@ -60,7 +60,6 @@ if(!function_exists('debug'))
 // END: debug include
 // ==================================================================
 
-debug('server',$pwd);
 require_once('classes/parse-file_compiler.class.php');
 require_once('classes/views/parse-file_view_cli.class.php');
 
@@ -81,6 +80,7 @@ $file = realpath($_SERVER['argv']['1']);
 
 $builder = new matrix_parsefile_preprocessor\compiler($file);
 $builder->parse($file);
+$builder->log_unprinted();
 
 $mode = 'all';
 if( isset($_SERVER['argv'][2]) && $_SERVER['argv'][2] === 'brief' )

@@ -80,6 +80,7 @@ if( isset($_POST['input']) && trim($_POST['input']) !== '' )
 	$validator = new matrix_parsefile_preprocessor\validator();
 
 	$validator->parse( $input , 'web' );
+	$validator->log_unprinted();
 
 	debug('blah;');
 

@@ -6,7 +6,7 @@ require_once(__DIR__.'/parse-file_view_base.abstract.class.php');
 
 class web_view extends base_view
 {
-	private $title = 'Basic Squiz Matrix parse-file checker';
+	private $title = 'Basic Squiz Matrix parse-file validator';
 
 	public function render_open()
 	{

@@ -22,7 +22,7 @@ class logger
 		return self::$me;
 	}
 
-	public function add( $type , $msg , $file = '' , $pattern = '' , $whole_content = '' )
+	public function add( $type , $msg , $file = '' , $pattern = '' , $whole_content = '' , $line = 0 )
 	{
 		if( $dud_msg = log_item::invalid_type($type) )
 		{
@@ -30,7 +30,7 @@ class logger
 		}
 		if( !is_string($msg) || trim($msg) === '' )
 		{
-			throw new \Exception(get_class($this).'::add() expects second parameter $msg to be a non-empty string. '.gettype($msg).' given.');
+			throw new \Exception(get_class($this).'::add() expects second parameter $msg to be a non-empty string. '.\type_or_value($msg,'string').' given.');
 		}
 		if( !is_string($file) )
 		{
@@ -49,9 +49,9 @@ class logger
 		{
 			$line = get_line_number( $pattern, $whole_content );
 		}
-		else
+		elseif( !is_int($line) || $line < 0 )
 		{
-			$line = 0;
+			throw new \Exception(get_class($this).'::add() expects sixth parameter $line to be a an integer zero or greater. '.\type_or_value($whole_content,'integer').' given.');
 		}
 
 		$tmp = log_item::get($type , $msg , $pattern , $line , $file );
