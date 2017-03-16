@@ -63,84 +63,72 @@ if(!function_exists('debug'))
 $input = '';
 $report = '';
 $root_url = '//'.$_SERVER['HTTP_HOST'].dirname($_SERVER['PHP_SELF']).'/';
-$title = 'Basic Squiz Matrix parse-file checker';
+
+
+require_once($pwd.'classes/parse-file_validator.class.php');
+require_once($pwd.'classes/views/parse-file_view_web.class.php');
 
 if( isset($_POST['input']) && trim($_POST['input']) !== '' )
 {
-	require_once('includes/regex_error.inc.php');
-	require_once('classes/matrix-parsefile-preprocessor.class.php');
-	require_once('classes/matrix-parsefile-preprocessor_basic-test.class.php');
-	require_once('classes/matrix-parsefile-preprocessor_config.class.php');
+	require_once('classes/parse-file_validator.class.php');
 
 
 	$fail_on_unprinted = true;
 	$unprinted_exceptions = array();
 	$input = $_POST['input'];
 
-	$checker = matrix_parsefile_preprocessor__basic_test::get($unprinted_exceptions);
+	$validator = new matrix_parsefile_preprocessor\validator();
 
-	$checker->test_parsefile( $input , 'web' );
+	$validator->parse( $input , 'web' );
 
-	$errors = $checker->get_errors();
+	debug('blah;');
 
-	if( count($errors) > 0 )
+
+	if( isset($_SERVER['argv'][2]) && $_SERVER['argv'][2] === 'brief' )
 	{
-		$report = '
-		<section class="error-report">
-			<header>
-				<h1>Error report</h1>
-			</header>
-			<ul>';
-		foreach( $errors as $tag )
+		switch($_SERVER['argv'][2])
 		{
-			$report .= '
-				<li>
-					<dl>
-						<dt>Line:</dt>
-							<dd>'.$tag['line'].'</dd>
-						<dt>ID:</dt>
-							<dd>'.$tag['id'].'</dd>
-						<dt>Tag:</dt>
-							<dd>'.htmlspecialchars($tag['xml']).'</dd>
-					</dl>
-					<p>'.$tag['msg'].'</p>
-				</li>
-';
+			case 'brief':
+				$mode = ['error','warning'];
+				break;
+			case 'error':
+			case 'warning':
+			case 'notice':
+				$mode = $_SERVER['argv'][2];
+				break;
+			case 'q':
+			case 'quiet':
+			case 's':
+			case 'silent':
+				exit;
+				break;
+			default:
+				$mode = 'all';
+
 		}
-		$report .= '			</ul>
-		</section>
-';
 	}
-	else
+
+
+	$view = new matrix_parsefile_preprocessor\view\web_view($builder->get_processed_partials_count() , $builder->get_keyword_count() , $mode );
+
+	$view->render_open();
+	$logs = $validator->get_logs();
+
+	$view->render_report_wrap_open();
+	$view->render_report();
+	$view->render_item_wrap_open();
+	while( $log_item = $log->get_next_item() )
 	{
-		$report = '
-		<p class="no-errors">Yay!!! No errors found</p>';
+		$view->render_item($log_item);
 	}
+	$view->render_item_wrap_close();
+	$view->render_report_wrap_close();
+	$view->render_close();
 }
+else
+{
 
-
-?>
-
-<!DOCTYPE html>
-<html>
-	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-		<title><?php echo $title; ?></title>
-		<link href="style.css" rel="stylesheet" />
-	</head>
-	<body>
-		<h1><?php echo $title; ?></h1>
-<?php echo $report; ?>
-		<form action="<?php echo $root_url; ?>" method="post">
-			<input type="submit" value="submit" name="submit" />
-			<ul>
-				<li id="source">
-					<label for="input">Parse-file to be checked</label>
-					<textarea name="input" id="input"><?php echo htmlspecialchars($input); ?></textarea>
-				</li>
-			</ul>
-		</form>
-
-		<p id="install"><a href="<?php echo $_SERVER['REQUEST_URI']; ?>" rel="sidebar" title="Basic Matrix parse-file checker">Install as Sidebar</a></p>
-	</body>
-</html>
+	$view = new matrix_parsefile_preprocessor\view\web_view(0 , 0 , 'all' );
+	$view->render_open();
+	$view->render_close();
+}

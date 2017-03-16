@@ -2,12 +2,12 @@
 
 namespace matrix_parsefile_preprocessor;
 
-require_once(dirname(__FILE__).'/parse-file_config.class.php');
-require_once(dirname(__FILE__).'/parse-file_validator.class.php');
-require_once(dirname(__FILE__).'/parse-file_nested-partials.class.php');
-require_once(dirname(__FILE__).'/parse-file_logger.class.php');
+require_once(__DIR__.'/parse-file_config.class.php');
+require_once(__DIR__.'/parse-file_validator.class.php');
+require_once(__DIR__.'/parse-file_nested-partials.class.php');
+require_once(__DIR__.'/parse-file_logger.class.php');
 
-require_once($_SERVER['PWD'].'/includes/regex_error.inc.php');
+require_once($pwd.'/includes/regex_error.inc.php');
 
 class compiler {
 
@@ -340,35 +340,7 @@ class compiler {
 	 */
 	public function get_logs()
 	{
-		if( $c = func_num_args() )
-		{
-			if( $c > 1 )
-			{
-				$args = func_get_args();
-				$output = [];
-				$logs = $this->log->get_all();
-				for( $a = 0 ; $a < count($logs) ; $a += 1 )
-				{
-					if( in_array( $logs[$a]->get_type() , $args ) )
-					{
-						$output[] = $logs[$a];
-					}
-				}
-				return $output;
-			}
-			else
-			{
-				if( !log_item::invalid_type($args[0]) )
-				{
-					$tmp = 'get_'.$args[0];
-					return $this->log->$tmp();
-				}
-			}
-		}
-		else
-		{
-			return $this->log->get_all();
-		}
+		return $this->log;
 	}
 
 

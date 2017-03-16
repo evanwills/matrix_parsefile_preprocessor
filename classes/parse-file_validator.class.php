@@ -8,8 +8,8 @@ require_once(dirname(__FILE__).'/MySource_tag.class.php');
 require_once(dirname(__FILE__).'/parse-file_config.class.php');
 require_once(dirname(__FILE__).'/parse-file_logger.class.php');
 
-require_once($_SERVER['PWD'].'/includes/regex_error.inc.php');
-require_once($_SERVER['PWD'].'/includes/get_line_number.inc.php');
+require_once($pwd.'/includes/regex_error.inc.php');
+require_once($pwd.'/includes/get_line_number.inc.php');
 
 
 class validator {
@@ -184,6 +184,11 @@ class validator {
 		{
 			return $output;
 		}
+	}
+
+	public function get_logs()
+	{
+		return $this->log;
 	}
 
 	public function get_bad_tags()

@@ -5,8 +5,8 @@
 
 if(!function_exists('debug'))
 {
-	if(isset($_SERVER['HTTP_HOST'])){ $path = $_SERVER['HTTP_HOST']; $pwd = dirname($_SERVER['SCRIPT_FILENAME']).'/'; }
-	else { $path = $_SERVER['USER']; $pwd = $_SERVER['PWD'].'/'; };
+	if(isset($_SERVER['HTTP_HOST'])){ $path = $_SERVER['HTTP_HOST']; $pwd = realpath($_SERVER['SCRIPT_FILENAME']).'/'; }
+	else { $path = $_SERVER['USER']; $pwd = realpath($_SERVER['PWD']).'/'; };
 	if( substr_compare( $path , '192.168.' , 0 , 8 ) == 0 ) { $path = 'localhost'; }
 	switch($path)
 	{
@@ -60,8 +60,9 @@ if(!function_exists('debug'))
 // END: debug include
 // ==================================================================
 
+debug('server',$pwd);
 require_once('classes/parse-file_compiler.class.php');
-
+require_once('classes/views/parse-file_view_cli.class.php');
 
 
 if( !isset($_SERVER['argv'][1]) || !is_file($_SERVER['argv'][1]) || !is_readable($_SERVER['argv'][1])) {
@@ -75,57 +76,45 @@ if( !isset($_SERVER['argv'][1]) || !is_file($_SERVER['argv'][1]) || !is_readable
 
 
 
-function render_to_cli( $log_item , $b )
-{
-	$b += 1;
-	$tmp = $log_item->get_prop();
-	echo "\n\n ------------------------- ".ucfirst($tmp['type'])." (".$b.") -------------------------\n\n  ";
-	echo $tmp['msg']."\n\n";
-	$sep = false;
-	if( $tmp['sample'] !== '' )
-	{
-		echo "  sample: \"{$tmp['sample']}\"\n\n";
-	}
-	if( $tmp['line'] > 0 )
-	{
-		echo "  line: {$tmp['line']}\n";
-	}
-	if( $tmp['file'] !== '' )
-	{
-		echo "  file: {$tmp['file']}\n";
-		$sep = true;
-	}
-	echo "\n";
-}
-
-
 $file = realpath($_SERVER['argv']['1']);
 
 
 $builder = new matrix_parsefile_preprocessor\compiler($file);
 $builder->parse($file);
 
+$mode = 'all';
 if( isset($_SERVER['argv'][2]) && $_SERVER['argv'][2] === 'brief' )
 {
-	$errors = $builder->get_logs('error','warning');
-}
-else
-{
-	$errors = $builder->get_logs();
-}
-$e = 0;
-$w = 0;
-$n = 0;
-
-for( $a = 0 ; $a < count($errors) ; $a += 1 )
-{
-	switch($errors[$a]->get_type())
+	switch($_SERVER['argv'][2])
 	{
-		case 'error': $e += 1; break;
-		case 'warning': $w += 1; break;
-		case 'notice': $n += 1; break;
+		case 'brief':
+			$mode = ['error','warning'];
+			break;
+		case 'error':
+		case 'warning':
+		case 'notice':
+			$mode = $_SERVER['argv'][2];
+			break;
+		case 'q':
+		case 'quiet':
+		case 's':
+		case 'silent':
+			exit;
+			break;
+		default:
+			$mode = 'all';
+
 	}
-	render_to_cli( $errors[$a] , $a );
 }
 
-echo "\n\n==============================================\n All done!\n\n   ".$builder->get_processed_partials_count()." files processed.\n   ".$builder->get_keyword_count()." keywords found\n\n   There were:\n\t$e errors\n\t$w warnings\n\t$n notices\n\n";
+
+$view = new matrix_parsefile_preprocessor\view\cli_view( $builder->get_processed_partials_count() , $builder->get_keyword_count() , $mode );
+
+$logs = $builder->get_logs();
+
+while( $log_item = $logs->get_next_item() )
+{
+	$view->render_item($log_item);
+}
+
+$view->render_report();

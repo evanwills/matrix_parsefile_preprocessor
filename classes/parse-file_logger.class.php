@@ -2,8 +2,8 @@
 
 namespace matrix_parsefile_preprocessor;
 
-require_once(dirname(__FILE__).'/parse-file_log-item.class.php');
-require_once($_SERVER['PWD'].'/includes/get_line_number.inc.php');
+require_once(__DIR__.'/parse-file_log-item.class.php');
+require_once($pwd.'/includes/get_line_number.inc.php');
 
 
 class logger
@@ -11,6 +11,7 @@ class logger
 	static private $me = null;
 
 	private $log = [ 'all' => [] , 'error' => [] , 'warning' => [] , 'notice' => [] ];
+	private $itterator = null;
 
 	static public function get()
 	{
@@ -58,6 +59,45 @@ class logger
 		$this->log[$type][] = $tmp;
 	}
 
+	public function get_next_item()
+	{
+		if( $this->itterator === null )
+		{
+
+			if( func_num_args() === 0 )
+			{
+				$this->itterator = $this->log['all'];
+			}
+			elseif( func_num_args() === 1 )
+			{
+				$arg0 = func_get_arg(1);
+				if( isset($this->log[$arg0]))
+				{
+					$this->itterator = $this->log[$arg0];
+				}
+			}
+			else
+			{
+				$args = func_get_args();
+				for( $a = 0 ; $a < count($this->log['all']) ; $a += 1 )
+				{
+					if( in_array($this->log['all'][$a]->get_type(), $args) )
+					{
+						$this->itterator[] = $this->log['all'][$a];
+					}
+				}
+			}
+		}
+		if( count($this->itterator) > 0 )
+		{
+			return array_shift($this->itterator);
+		}
+		else
+		{
+			$this->itterator = null;
+			return false;
+		}
+	}
 
 	public function get_all()
 	{
