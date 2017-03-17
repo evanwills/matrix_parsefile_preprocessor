@@ -77,14 +77,14 @@ if( isset($_POST['input']) && trim($_POST['input']) !== '' )
 	$unprinted_exceptions = array();
 	$input = $_POST['input'];
 
-	$validator = new matrix_parsefile_preprocessor\validator();
+	$validator = new matrix_parsefile_preprocessor\validator($pwd.'config.xml');
 
 	$validator->parse( $input , 'web' );
 	$validator->log_unprinted();
 
-	debug('blah;');
 
 
+	$mode = 'all';
 	if( isset($_SERVER['argv'][2]) && $_SERVER['argv'][2] === 'brief' )
 	{
 		switch($_SERVER['argv'][2])
@@ -110,19 +110,19 @@ if( isset($_POST['input']) && trim($_POST['input']) !== '' )
 	}
 
 
-	$view = new matrix_parsefile_preprocessor\view\web_view($builder->get_processed_partials_count() , $builder->get_keyword_count() , $mode );
+	$view = new matrix_parsefile_preprocessor\view\web_view( 0 , 0 , $mode );
 
 	$view->render_open();
-	$logs = $validator->get_logs();
+	$log = $validator->get_logs();
 
 	$view->render_report_wrap_open();
-	$view->render_report();
 	$view->render_item_wrap_open();
 	while( $log_item = $log->get_next_item() )
 	{
 		$view->render_item($log_item);
 	}
 	$view->render_item_wrap_close();
+	$view->render_report();
 	$view->render_report_wrap_close();
 	$view->render_close();
 }

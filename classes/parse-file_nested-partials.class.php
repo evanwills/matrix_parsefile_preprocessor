@@ -255,20 +255,27 @@ class nested_partials
 			throw new \Exception(get_class($this)."::__constructor() expects first paramater \$base_file to be a string! ".gettype($base_file)." given.");
 		}
 
-		$base_file = realpath($base_file);
-		if( $base_file === false )
+		if( $base_file !== 'web')
 		{
-			throw new \Exception(get_class($this)."::__constructor() expects first paramater \$base_file to be the path to a file! \"$base_file\" cannot be found.");
-		}
+			$base_file = realpath($base_file);
+			if( $base_file === false )
+			{
+				throw new \Exception(get_class($this)."::__constructor() expects first paramater \$base_file to be the path to a file! \"$base_file\" cannot be found.");
+			}
 
-		$file_parts = pathinfo($base_file);
-		if( !isset($file_parts['extension']) || strtolower($file_parts['extension']) !== 'xml' )
+			$file_parts = pathinfo($base_file);
+			if( !isset($file_parts['extension']) || strtolower($file_parts['extension']) !== 'xml' )
+			{
+				throw new \Exception(get_class($this)."::__constructor() expects first paramater \$base_file to be an XML file (with the .xml extension)! \"$base_file\" cannot be found.");
+			}
+
+			$this->path = $file_parts['dirname'].'/';
+			$this->file = $file_parts['basename'];
+		}
+		else
 		{
-			throw new \Exception(get_class($this)."::__constructor() expects first paramater \$base_file to be an XML file (with the .xml extension)! \"$base_file\" cannot be found.");
+			$this->file = 'web';
 		}
-
-		$this->path = $file_parts['dirname'].'/';
-		$this->file = $file_parts['basename'];
 
 		$this->log = logger::get();
 	}

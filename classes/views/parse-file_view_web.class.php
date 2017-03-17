@@ -3,6 +3,7 @@
 namespace matrix_parsefile_preprocessor\view;
 
 require_once(__DIR__.'/parse-file_view_base.abstract.class.php');
+require_once($pwd.'/includes/syntax_highlight.inc.php');
 
 class web_view extends base_view
 {
@@ -31,6 +32,10 @@ class web_view extends base_view
 		{
 			$input = func_get_arg[0];
 		}
+		elseif( isset($_POST['input']) )
+		{
+			$input = $_POST['input'];
+		}
 		else
 		{
 			$input = '';
@@ -57,7 +62,7 @@ class web_view extends base_view
 	{
 		echo '
 
-		<section class="error-report">
+		<section class="report">
 			<header>
 				<h1>Report</h1>
 			</header>';
@@ -72,8 +77,9 @@ class web_view extends base_view
 
 	public function render_item( \matrix_parsefile_preprocessor\log_item $log_item )
 	{
+		parent::render_item($log_item);
 		echo '
-				<li class="'.$log_item->get_type().'">
+				<li class="log '.$log_item->get_type().'">
 					<p>
 						<strong>'.ucfirst($log_item->get_type()).':</strong>
 						'.$log_item->get_prop('msg').'
@@ -84,13 +90,13 @@ class web_view extends base_view
 		if( $log_item->get_prop('sample') !== '' )
 		{
 			$output .= '<dt>Sample:</dt>
-							<dd><code><pre>'.htmlspecialchars($log_item->get_prop('sample')).'</pre></code></dd>';
+							<dd>'.\syntax_highlight($log_item->get_prop('sample'),'code').'</dd>';
 		}
 		if( $log_item->get_prop('line') > 0 )
 		{
 			$output .= '
 						<dt>Line:</dt>
-							<dd>'.$log_item->get_prop('file').'</dd>';
+							<dd>'.$log_item->get_prop('line').'</dd>';
 		}
 		$file = $log_item->get_prop('file');
 		if( $file !== '' && $file !== 'web' )
@@ -136,9 +142,19 @@ class web_view extends base_view
 					<header>
 						<h1>Overview</h1>
 					</header>
+';
 
-					<p>'.$this->partials.' files processed</p>
-					<p>'.$this->keywords.' keywords found</p>
+		if( $this->partials > 0 )
+		{
+			echo '
+					<p>'.$this->partials.' files processed</p>';
+		}
+		if( $this->keywords > 0 )
+		{
+			echo '
+					<p>'.$this->keywords.' keywords found</p>';
+		}
+		echo '
 					<p>There were:</p>
 					<ul>
 						<li>'.$this->errors.' errors</li>

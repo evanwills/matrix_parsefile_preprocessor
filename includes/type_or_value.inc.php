@@ -12,9 +12,9 @@ namespace matrix_parsefile_preprocessor;
 function type_or_value($input, $var_type)
 {
 	$tmp_type = gettype($input);
-	if( $tmp_type === $type )
+	if( $tmp_type === $var_type )
 	{
-		if( $type === 'boolean' )
+		if( $var_type === 'boolean' )
 		{
 			if( $input === true )
 			{
@@ -27,11 +27,11 @@ function type_or_value($input, $var_type)
 		}
 		else
 		{
-			return '"'.$input.'';
+			return '"'.$input.'"';
 		}
 	}
 	else
 	{
-		return $type;
+		return $var_type;
 	}
 }

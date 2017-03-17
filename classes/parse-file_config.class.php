@@ -127,29 +127,44 @@ class config
 	{
 		if( !is_string($file) || trim($file) === '' )
 		{
-			throw new \Exception(get_class($this).'::__construct() expects only parameter $file to be a non-empty string. '.\type_or_value($file,'string')." given.\n");
+			throw new \Exception(get_class($this).'::__construct() expects only parameter $file to be a non-empty string. '.type_or_value($file,'string')." given.\n");
+		}
+
+		if( isset($_SERVER['SCRIPT_FILENAME']) )
+		{
+			$pwd = dirname(realpath($_SERVER['SCRIPT_FILENAME'])).'/';
+		}
+		elseif( isset($_SERVER['SCRIPT_NAME']) )
+		{
+			$pwd = dirname(realpath($_SERVER['SCRIPT_NAME'])).'/';
+		}
+		else
+		{
+			$pwd = realpath($_SERVER['PWD']).'/';
 		}
 
 		$file = realpath($file);
 		if( $file === false )
 		{
-			throw new \Exception(get_class($this).'::__construct() expects only parameter $file to be a path to an existing file or direcotry/folder. "'.$file." .\n");
+			// use default config file.
+			$file = realpath($pwd.'config.info');
 		}
 
 		$path = pathinfo($file);
 
 		$type = false;
+
 		if( isset($path['extension']) )
 		{
 			if( $path['extension'] === 'info' )
 			{
 				$type = 'info';
-				$input = $file;
+				$input = $path['dirname'].'/'.$path['filename'].'.';
 			}
 			elseif( $path['extension'] === 'json' )
 			{
 				$type = 'json';
-				$input = $file;
+				$input = $path['dirname'].'/'.$path['filename'].'.';
 			}
 			elseif( $path['extension'] === 'xml' )
 			{
@@ -180,10 +195,9 @@ class config
 						}
 						else
 						{
-							// found system generic config
-							$tmp = $_SERVER['PWD'].'/config.';
-							if( file_exists($tmp.$tmp_type[$a]))
+							if( file_exists($pwd.'/config.'.$tmp_type[$a]))
 							{
+								// found system generic config
 								$type = $tmp_type[$a];
 								$input = $tmp;
 							}
@@ -199,7 +213,7 @@ class config
 		}
 		elseif( $type === 'info' )
 		{
-			require_once($_SERVER['PWD'].'/includes/extract_dot_info.inc.php');
+			require_once($pwd.'includes/extract_dot_info.inc.php');
 			$info = extract_dot_info(file_get_contents($input.$type));
 		}
 		else

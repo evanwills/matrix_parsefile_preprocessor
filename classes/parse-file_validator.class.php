@@ -3,10 +3,11 @@
 namespace matrix_parsefile_preprocessor;
 
 
-require_once(dirname(__FILE__).'/xml_tag.class.php');
-require_once(dirname(__FILE__).'/MySource_tag.class.php');
-require_once(dirname(__FILE__).'/parse-file_config.class.php');
-require_once(dirname(__FILE__).'/parse-file_logger.class.php');
+require_once(__DIR__.'/xml_tag.class.php');
+require_once(__DIR__.'/MySource_tag.class.php');
+require_once(__DIR__.'/parse-file_config.class.php');
+require_once(__DIR__.'/parse-file_logger.class.php');
+require_once(__DIR__.'/parse-file_nested-partials.class.php');
 
 require_once($pwd.'/includes/regex_error.inc.php');
 require_once($pwd.'/includes/get_line_number.inc.php');
@@ -30,11 +31,11 @@ class validator {
 	const SHOWIF_CALLBACK_REGEX = '`(?<=value=")(.*?)(?=")`';
 
 
-	public function __construct( )
+	public function __construct( $file = 'web' )
 	{
-		$this->config = config::get();
+		$this->config = config::get($file);
 		$this->log = logger::get();
-		$this->nested_partials = nested_partials::get();
+		$this->nested_partials = nested_partials::get('web');
 	}
 
 

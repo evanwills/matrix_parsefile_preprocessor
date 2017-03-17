@@ -1,6 +1,6 @@
 <?php
 
-require_once('classes/xml_tag.class.php');
+require_once(__DIR__.'/xml_tag.class.php');
 require_once($pwd.'/includes/type_or_value.inc.php');
 
 class mysource_tag extends xml_tag
