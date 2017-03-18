@@ -72,39 +72,68 @@ if( !isset($_SERVER['argv'][1]) || !is_file($_SERVER['argv'][1]) || !is_readable
 	exit;
 }
 
-
-
-
 $file = realpath($_SERVER['argv']['1']);
 
 
-$builder = new matrix_parsefile_preprocessor\compiler($file);
+$compare = false;
+$reporting = 'all';
+
+if( $_SERVER['argc'] > 2 )
+{
+	for( $a = 2 ; $a < $_SERVER['argc'] ; $a += 1 )
+	{
+		if( $_SERVER['argv'][$a] === 'compare' )
+		{
+			$compare = true;
+		}
+		elseif( is_file($_SERVER['argv'][$a]) )
+		{
+			$old_file = realpath($_SERVER['argv'][$a]);
+			$old_path = pathinfo($old_file);
+			if( strtolower($old_path['extension']) === 'xml' )
+			{
+				$compare = $old_file;
+			}
+		}
+		else
+		{
+			$reporting = $_SERVER['argv'][$a];
+		}
+	}
+}
+
+
+
+
+$builder = new matrix_parsefile_preprocessor\compiler($file,$compare);
 $builder->parse($file);
 $builder->log_unprinted();
+if($compare !== false)
+{
+	$builder->check_deleted_areas();
+}
 
 $mode = 'all';
-if( isset($_SERVER['argv'][2]) && $_SERVER['argv'][2] === 'brief' )
-{
-	switch($_SERVER['argv'][2])
-	{
-		case 'brief':
-			$mode = ['error','warning'];
-			break;
-		case 'error':
-		case 'warning':
-		case 'notice':
-			$mode = $_SERVER['argv'][2];
-			break;
-		case 'q':
-		case 'quiet':
-		case 's':
-		case 'silent':
-			exit;
-			break;
-		default:
-			$mode = 'all';
 
-	}
+switch($reporting)
+{
+	case 'brief':
+		$mode = ['error','warning'];
+		break;
+	case 'error':
+	case 'warning':
+	case 'notice':
+		$mode = $_SERVER['argv'][2];
+		break;
+	case 'q':
+	case 'quiet':
+	case 's':
+	case 'silent':
+		exit;
+		break;
+	default:
+		$mode = 'all';
+
 }
 
 

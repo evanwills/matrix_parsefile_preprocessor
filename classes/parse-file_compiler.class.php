@@ -61,6 +61,7 @@ class compiler {
 
 	private $partials_processed = 0;
 	private $keywords = 0;
+	private $wrap_type = 'html';
 
 	/**
 	 * @const string INCLUDES_REGEX a regular expression for
@@ -89,7 +90,7 @@ class compiler {
 )
 ( # [2] whole keyword
 	( # [3] opening wrapper
-		[\{\}\[\]]{2}
+		\{[{\[(]
 	)
 	(?:
 		( # [4] path
@@ -125,7 +126,7 @@ class compiler {
 		)?
 	)
 	( # [10] closing wrapper
-		(?:(?<!\\\\)[\{\}\[\]]){2}
+		(?:(?<!\\\\)[)\]}]?\})
 	)
 )
 @xs';
@@ -149,26 +150,58 @@ class compiler {
 
 
 
-	public function __construct( $base_file )
+	public function __construct( $base_file , $compare = false )
 	{
 		if( !is_string($base_file) || trim($base_file) == '' )
 		{
 			throw new \Exception(get_class($this).' constructor expects first parameter $base_file to be a non-empty string. '.\type_or_value($base_file,'string').' given');
 		}
+
+
 		$this->config = config::get($base_file);
 		$this->log = logger::get($base_file);
 		$this->nested_partials = nested_partials::get($base_file);
 		$this->validator = new validator();
 
+
 		$file_parts = pathinfo(realpath($base_file));
 
 		$this->output_file = realpath($this->config->get_var('output_dir').$file_parts['basename']);
-		if( (file_exists($this->output_file) && is_writable($this->output_file)) || is_writable(dirname($this->output_file)) )
+		if( (!file_exists($this->output_file) || !is_writable($this->output_file)) && !is_writable(dirname($this->output_file)) )
 		{
-			$this->output = fopen( $this->output_file , 'w' );
-		} else {
 			throw new \Exception(get_class($this).' constructor cannot create file '.$file_parts['basename'].' in directory '.dirname($this->output_file).'/');
 		}
+
+		if( is_bool($compare)  )
+		{
+			if( $compare === true )
+			{
+				if( file_exists($this->output_file) )
+				{
+					$this->validator->process_old_parse_file( file_get_contents($this->output_file), $this->output_file);
+				}
+				else
+				{
+					$this->log->add(
+						'warning'
+						,'could not compare previously compiled version of "'.$this->output_file.'" because it did not exist.'
+					);
+					$compare = false;
+				}
+			}
+		}
+		elseif( is_string($compare) && is_file($compare) && substr( strtolower($compare) , -4 , 4 ) === '.xml' )
+		{
+			debug('compare "'.$compare.'"');
+			$this->validator->process_old_parse_file( file_get_contents($compare) , $compare );
+			$compare = true;
+		}
+		else
+		{
+			throw new \Exception(get_class($this).' constructor expects second parameter $compare to be either boolean or a string path to an XML file '.\type_or_value($base_file,'string').' given');
+		}
+
+		$this->output = fopen( $this->output_file , 'w' );
 
 		$ws = $this->config->get_var('white_space');
 		if( $ws == 'normal' )
@@ -287,8 +320,19 @@ class compiler {
 						$content = str_replace( $modifiers['find'] , $modifiers['replace'] , $content );
 					}
 				}
+				$wrap_type = $this->wrap_type;
 
-				$this->{$this->handle_wrap}($file,true);
+				if( $this->wrap_type )
+				{
+
+					$wrap_function = $this->handle_wrap;
+				}
+				else
+				{
+					$wrap_function = '_dont_wrap';
+				}
+
+				$this->{$wrap_function}($file,true,$wrap_type);
 				$this->current_file[] = $file;
 				$this->current_content[] = $content;
 
@@ -309,7 +353,6 @@ class compiler {
 				}
 				else
 				{
-					debug($count);
 					$this->keywords += $count;
 					if( $count === 1 )
 					{
@@ -326,7 +369,7 @@ class compiler {
 					);
 				}
 				fwrite( $this->output , $content );
-				$this->{$this->handle_wrap}($file,false);
+				$this->{$wrap_function}($file,false,$wrap_type);
 
 				$this->partials_processed += 1;
 
@@ -357,16 +400,39 @@ class compiler {
 		$this->validator->log_unprinted();
 	}
 
+	/**
+	 * Returns the number of partials processed.
+	 * @return integer The number of partials processed
+	 */
 	public function get_processed_partials_count()
 	{
 		return $this->partials_processed;
 	}
 
+	/**
+	 * Returns the number of keywords found in base parse file and all the partials.
+	 * @return integer The number of keywords
+	 */
 	public function get_keyword_count()
 	{
 		return $this->keywords;
 	}
 
+	public function get_deleted_IDs()
+	{
+		return $this->validator->get_deleted_IDs();
+	}
+
+	public function check_deleted_areas()
+	{
+		$this->validator->check_deleted_areas();
+	}
+
+
+	public function get_validator()
+	{
+		return $this->validator;
+	}
 
 	/**
 	 * @function PARSE_KEYWORDS_CALLBACK() uses the match array of a
@@ -402,13 +468,24 @@ class compiler {
 		$no_comments = false;
 		if( $match[3] == '{{' && $match[10] == '}}' ) {
 			$ok = true;
+			$this->wrap_type = false;
 		} elseif( $match[3] == '{[' && $match[10] == ']}'  ) {
 			$ok = true;
-			$no_comments = true;
+			$this->wrap_type = 'html';
+		} elseif( $match[3] == '{(' && $match[10] == ')}'  ) {
+			$ok = true;
+			$this->wrap_type = 'css';
 		} else {
 			// keyword dlimiters
-			$this->_display_msg( 'error' , "Keyword delimiters '{$match[3]}' and '{$match[10]}' are not valid" , $match[2], $this->get_current['file'] , $this->_get_current());
+			$this->log->add(
+				 'error'
+				,"Keyword delimiters '{$match[3]}' and '{$match[10]}' are not valid"
+				,$match[2]
+				,$this->_get_current('file')
+				,$this->_get_current('content')
+			);
 		}
+
 
 		if( $match[7] !== '' )
 		{
@@ -443,12 +520,12 @@ class compiler {
 			$modifiers = false;
 		}
 
-//		debug('about to parse '.$match[4].$match[5]);
+//
 		try {
 			$this->parse($match[4].$match[5],$modifiers);
 		}
 		catch( \Exception $e ) {
-			debug($e);
+
 			$this->log->add(
 				'error'
 				,$e->getMessage()
@@ -483,10 +560,12 @@ class compiler {
 
 	private function _dont_wrap($file_name, $open = false)
 	{
+
 		// don't do anything;
 	}
-	private function _wrap_in_comments( $file_name, $open = false )
+	private function _wrap_in_comments( $file_name, $open = false , $wrap_type = 'html' )
 	{
+
 		if( $open === true )
 		{
 			$tmp = 'START:';
@@ -495,7 +574,17 @@ class compiler {
 		{
 			$tmp = ' END: ';
 		}
-		fwrite($this->output , "\n<!-- $tmp $file_name -->\n" );
+		if( $wrap_type === 'html' )
+		{
+			$open = '<!--';
+			$close = '-->';
+		}
+		else
+		{
+			$open = '/*';
+			$close = '*/';
+		}
+		fwrite($this->output , "\n$open $tmp $file_name $close\n" );
 	}
 
 	private function _strip_comments($partial_content)

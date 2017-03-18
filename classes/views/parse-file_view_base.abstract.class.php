@@ -27,9 +27,9 @@ abstract class base_view
 		elseif( is_array($types) )
 		{
 			$tmp = [];
-			for( $a = 0 ; $a += count($types) ; $a += 1 )
+			for( $a = 0 ; $a < count($types) ; $a += 1 )
 			{
-				$types[$a] = strtolower(trim($types)[$a]);
+				$types[$a] = strtolower(trim($types[$a]));
 				if( in_array($types[$a], $this->types) )
 				{
 					$tmp[] = $types[$a];

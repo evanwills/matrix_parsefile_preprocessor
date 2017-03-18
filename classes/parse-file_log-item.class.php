@@ -12,13 +12,23 @@ class log_item
 	protected $sample = '';
 	protected $line = 0;
 	protected $file = '';
+	protected $extra = [];
 
+	/**
+	 * Factory Method returns the correct object based on the type parameter.
+	 * @param  string   $type   either: "Error", "Warning" or "Notice"
+	 * @param  integer  $msg    Details of the log entry
+	 * @param  string   $sample Code that triggered the need for this entry
+	 * @param  string   $line   The line number the sample can be found on
+	 * @param  string   $file   The name of the file the sample came from
+	 * @return object   either a log_item_error, log_item_warning or log_item_notice object
+	 */
 	static public function get( $type , $msg , $sample , $line , $file )
 	{
 		$dud_msg = self::invalid_type($type);
 		if( $dud_msg !== false )
 		{
-			throw new \Exception($dud_msg);
+			throw new \Exception('log_item::get() expects first parameter $type'.$dud_msg);
 		}
 
 		$tmp = 'matrix_parsefile_preprocessor\\log_item_'.$type;
@@ -46,7 +56,7 @@ class log_item
 
 		if( $ok === false )
 		{
-			return 'log_item::get() expects first parameter $type to be a string matching one of the following: "error", "warning", "notice". '.$tail.' given.';
+			return ' to be a string matching one of the following: "error", "warning", "notice". '.$tail.' given.';
 		}
 		return false;
 	}
@@ -77,9 +87,40 @@ class log_item
 		$this->file = $file;
 	}
 
+	public function set_extra_detail($input)
+	{
+		$ok = false;
+		if(is_numeric($input) || ( is_string($input) && trim($input) !== '' ) )
+		{
+			$ok = true;
+			$this->extra[] = $input;
+		}
+		if( is_array($input) )
+		{
+			foreach( $input as $value )
+			{
+				if(is_numeric($input) || ( is_string($input) && trim($input) !== '' ) )
+				{
+					$ok = true;
+					$this->extra[] = $value;
+				}
+			}
+		}
+	}
+
 	public function get_type()
 	{
 		return 'base';
+	}
+
+	public function get_extra_details()
+	{
+		return $this->extra;
+	}
+
+	public function get_extra_details_count()
+	{
+		return count($this->extra);
 	}
 }
 

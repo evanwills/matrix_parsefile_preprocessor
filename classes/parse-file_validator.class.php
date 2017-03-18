@@ -22,6 +22,7 @@ class validator {
 
 	private $IDs = ['__global__'];
 	private $unprinted_IDs = [];
+	private $old_IDs = [];
 
 	private $tags = [];
 
@@ -75,8 +76,9 @@ class validator {
 				{
 					if( $id !== '' )
 					{
-						$this->remove_non_printed_ID($id);
-						if( $msg = $this->undefined_area($id) )
+						$this->_remove_non_printed_ID($id);
+						$this->tags[$id]->set_printed();
+						if( $msg = $this->_undefined_area($id) )
 						{
 							$this->log->add(
 								'error'
@@ -90,7 +92,7 @@ class validator {
 				}
 				else
 				{
-					if( $msg = $this->existing_id($id) )
+					if( $msg = $this->_existing_id($id) )
 					{
 						$this->log->add(
 							 'error'
@@ -103,7 +105,7 @@ class validator {
 					if( $tag->get_attr('print') === 'no' )
 					{
 						$printed = false;
-						$this->add_non_print_ID( $id , $tag->get_line() , $source);
+						$this->_add_non_print_ID( $id , $tag->get_line() , $source);
 					}
 
 					if( $tag->get_attr('design_area') === 'show_if' )
@@ -159,6 +161,115 @@ class validator {
 					}
 				}
 			}
+		}
+	}
+
+
+
+	public function process_old_parse_file( $parse_file_contents , $file_name = 'web' )
+	{
+		if( !is_string($parse_file_contents) || trim($parse_file_contents) === '' )
+		{
+			throw new \Exception(get_class($this).'::process_old_parse_file() expects first parameter $parse_file_contents to be a non-empty string. '.type_or_value($parse_file_contents,'string').' given.');
+		}
+		if( !is_string($file_name) || trim($file_name) === '' )
+		{
+			throw new \Exception(get_class($this).'::process_old_parse_file() expects second parameter $file_name to be a non-empty string. '.type_or_value($file_name,'string').' given.');
+		}
+
+
+		if( preg_match_all( self::TAG_REGEX , $parse_file_contents , $tags , PREG_SET_ORDER ) )
+		{
+			for( $a = 0 ; $a < count($tags) ; $a += 1 )
+			{
+				$element = strtolower($tags[$a][1]);
+				if( $element === 'area' )
+				{
+					$tag = new \mysource_tag( $tags[$a][0] , $element , $tags[$a][2] , $file_name , 1 );
+					$this->old_IDs[] = $tag->get_id();
+					unset($tag);
+				}
+			}
+		}
+		else
+		{
+			$this->log->add(
+				'error'
+				,"$file_name contained no <MySource_AREA> tags."
+				,$file_name
+			);
+		}
+	}
+
+
+
+	public function get_deleted_IDs()
+	{
+		$c = count($this->old_IDs);
+		if( $c > 0 )
+		{
+			$tmp = $this->old_IDs;
+			for( $a = 0 ; $a += $c ; $a += 1 )
+			{
+				if( $key = array_search( $this->IDs[$a] , $tmp ) )
+				{
+					unset($tmp[$key]);
+				}
+			}
+			return $tmp;
+		}
+		else
+		{
+			$this->log->add(
+				 'warning'
+				,'There were no IDs collected from an old/existing parse file. It was not possible to work out if any design areas were deleted.'
+			);
+		}
+	}
+	public function check_deleted_areas()
+	{
+		$c = count($this->old_IDs);
+		if( $c > 0 )
+		{
+			$tmp = $this->old_IDs;
+			sort($tmp);
+			for( $a = 0 ; $a < count($this->IDs) ; $a += 1 )
+			{
+				if( $key = array_search( $this->IDs[$a] , $tmp ) )
+				{
+					unset($tmp[$key]);
+				}
+			}
+			sort($tmp);
+			$b = count($tmp);
+			if( $b > 0 )
+			{
+				if( $b === 1 )
+				{
+					$area = 'area was';
+				}
+				else
+				{
+					$area = $b.' areas were';
+				}
+
+				$this->log->add(
+					 'warning'
+					,'The following design '.$area.' in the old parse file but not in the new one:'
+				);
+				$log_item = $this->log->get_last_item();
+				for( $a = 0 ; $a < $b ; $a += 1 )
+				{
+					$log_item->set_extra_detail( $tmp[$a] );
+				}
+			}
+		}
+		else
+		{
+			$this->log->add(
+				 'error'
+				,'There were no IDs collected from an old/existing parse file. It was not possible to work out if any design areas were deleted.'
+			);
 		}
 	}
 
@@ -227,7 +338,7 @@ class validator {
 	}
 
 
-	private function undefined_area($input) {
+	private function _undefined_area($input) {
 		if( in_array($input,$this->IDs) )
 		{
 			return false;
@@ -241,7 +352,7 @@ class validator {
 
 
 
-	private function add_non_print_ID( $id, $line , $file )
+	private function _add_non_print_ID( $id, $line , $file )
 	{
 		if( !isset($this->not_printed_IDs[$id]) && !in_array($id,$this->unprinted_exceptions) )
 		{
@@ -255,7 +366,7 @@ class validator {
 
 
 
-	private function remove_non_printed_ID($id)
+	private function _remove_non_printed_ID($id)
 	{
 		if( isset($this->not_printed_IDs[$id]) )
 		{
@@ -268,7 +379,7 @@ class validator {
 	}
 
 
-	private function existing_id($input)
+	private function _existing_id($input)
 	{
 		if( is_string($input) )
 		{
@@ -296,4 +407,8 @@ class validator {
 		return '"'.$input.'" '.$output.'!';
 	}
 
+
+	private function SHOW_IF_CALLBACK($input) {
+		return htmlspecialchars($matches[1]);
+	}
 }

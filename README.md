@@ -52,10 +52,10 @@ In a single Matrix installation, you often have multiple sites. Most of these si
 {{path/to/partial/file|find|replace|modifiers}}
 ```
 
-*	"__`{{`__" or "__`{{[`__" or "__`{{(`__"  delimiter
+*	"__`{{`__" or "__`{[`__" or "__`{(`__"  delimiter
 	*	`{{` partial is NOT wrapped in comments
-	*	`{{[` partial is wrapped in HTML comments `<!-- ... -->`
-	*	`{{[` partial is wrapped in CSS/JS comments `/* ... */`
+	*	`{[` partial is wrapped in HTML comments `<!-- ... -->`
+	*	`{(` partial is wrapped in CSS/JS comments `/* ... */`
 	<br />__NOTE:__ the keyword match will find any combination of `[]{}` but will throw errors if the delimiters are not `{[...]}` or `{{...}}`
 *	"__path/to/partial/__" relative or absolute path to partial by default partials should be
 *	"__file__" name of partial file
@@ -71,7 +71,6 @@ In a single Matrix installation, you often have multiple sites. Most of these si
 
 There are a few options that can be set either in a config file or at runtime these are:
 *	__`output`__ {string} directory to save output (either relative to source file or absolute)
-*	__`partials`__ {string} directory to find partial files (either relative to source file or absolute)
 *	__`on_unprinted`__ {string} either 'show', 'fail' or 'hide':
 	*	'show' [default] show the unprinted IDs, the line they were found on and the file they were found in
 	*	'fail' same as show but stops processing if there are any unprinted IDs (__NOTE:__ there will be no output written to file)

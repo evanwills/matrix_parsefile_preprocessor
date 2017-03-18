@@ -9,6 +9,20 @@ class web_view extends base_view
 {
 	private $title = 'Basic Squiz Matrix parse-file validator';
 
+	private $post = [
+		 '$new_parse_file' => ''
+		,'old_parse_file' => ''
+		,'compare' => false
+	];
+
+	public function set_post($key,$value)
+	{
+		if( is_string($key) && isset($this->post[$key]) && is_scalar($value) )
+		{
+			$this->post[$key] = $value;
+		}
+	}
+
 	public function render_open()
 	{
 		echo '
@@ -28,31 +42,67 @@ class web_view extends base_view
 
 	public function render_close()
 	{
-		if( func_num_args() > 0 )
+		$checked = '';
+		$class = '';
+		if( $this->post['compare'] === true )
 		{
-			$input = func_get_arg[0];
+			$checked = ' checked="checked"';
+			$class = ' class="compare"';
 		}
-		elseif( isset($_POST['input']) )
+		$get = '';
+		$sep = '?';
+		for( $a = 0 ; $a < count($this->types) ; $a += 1 )
 		{
-			$input = $_POST['input'];
+			$get .= $sep.'log[]='.$this->types[$a];
+			$sep = '&';
 		}
-		else
-		{
-			$input = '';
-		}
+
 		echo '
 
-		<form action="//'.$_SERVER['HTTP_HOST'].dirname($_SERVER['PHP_SELF']).'/" method="post">
-			<input type="submit" value="submit" name="submit" />
-			<ul>
+		<form action="//'.$_SERVER['HTTP_HOST'].dirname($_SERVER['PHP_SELF']).'/'.$get.'" method="post">
+			<p>
+				<input type="submit" value="submit" name="submit" />
+				<label>
+					<input type="checkbox" name="compare" id="compare" value="do"'.$checked.' />
+					Check for missing design areas
+				</label>
+			</p>
+			<ul'.$class.' id="textAreas">
+				<li id="old_source">
+					<label for="old_parse_file">Previously uploaded Parse-file (to be compared against for missing design areas)</label>
+					<textarea name="old_parse_file" id="old_parse_file">'.htmlspecialchars($this->post['old_parse_file']).'</textarea>
+				</li>
 				<li id="source">
-					<label for="input">Parse-file to be checked</label>
-					<textarea name="input" id="input">'.htmlspecialchars($input).'</textarea>
+					<label for="parse_file">Parse-file to be checked</label>
+					<textarea name="$new_parse_file" id="$new_parse_file">'.htmlspecialchars($this->post['$new_parse_file']).'</textarea>
 				</li>
 			</ul>
 		</form>
 
 		<p id="install"><a href="'.$_SERVER['REQUEST_URI'].'" rel="sidebar" title="'.$this->title.'">Install as Sidebar</a></p>
+		<script type="text/javascript">
+document.addEventListener(\'DOMContentLoaded\', function(event) {
+	\'use strict\';
+
+	var compare = document.getElementById(\'compare\'),
+		ul = document.getElementById(\'textAreas\'),
+		old = document.getElementById(\'old_source\');
+
+	compare.onchange = function(e) {
+		if (this.checked) {
+			ul.className = \'compare\';
+			old.className = \'\'
+		}
+		else
+		{
+			ul.className = \'\';
+			old.className = \'hide\'
+		}
+	}
+
+	old.className = \'hide\';
+});
+		</script>
 	</body>
 </html>';
 	}
@@ -78,44 +128,60 @@ class web_view extends base_view
 	public function render_item( \matrix_parsefile_preprocessor\log_item $log_item )
 	{
 		parent::render_item($log_item);
-		echo '
+		if( in_array($log_item->get_type(),$this->types) )
+		{
+			echo '
 				<li class="log '.$log_item->get_type().'">
 					<p>
 						<strong>'.ucfirst($log_item->get_type()).':</strong>
 						'.$log_item->get_prop('msg').'
 					</p>
 ';
+			if( $c = $log_item->get_extra_details_count() )
+			{
+				$tmp = $log_item->get_extra_details();
+				echo '
+					<ul>';
+				for( $a = 0 ; $a < $c ; $a += 1 )
+				{
+					echo '
+						<li><code>'.$tmp[$a].'</code></li>';
+				}
+				echo '
+					</ul>';
+			}
 
-		$output = '';
-		if( $log_item->get_prop('sample') !== '' )
-		{
-			$output .= '<dt>Sample:</dt>
+			$output = '';
+			if( $log_item->get_prop('sample') !== '' )
+			{
+				$output .= '<dt>Sample:</dt>
 							<dd>'.\syntax_highlight($log_item->get_prop('sample'),'code').'</dd>';
-		}
-		if( $log_item->get_prop('line') > 0 )
-		{
-			$output .= '
+			}
+			if( $log_item->get_prop('line') > 0 )
+			{
+				$output .= '
 						<dt>Line:</dt>
 							<dd>'.$log_item->get_prop('line').'</dd>';
-		}
-		$file = $log_item->get_prop('file');
-		if( $file !== '' && $file !== 'web' )
-		{
-			$output .= '
+			}
+			$file = $log_item->get_prop('file');
+			if( $file !== '' && $file !== 'web' )
+			{
+				$output .= '
 						<dt>file:/dt>
 							<dd>'.$log_item->get_prop('file').'</dd>';
-		}
+			}
 
-		if( $output !== '' )
-		{
-			$output = '
+			if( $output !== '' )
+			{
+				$output = '
 					<dl>'.$output.'
 					</dl>
 ';
-		}
-		echo $output.'
+			}
+			echo $output.'
 				</li>
 ';
+		}
 	}
 
 

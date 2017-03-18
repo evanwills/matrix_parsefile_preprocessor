@@ -21,25 +21,37 @@ class cli_view extends base_view
 	{
 		parent::render_item($log_item);
 
-		$tmp = $log_item->get_prop();
-		echo "\n\n ---------------------- ".ucfirst($log_item->get_type())." (".$this->notice_count.") ----------------------\n\n  ";
-		echo $log_item->get_prop('msg')."\n\n";
+		if( in_array($log_item->get_type(),$this->types) )
+		{
+			$tmp = $log_item->get_prop();
+			echo "\n\n ---------------------- ".ucfirst($log_item->get_type())." (".$this->{$log_item->get_type().'s'}.') ('.$this->notice_count.") ----------------------\n\n  ";
+			echo $log_item->get_prop('msg')."\n\n";
 
-		if( $log_item->get_prop('sample') !== '' )
-		{
-			echo "  sample: \"".$log_item->get_prop('sample')."\"\n\n";
-		}
-		if( $log_item->get_prop('line') > 0 )
-		{
-			echo "  line: ".$log_item->get_prop('line')."\n";
-		}
-		$file = $log_item->get_prop('file');
-		if( $file !== '' && $file !== 'web' )
-		{
-			echo "  file: \"".$log_item->get_prop('file')."\"\n";
-		}
+			if( $log_item->get_extra_details_count() > 0 )
+			{
+				$tmp = $log_item->get_extra_details();
+				for( $a = 0 ; $a < count($tmp) ; $a += 1 )
+				{
+					echo "\t-  {$tmp[$a]}\n";
+				}
+			}
 
-		echo "\n";
+			if( $log_item->get_prop('sample') !== '' )
+			{
+				echo "  sample: \"".$log_item->get_prop('sample')."\"\n\n";
+			}
+			if( $log_item->get_prop('line') > 0 )
+			{
+				echo "  line: ".$log_item->get_prop('line')."\n";
+			}
+			$file = $log_item->get_prop('file');
+			if( $file !== '' && $file !== 'web' )
+			{
+				echo "  file: \"".$log_item->get_prop('file')."\"\n";
+			}
+
+			echo "\n";
+		}
 	}
 	public function render_item_wrap_close() { }
 	public function render_report_wrap_close() { }

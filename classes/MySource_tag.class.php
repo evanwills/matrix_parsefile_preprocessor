@@ -74,4 +74,8 @@ class mysource_tag extends xml_tag
 	{
 		return $this->error;
 	}
+	public function get_all()
+	{
+		return get_object_vars($this);
+	}
 }

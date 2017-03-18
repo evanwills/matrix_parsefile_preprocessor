@@ -60,7 +60,7 @@ if(!function_exists('debug'))
 // END: debug include
 // ==================================================================
 
-$input = '';
+$new_parse_file = '';
 $report = '';
 $root_url = '//'.$_SERVER['HTTP_HOST'].dirname($_SERVER['PHP_SELF']).'/';
 
@@ -68,51 +68,58 @@ $root_url = '//'.$_SERVER['HTTP_HOST'].dirname($_SERVER['PHP_SELF']).'/';
 require_once($pwd.'classes/parse-file_validator.class.php');
 require_once($pwd.'classes/views/parse-file_view_web.class.php');
 
-if( isset($_POST['input']) && trim($_POST['input']) !== '' )
+
+$compare = false;
+
+if( isset($_POST['compare']) && $_POST['compare'] === 'do' )
+{
+	$compare = true;
+}
+$new_parse_file = isset($_POST['$new_parse_file'])?$_POST['$new_parse_file']:'';
+$old_parse_file = isset($_POST['old_parse_file'])?$_POST['old_parse_file']:'';
+
+if( $old_parse_file === '' )
+{
+	$compare = false;
+}
+
+$log = isset($_POST['log'])?$_POST['log']:'all';
+
+
+$view = new matrix_parsefile_preprocessor\view\web_view(0 , 0 , $log);
+
+
+$view->set_post('compare',$compare);
+$view->set_post('$new_parse_file',$new_parse_file);
+$view->set_post('old_parse_file',$old_parse_file);
+
+
+$view->render_open();
+
+
+if( $new_parse_file !== '' )
 {
 	require_once('classes/parse-file_validator.class.php');
 
 
 	$fail_on_unprinted = true;
 	$unprinted_exceptions = array();
-	$input = $_POST['input'];
 
 	$validator = new matrix_parsefile_preprocessor\validator($pwd.'config.xml');
 
-	$validator->parse( $input , 'web' );
-	$validator->log_unprinted();
-
-
-
-	$mode = 'all';
-	if( isset($_SERVER['argv'][2]) && $_SERVER['argv'][2] === 'brief' )
+	if( $compare === true )
 	{
-		switch($_SERVER['argv'][2])
-		{
-			case 'brief':
-				$mode = ['error','warning'];
-				break;
-			case 'error':
-			case 'warning':
-			case 'notice':
-				$mode = $_SERVER['argv'][2];
-				break;
-			case 'q':
-			case 'quiet':
-			case 's':
-			case 'silent':
-				exit;
-				break;
-			default:
-				$mode = 'all';
-
-		}
+		$validator->process_old_parse_file($old_parse_file);
 	}
 
+	$validator->parse( $new_parse_file , 'web' );
+	$validator->log_unprinted();
 
-	$view = new matrix_parsefile_preprocessor\view\web_view( 0 , 0 , $mode );
+	if( $compare === true )
+	{
+		$validator->check_deleted_areas();
+	}
 
-	$view->render_open();
 	$log = $validator->get_logs();
 
 	$view->render_report_wrap_open();
@@ -124,12 +131,6 @@ if( isset($_POST['input']) && trim($_POST['input']) !== '' )
 	$view->render_item_wrap_close();
 	$view->render_report();
 	$view->render_report_wrap_close();
-	$view->render_close();
 }
-else
-{
 
-	$view = new matrix_parsefile_preprocessor\view\web_view(0 , 0 , 'all' );
-	$view->render_open();
-	$view->render_close();
-}
+$view->render_close();

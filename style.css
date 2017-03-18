@@ -96,7 +96,33 @@ textarea {
 	margin-left: 1em;
 	padding-left: 1.5em;
 }
-
+ul.compare li {
+	display: inline-block;
+	width: 49%;
+	float: right;
+}
+li.log ul {
+	column-width: 20em;
+	column-gap: 2em;
+}
+li.log ul li {
+	margin-left: 0em;
+	padding-left: 0.5em;
+	list-style-type: disc;
+	font-size: 110%;
+}
+ul.compare li:first-child {
+	float:left;
+}
+ul.compare li textarea {
+	background-color: #efe;
+}
+ul.compare li:first-child textarea {
+	background-color: #eee;
+}
+li.hide {
+	display: none;
+}
 
 
 /* ----------------------------------------------

@@ -27,7 +27,7 @@ class logger
 	{
 		if( $dud_msg = log_item::invalid_type($type) )
 		{
-			throw new \Exception($dud_msg);
+			throw new \Exception(get_class($this).'::add() expects first parameter $type'.$dud_msg);
 		}
 		if( !is_string($msg) || trim($msg) === '' )
 		{
@@ -98,6 +98,17 @@ class logger
 			$this->itterator = null;
 			return false;
 		}
+	}
+
+	public function get_last_item($type = 'all' )
+	{
+
+		if( $type !== 'error' && $type !== 'warning' && $type !== 'notice' )
+		{
+			$type = 'all';
+		}
+		$c = count($this->log[$type]) - 1;
+		return $this->log[$type][$c];
 	}
 
 	public function get_all()
