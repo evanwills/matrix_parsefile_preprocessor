@@ -26,9 +26,9 @@ class validator {
 
 	private $tags = [];
 
-	const TAG_REGEX = '`<MySource_(AREA|PRINT)(.*?)/?>`s';
+	const TAG_REGEX = '`<MySource_(AREA|PRINT)(.*?)/?>`is';
 	const SHOWIF_START_REGEX = '`^.*?(';
-	const SHOWIF_END_REGEX = '.*?)(?=\s*<MySource_(?:THEN|ELSE>)).*$`s';
+	const SHOWIF_END_REGEX = '.*?)(?=\s*<MySource_(?:THEN|ELSE>)).*$`is';
 	const SHOWIF_CALLBACK_REGEX = '`(?<=value=")(.*?)(?=")`';
 
 

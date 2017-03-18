@@ -192,7 +192,6 @@ class compiler {
 		}
 		elseif( is_string($compare) && is_file($compare) && substr( strtolower($compare) , -4 , 4 ) === '.xml' )
 		{
-			debug('compare "'.$compare.'"');
 			$this->validator->process_old_parse_file( file_get_contents($compare) , $compare );
 			$compare = true;
 		}
@@ -257,18 +256,7 @@ class compiler {
 		{
 			throw new \Exception(get_class($this).'::parse() expects first parameter $file_name to be a non-empty string. '.\type_or_value($file_name,'string').' given.');
 		}
-		if(
-			$modifiers !== false && (
-				!is_array($modifiers) ||
-				empty($modifiers) ||
-				!isset($modifiers['find']) || !is_string($modifiers['find']) || trim($modifiers['find']) === '' ||
-				!isset($modifiers['replace']) || !is_string($modifiers['replace']) ||
-				!isset($modifiers['is_regex']) || !is_bool($modifiers['is_regex'])
-			)
-		)
-		{
-			throw new \Exception(get_class($this).'::parse() expects second parameter $modifiers to be either false or a non-empty array containing the following keys: \'find\', \'replace\', \'regex\'.');
-		}
+		$this->_validate_modifiers($modifiers);
 
 		if( substr(strtolower($file_name),-4,4) !== '.xml' )
 		{
@@ -294,52 +282,31 @@ class compiler {
 			);
 		}
 
-
 		if( $ok === true )
 		{
 			$file = $this->nested_partials->get_inner_most_file_whole();
 
 			if( file_exists($file) )
 			{
-				$content = file_get_contents($file);
-				if( $modifiers !== false )
-				{
-					if( $modifiers['is_regex'] === true )
-					{
-						if( $msg = regex_error($modifiers['find']) )
-						{
-							throw new \Exception(get_class($this).'::parse() expects second parameter $modifiers to contain a valid regex when $modifiers[is_regex] is TRUE. Regex error: "'.$msg.'"');
-						}
-						else
-						{
-							$content = preg_replace( $modifiers['find'] , $modifiers['replace'] , $content );
-						}
-					}
-					else
-					{
-						$content = str_replace( $modifiers['find'] , $modifiers['replace'] , $content );
-					}
-				}
-				$wrap_type = $this->wrap_type;
+				$content = $this->_get_parse_file_contents($file,$modifiers);
 
+				$wrap_type = $this->wrap_type;
 				if( $this->wrap_type )
 				{
-
 					$wrap_function = $this->handle_wrap;
 				}
 				else
 				{
 					$wrap_function = '_dont_wrap';
 				}
-
 				$this->{$wrap_function}($file,true,$wrap_type);
+
 				$this->current_file[] = $file;
 				$this->current_content[] = $content;
 
 				$matches = 0;
-
 				$count = 0;
-				// mixed preg_replace_callback ( mixed $pattern , callback $callback , mixed $subject [, int $limit = -1 [, int &$count ]] )
+
 				$content = preg_replace_callback( self::INCLUDES_REGEX , [ $this , '_PARSE_KEYWORDS_CALLBACK' ] , $content , -1 , $count );
 
 				if( $count < 1 )
@@ -434,6 +401,47 @@ class compiler {
 		return $this->validator;
 	}
 
+	private function _validate_modifiers($modifiers)
+	{
+		if(
+			$modifiers !== false && (
+				!is_array($modifiers) ||
+				empty($modifiers) ||
+				!isset($modifiers['find']) || !is_string($modifiers['find']) || trim($modifiers['find']) === '' ||
+				!isset($modifiers['replace']) || !is_string($modifiers['replace']) ||
+				!isset($modifiers['is_regex']) || !is_bool($modifiers['is_regex'])
+			)
+		)
+		{
+			throw new \Exception(get_class($this).'::parse() expects second parameter $modifiers to be either false or a non-empty array containing the following keys: \'find\', \'replace\', \'regex\'.');
+		}
+	}
+
+	private function _get_parse_file_contents($file,$modifiers)
+	{
+		$content = $this->_fix_MySource_case(file_get_contents($file));
+		if( $modifiers !== false )
+		{
+			if( $modifiers['is_regex'] === true )
+			{
+				if( $msg = regex_error($modifiers['find']) )
+				{
+					throw new \Exception(get_class($this).'::parse() expects second parameter $modifiers to contain a valid regex when $modifiers[is_regex] is TRUE. Regex error: "'.$msg.'"');
+				}
+				else
+				{
+					$content = preg_replace( $modifiers['find'] , $modifiers['replace'] , $content );
+				}
+			}
+			else
+			{
+				$content = str_replace( $modifiers['find'] , $modifiers['replace'] , $content );
+			}
+		}
+		return $content;
+	}
+
+
 	/**
 	 * @function PARSE_KEYWORDS_CALLBACK() uses the match array of a
 	 * regular expression on a single preparse file keyword and
@@ -462,7 +470,7 @@ class compiler {
 		$this->validator->parse( $match[1] , $this->_get_current('file') , $this->_get_current('content') );
 		$this->last_match = $match[0];
 
-		fwrite($this->output,$match[1]);
+		fwrite($this->output,$this->_fix_MySource_case($match[1]));
 
 		$ok = false;
 		$no_comments = false;
@@ -642,4 +650,15 @@ class compiler {
 			,array_reverse($this->current_file)
 		);
 	}
+
+	private function _fix_MySource_case($input)
+	{
+		return preg_replace_callback('`mysource_([a-z_]+)`i', array($this,'_FIX_MySource_CASE_CALLBACK'),$input);
+	}
+
+	private function _FIX_MySource_CASE_CALLBACK($matches)
+	{
+		return 'MySource_'.strtoupper($matches[1]);
+	}
+
 }
