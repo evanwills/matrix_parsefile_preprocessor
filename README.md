@@ -26,7 +26,7 @@ In a single Matrix installation, you often have multiple sites. Most of these si
 
 ## How the builder/compiler works:
 
-1.	Searches the base parse file for [special keywords](#Keyword-structure)
+1.	Searches the base parse file for [special keywords](#keyword-structure)
 2.	The code immediately preceding the keyword is
 	1.	passed to the validator for validation.
 	2.	the code is written to the output file.
