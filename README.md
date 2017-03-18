@@ -4,13 +4,13 @@ This is a small tool to help with creating and maintaining [Squiz Matrix __Desig
 It has a command line version which allows for building full parse files out of partials, is much the same way as something like [SASS](http://sass-lang.com/) uses to build CSS style sheets. It also has a web interface that allows basic validation of parse files
 
 ## Problem 1:
-The only way to validate a [parse files](https://matrix.squiz.net/manuals/designs/chapters/design-asset#parse-file) is to upload it to Matrix. This is fine during initial development phase when the design hasn't got many customisation and hans't been applied to too many assets. However, changing an existing parse file can take a very long time to process and, if there's an error in the code you've uploaded it can take the same amount of time again to fix the error. This tool attempts to provide a way of validating your parsefile (in seconds) before you upload it to Matrix.
+The only way to validate a [parse files](https://matrix.squiz.net/manuals/designs/chapters/design-asset#parse-file) is to upload it to Matrix. This is fine during initial development phase when the design hasn't got many customisation and hasn't been applied to too many assets. However, changing an existing parse file can take a very long time to process and, if there's an error in the code you've uploaded it can take the same amount of time again to fix the error. This tool attempts to provide a way of validating your parse-file (in seconds) before you upload it to Matrix.
 
 ## Problem 2:
-When you update an existing parse file, any design areas that were in the existing parse file but not in the new version will have all their customisation setting permanently lost. This means if you inadvertantly delete a design area on a production design it can have disasterous effects only fixable by doing a full restore from the most recent database backup, causing you to loose _**ALL**_ the changes made to Matrix since the last backup. This tool _(When I've built the code)_ will compare a specified old version of the file against the newly created version and identify any design areas missing from the new version.
+When you update an existing parse file, any design areas that were in the existing parse file but not in the new version will have all their customisation setting permanently lost. This means if you inadvertently delete a design area on a production design it can have disastrous effects only fixable by doing a full restore from the most recent database backup, causing you to loose _**ALL**_ the changes made to Matrix since the last backup. This tool _(When I've built the code)_ will compare a specified old version of the file against the newly created version and identify any design areas missing from the new version.
 
 ## Problem 3:
-In a single Matrix installation, you often have multiple sites. Most of these sites are likely to share significant portions of their deisgns and design parse files (e.g. In our main site, we have an _Inside page_ design and a lighter weight _Home page_ design which shares all of the _Inside page_ design's header and footer sections but has a single design area for the main home page stuff). It would be good if you could break down parse files into partials then assemble the partials into different final design parse files. The command line interface for this too allows you to do this.
+In a single Matrix installation, you often have multiple sites. Most of these sites are likely to share significant portions of their designs and design parse files (e.g. In our main site, we have an Inside page design and a lighter weight _Home page_ design which shares all of the _Inside page_ design's header and footer sections but has a single design area for the main home page stuff). It would be good if you could break down parse files into partials then assemble the partials into different final design parse files. The command line interface for this too allows you to do this.
 
 ## How the validator works:
 
@@ -19,16 +19,15 @@ In a single Matrix installation, you often have multiple sites. Most of these si
 3.	`<MySource_PRINT>` tags, it compares the `id_name` with the list of unprinted `<MySource_AREA>`s and removes the ID from the list.
 4.  `<MySource_AREA>` `design_area="show_if"` tags, it checks to see if they have `keyword_regexp` condition. If so, it validates the regular expression to ensure that if has an error you know about it.
 5.	`<MySource_AREA>` tags with duplicate  `id_name` values are reported as errors.
-6.  Reports any `<MySource_AREA>` tags that are never printed (this is not always a problem but having design areas that are never printed can needlesly add to the processing time of the design.)
+6.  Reports any `<MySource_AREA>` tags that are never printed (this is not always a problem but having design areas that are never printed can needlessly add to the processing time of the design.)
 
 ### _To do:_
-* Since normal Matrix key words (e.g. `%globals_asset_name%`) work in design parse files, It would be good if the validator checks these. Especially th emodifiers.
-* Create the old and new parse file comparison.
+* Since normal Matrix key words (e.g. `%globals_asset_name%`) work in design parse files, It would be good if the validator checks these. Especially the modifiers.
 
 ## How the builder/compiler works:
 
-1.	Searches the base parse file for [special keywords](#Keyword structure)
-2.	The code immediatly preceeding the keyword is
+1.	Searches the base parse file for [special keywords](#Keyword-structure)
+2.	The code immediately preceding the keyword is
 	1.	passed to the validator for validation.
 	2.	the code is written to the output file.
 3.	The keyword is analysed.
@@ -38,7 +37,7 @@ In a single Matrix installation, you often have multiple sites. Most of these si
 5.	Once the last keyword is processed, the rest of the code is:
 	1.	validated
 	2.	written to the output file
-6.	A report is generated containing a list (in order of occurance) of any Errors, Warnings and Notices.
+6.	A report is generated containing a list (in order of occurrence) of any Errors, Warnings and Notices.
 
 ## How the old/new comparison works
 
@@ -65,7 +64,7 @@ In a single Matrix installation, you often have multiple sites. Most of these si
 	<br />__NOTE ALSO:__ The regex used to match the keyword is delimited by an __`@`__ symbol. If your regex needs to match __`@`__ symbols, you'll need to escape them too<br />(e.g. "`jo.smith\@company.org`")
 *	"__find__"  find string or regex
 *	"__replace__" replacement string or regex pattern
-*	"__modifiers__" if regex is to be used, modifiers must containt '`R`' (for Regex) or any valid regex modifier
+*	"__modifiers__" if regex is to be used, modifiers must contain '`R`' (for Regex) or any valid regex PHP PCRE modifier
 
 ## Config:
 
