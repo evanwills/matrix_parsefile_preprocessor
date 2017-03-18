@@ -201,7 +201,7 @@ document.addEventListener(\'DOMContentLoaded\', function(event) {
 	}
 
 
-	public function render_report()
+	public function render_report( $areas , $non_printed_areas , $prints = 0 )
 	{
 		echo '
 				<article>
@@ -212,15 +212,31 @@ document.addEventListener(\'DOMContentLoaded\', function(event) {
 
 		if( $this->partials > 0 )
 		{
-			echo '
-					<p>'.$this->partials.' files processed</p>';
+			echo "\n\t\t\t\t<p><strong>{$this->partials}</strong> files processed";
+			if( $this->keywords )
+			{
+				echo '<br />';
+			}
+			else
+			{
+				echo '</p>';
+			}
 		}
 		if( $this->keywords > 0 )
 		{
-			echo '
-					<p>'.$this->keywords.' keywords found</p>';
+			echo "\n\t\t\t\t";
+			if( $this->partials === 0 )
+			{
+				echo '<p>';
+			}
+			echo "<strong>{$this->keywords}</strong> keywords found</p>";
 		}
 		echo '
+					<p>
+						<strong>'.$areas.'</strong> design areas found<br />
+						<strong>'.$non_printed_areas.'</strong> (or ' . round($non_printed_areas/$areas,4) * 100 .'%) design areas were non-print<br />
+						<strong>'.$prints.'</strong> print tags found
+					</p>
 					<p>There were:</p>
 					<ul>
 						<li>'.$this->errors.' errors</li>

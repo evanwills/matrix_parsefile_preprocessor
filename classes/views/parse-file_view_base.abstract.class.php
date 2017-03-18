@@ -39,11 +39,11 @@ abstract class base_view
 		}
 		if( !is_int($partials_count) || $partials_count < 0 )
 		{
-			throw new \Exception(get_class($this).'constructor expects first parameter $partials_count to be an integer, zero or higher. '.\type_or_value($partials_count,'integer').' given.');
+			throw new \Exception(get_class($this).' constructor expects first parameter $partials_count to be an integer, zero or higher. '.\type_or_value($partials_count,'integer').' given.');
 		}
 		if( !is_int($keyword_count) || $keyword_count < 0 )
 		{
-			throw new \Exception(get_class($this).'constructor expects first parameter $keyword_count to be an integer, zero or higher. '.\type_or_value($keyword_count,'integer').' given.');
+			throw new \Exception(get_class($this).' constructor expects first parameter $keyword_count to be an integer, zero or higher. '.\type_or_value($keyword_count,'integer').' given.');
 		}
 		$this->partials = $partials_count;
 		$this->keywords = $keyword_count;
@@ -60,5 +60,19 @@ abstract class base_view
 	}
 	abstract public function render_item_wrap_close();
 	abstract public function render_report_wrap_close();
-	abstract public function render_report();
+	public function render_report( $areas ,  $non_printed_areas , $prints )
+	{
+		if( !is_int($areas) || $areas < 0 )
+		{
+			throw new \Exception(get_class($this).'::render_report() expects first parameter $areas to be an integer, zero or higher. '.\type_or_value($areas,'integer').' given.');
+		}
+		if( !is_int($non_printed_areas) || $non_printed_areas < 0 )
+		{
+			throw new \Exception(get_class($this).'::render_report() expects second parameter $non_printed_areas to be an integer, zero or higher. '.\type_or_value($non_printed_areas,'integer').' given.');
+		}
+		if( !is_int($prints) || $prints < 0 )
+		{
+			throw new \Exception(get_class($this).'::render_report() expects third parameter $prints to be an integer, zero or higher. '.\type_or_value($prints,'integer').' given.');
+		}
+	}
 }

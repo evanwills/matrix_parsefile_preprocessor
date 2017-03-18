@@ -20,6 +20,12 @@ class validator {
 	private $log = null;
 	private $nested_partials = null;
 
+	private $unprinted_exceptions = [ '__global__'];
+
+	private $areas = 0;
+	private $non_printed_areas = 0;
+	private $prints = 0;
+
 	private $IDs = ['__global__'];
 	private $unprinted_IDs = [];
 	private $old_IDs = [];
@@ -61,6 +67,7 @@ class validator {
 		}
 
 
+
 		if( preg_match_all( self::TAG_REGEX , $code , $tags , PREG_SET_ORDER ) )
 		{
 			for( $a = 0 ; $a < count($tags) ; $a += 1 )
@@ -74,6 +81,7 @@ class validator {
 
 				if( $element === 'print' )
 				{
+					$this->prints += 1;
 					if( $id !== '' )
 					{
 						$this->_remove_non_printed_ID($id);
@@ -92,6 +100,7 @@ class validator {
 				}
 				else
 				{
+					$this->areas += 1;
 					if( $msg = $this->_existing_id($id) )
 					{
 						$this->log->add(
@@ -102,10 +111,13 @@ class validator {
 							,$file_content
 						);
 					}
+
 					if( $tag->get_attr('print') === 'no' )
 					{
+
 						$printed = false;
-						$this->_add_non_print_ID( $id , $tag->get_line() , $source);
+						$this->_add_non_print_ID( $id , $tag->get_line() , $file_name);
+						$this->non_printed_areas += 1;
 					}
 
 					if( $tag->get_attr('design_area') === 'show_if' )
@@ -119,7 +131,7 @@ class validator {
 								,preg_replace(
 									 $show_if_regex
 									,'\1</MySource_AREA>'
-									,$input
+									,$code
 								 )
 							 )
 						);
@@ -143,7 +155,7 @@ class validator {
 							{
 								if( isset($fields['condition_keyword_match']) )
 								{
-									if( $msg = \regex_error( '/'.$fields['condition_keyword_match'].'/' ) )
+									if( $msg = regex_error( '/'.$fields['condition_keyword_match'].'/' ) )
 									{
 										$this->log->add(
 											 'error'
@@ -246,16 +258,16 @@ class validator {
 			{
 				if( $b === 1 )
 				{
-					$area = 'area was';
+					$area = 'design area was';
 				}
 				else
 				{
-					$area = $b.' areas were';
+					$area = $b.' design areas were';
 				}
 
 				$this->log->add(
 					 'warning'
-					,'The following design '.$area.' in the old parse file but not in the new one:'
+					,'The following '.$area.' in the old parse file but not in the new one:'
 				);
 				$log_item = $this->log->get_last_item();
 				for( $a = 0 ; $a < $b ; $a += 1 )
@@ -338,6 +350,20 @@ class validator {
 	}
 
 
+	public function get_areas_count()
+	{
+		return $this->areas;
+	}
+	public function get_non_printed_areas_count()
+	{
+
+		return $this->non_printed_areas;
+	}
+	public function get_prints_count()
+	{
+		return $this->prints;
+	}
+
 	private function _undefined_area($input) {
 		if( in_array($input,$this->IDs) )
 		{
@@ -408,7 +434,8 @@ class validator {
 	}
 
 
-	private function SHOW_IF_CALLBACK($input) {
+	private function SHOW_IF_CALLBACK($matches)
+	{
 		return htmlspecialchars($matches[1]);
 	}
 }

@@ -101,9 +101,11 @@ class xml_tag
 			throw new \Exception(get_class($this).'::get_attr() expects only parameter to be a string or number. '.type_or_value($attrs,'string').' given.');
 		}
 
-		if( isset($this->attr[$attr]) )
+
+		if( isset($this->attrs[$attr]) )
 		{
-			return $this->attr[$attr];
+
+			return $this->attrs[$attr];
 		}
 		else
 		{

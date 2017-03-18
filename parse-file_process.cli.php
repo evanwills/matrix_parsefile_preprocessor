@@ -146,4 +146,5 @@ while( $log_item = $logs->get_next_item() )
 	$view->render_item($log_item);
 }
 
-$view->render_report();
+$validator = $builder->get_validator();
+$view->render_report( $validator->get_areas_count() , $validator->get_non_printed_areas_count() , $validator->get_prints_count() );

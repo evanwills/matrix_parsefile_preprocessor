@@ -56,12 +56,15 @@ class cli_view extends base_view
 	public function render_item_wrap_close() { }
 	public function render_report_wrap_close() { }
 
-	public function render_report()
+	public function render_report( $areas , $non_printed_areas , $prints = 0 )
 	{
 		echo "\n\n==============================================";
 		echo "\n All done!\n";
 		echo "\n   {$this->partials} files processed.";
-		echo "\n   {$this->keywords} keywords found\n";
+		echo "\n   {$this->keywords} keywords found";
+		echo "\n   $areas design areas found";
+		echo "\n   $non_printed_areas (or " . round($non_printed_areas/$areas,4)*100 . "%) design areas were non-print.";
+		echo "\n   $prints print tags found\n";
 		echo "\n   There were:";
 		echo "\n\t{$this->errors} errors";
 		echo "\n\t{$this->warnings} warnings";

@@ -129,7 +129,7 @@ if( $new_parse_file !== '' )
 		$view->render_item($log_item);
 	}
 	$view->render_item_wrap_close();
-	$view->render_report();
+	$view->render_report( $validator->get_areas_count() , $validator->get_non_printed_areas_count() , $validator->get_prints_count() );
 	$view->render_report_wrap_close();
 }
 
