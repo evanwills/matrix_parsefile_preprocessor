@@ -1,39 +1,61 @@
-# Squiz Matrix Parse File Preprocessor
+# Squiz Matrix Parse File builder and validator
 
-This is an attempt at making a preprocessor to allow for reusable parsefile chunks to be assembled then checked for basic syntax errors
+This is a small tool to help with creating and maintaining [Squiz Matrix __Design Parse files__](https://matrix.squiz.net/manuals/designs).
+It has a command line version which allows for building full parse files out of partials, is much the same way as something like [SASS](http://sass-lang.com/) uses to build CSS style sheets. It also has a web interface that allows basic validation of parse files
 
-Inspired by the Sass CSS Preprocessor, SMPFP (for want of a better name) will:
+## Problem 1:
+The only way to validate a [parse files](https://matrix.squiz.net/manuals/designs/chapters/design-asset#parse-file) is to upload it to Matrix. This is fine during initial development phase when the design hasn't got many customisation and hans't been applied to too many assets. However, changing an existing parse file can take a very long time to process and, if there's an error in the code you've uploaded it can take the same amount of time again to fix the error. This tool attempts to provide a way of validating your parsefile (in seconds) before you upload it to Matrix.
 
-1.	Read through a file finding keywords delimited by `{{...}}` or `{[...]}` and what ever HTML or Matrix code preceeds the keyword
-2.	Syntax check Matrix code preceeding matched keyword (or between previous keyword and current keyword)
-3.	Search for file partials identified by the keywords
-4.	Modify partials using basic find/replace or regex/replace as required
-5.	Syntax check partial
-6.	Replace the keyword with the (possibly modified) contents of the partial file
-7.	[optional] Identifies any unprinted design areas
-8.	[optional] Strips HTML comments
-9.	[optional] Strips unnecessary white space
+## Problem 2:
+When you update an existing parse file, any design areas that were in the existing parse file but not in the new version will have all their customisation setting permanently lost. This means if you inadvertantly delete a design area on a production design it can have disasterous effects only fixable by doing a full restore from the most recent database backup, causing you to loose _**ALL**_ the changes made to Matrix since the last backup. This tool _(When I've built the code)_ will compare a specified old version of the file against the newly created version and identify any design areas missing from the new version.
 
-## Syntax checking:
+## Problem 3:
+In a single Matrix installation, you often have multiple sites. Most of these sites are likely to share significant portions of their deisgns and design parse files (e.g. In our main site, we have an _Inside page_ design and a lighter weight _Home page_ design which shares all of the _Inside page_ design's header and footer sections but has a single design area for the main home page stuff). It would be good if you could break down parse files into partials then assemble the partials into different final design parse files. The command line interface for this too allows you to do this.
 
-Currently, syntax checking checks for:
-*	Duplicate IDs in `<MySource_AREA>` design areas;
-*	Undefined IDs in `<MySource_Print>` statements; and
-*	Unprinted `<MySource_AREA>` design areas  i.e. unique design areas that are defined but never printed;
-	<br />__NOTE:__ This will be off by default but can be switched on and can have exceptions for intentionally unprinted design areas;
-*	Bad regexes in show_if statements.
+## How the validator works:
 
-As I get a better understanding of how the Matrix Parse file is parsed, I will add features to the syntax checking.
+1.	Finds all `<MySource_AREA>` and `<MySource_PRINT>` tags
+2.	`<MySource_AREA>` tags, it finds the `id_name` attribute and records the value. If there's a `print="no"` attribute, it also records the fact that the tag will not be rendered by matrix at the location it was created.
+3.	`<MySource_PRINT>` tags, it compares the `id_name` with the list of unprinted `<MySource_AREA>`s and removes the ID from the list.
+4.  `<MySource_AREA>` `design_area="show_if"` tags, it checks to see if they have `keyword_regexp` condition. If so, it validates the regular expression to ensure that if has an error you know about it.
+5.	`<MySource_AREA>` tags with duplicate  `id_name` values are reported as errors.
+6.  Reports any `<MySource_AREA>` tags that are never printed (this is not always a problem but having design areas that are never printed can needlesly add to the processing time of the design.)
+
+### _To do:_
+* Since normal Matrix key words (e.g. `%globals_asset_name%`) work in design parse files, It would be good if the validator checks these. Especially th emodifiers.
+* Create the old and new parse file comparison.
+
+## How the builder/compiler works:
+
+1.	Searches the base parse file for [special keywords](#Keyword structure)
+2.	The code immediatly preceeding the keyword is
+	1.	passed to the validator for validation.
+	2.	the code is written to the output file.
+3.	The keyword is analysed.
+	1.	If a partial file can be found that matches the keyword then the contents of that file is pulled in.
+	2.	any find/replace actions specified in the keyword are applied to the contents of the partial
+4.	The partial is then (recursively) passed to the compiler in the same way the base parse file was.
+5.	Once the last keyword is processed, the rest of the code is:
+	1.	validated
+	2.	written to the output file
+6.	A report is generated containing a list (in order of occurance) of any Errors, Warnings and Notices.
+
+## How the old/new comparison works
+
+1. 	It Searches through the old parse file for any `<MySource_AREA>` and records the `id_name` value for each
+2. 	It Searches through the new parse file for any `<MySource_AREA>` and removes `id_name`s from the list of the ones in the old parse file
+3.	Any `id_name`s left in the list from the old parse file are missing from the new parse file and displayed as warnings at the end of the validation phase.
 
 
-## Keyword structure:
+## Keyword structure
 ```
 {{path/to/partial/file|find|replace|modifiers}}
 ```
 
-*	"__`{{`__" or "__`{[`__"  delimiter
-	*	`{{` partial is wrapped in comments
-	*	`{[` partial is NOT wrapped in comments
+*	"__`{{`__" or "__`{{[`__" or "__`{{(`__"  delimiter
+	*	`{{` partial is NOT wrapped in comments
+	*	`{{[` partial is wrapped in HTML comments `<!-- ... -->`
+	*	`{{[` partial is wrapped in CSS/JS comments `/* ... */`
 	<br />__NOTE:__ the keyword match will find any combination of `[]{}` but will throw errors if the delimiters are not `{[...]}` or `{{...}}`
 *	"__path/to/partial/__" relative or absolute path to partial by default partials should be
 *	"__file__" name of partial file
