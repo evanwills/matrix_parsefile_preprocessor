@@ -103,14 +103,13 @@ if( $new_parse_file !== '' )
 	require('classes/parse-file_nested-partials.class.php');
 	require('classes/parse-file_validator.class.php');
 
-	$config = new
 
 	$fail_on_unprinted = true;
 	$unprinted_exceptions = array();
 
 	$config = new matrix_parsefile_preprocessor\config($pwd,$pwd.'config.xml');
-	$logger = new logger();
-	$partials = new nested_partials($logger,'web');
+	$logger = new matrix_parsefile_preprocessor\logger();
+	$partials = new matrix_parsefile_preprocessor\nested_partials($logger,'web');
 	$validator = new matrix_parsefile_preprocessor\validator($config,$logger,$partials);
 
 	if( $compare === true )
@@ -135,7 +134,7 @@ if( $new_parse_file !== '' )
 		$view->render_item($log_item);
 	}
 	$view->render_item_wrap_close();
-	$view->render_report( $validator->get_areas_count() , $validator->get_non_printed_areas_count() , $validator->get_prints_count() );
+	$view->render_report( $validator );
 	$view->render_report_wrap_close();
 }
 

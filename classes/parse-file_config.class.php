@@ -140,6 +140,7 @@ class config
 	 */
 	public function __construct( $working_dir , $file )
 	{
+		$web = false;
 		if( !is_string($working_dir) || trim($working_dir) === '' )
 		{
 			throw new \Exception(get_class($this).'::__construct() expects first parameter $working_dir to be a non-empty string. '.type_or_value($file,'string')." given.\n");
@@ -157,12 +158,16 @@ class config
 		{
 			throw new \Exception(get_class($this).'::__construct() expects second parameter $file to be a non-empty string. '.type_or_value($file,'string')." given.\n");
 		}
+		elseif( $file === 'web' )
+		{
+			$web = true;
+		}
 
 		$file = realpath($file);
 		if( $file === false )
 		{
 			// use default config file.
-			$file = realpath($pwd.'config.info');
+			$file = realpath($working_dir.'config.info');
 		}
 
 		$path = pathinfo($file);
@@ -256,22 +261,25 @@ class config
 				$this->config_vars[$key] = $value;
 			}
 		}
-		$dir = 'output_dir';
-		for( $a = 0 ; $a < 2 ; $a += 1 )
+		if( $file === 'web' )
 		{
-			if( !is_dir($this->$dir) )
+			$dir = 'output_dir';
+			for( $a = 0 ; $a < 2 ; $a += 1 )
 			{
-				if( is_dir($this->pwd.$this->$dir) )
+				if( !is_dir($this->$dir) )
 				{
-					$this->$dir = $this->pwd.$this->$dir;
+					if( is_dir($this->pwd.$this->$dir) )
+					{
+						$this->$dir = $this->pwd.$this->$dir;
+					}
 				}
+				$this->$dir = realpath($this->$dir).'/';
+				if( !is_dir($this->$dir) || !is_writable($this->$dir) )
+				{
+					throw new \Exception(get_class($this).' assumes that there will be a writable directory at this location: "'.$this->$dir.'"');
+				}
+				$dir = 'log_dir';
 			}
-			$this->$dir = realpath($this->$dir).'/';
-			if( !is_dir($this->$dir) || !is_writable($this->$dir) )
-			{
-				throw new \Exception(get_class($this).' assumes that there will be a writable directory at this location: "'.$this->$dir.'"');
-			}
-			$dir = 'log_dir';
 		}
 	}
 }
