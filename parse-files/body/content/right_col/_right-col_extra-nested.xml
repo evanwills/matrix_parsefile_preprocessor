@@ -1,8 +1,0 @@
-
-<MySource_AREA id_name="right_col_buttons_area" design_area="nest_content" print="no"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
-<MySource_AREA id_name="right_col_extra_1_area" design_area="nest_content" print="no"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
-<MySource_AREA id_name="right_col_extra_2_area" design_area="nest_content" print="no"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
-<MySource_AREA id_name="right_col_extra_3_area" design_area="nest_content" print="no"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
-<MySource_AREA id_name="right_col_extra_4_area" design_area="nest_content" print="no"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
-<MySource_AREA id_name="right_col_social_links" design_area="nest_content" print="no"><MySource_SET name="type_codes" value="page" /></MySource_AREA>
-
