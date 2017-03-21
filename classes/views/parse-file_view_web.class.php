@@ -2,8 +2,14 @@
 
 namespace matrix_parsefile_preprocessor\view;
 
-require_once(__DIR__.'/parse-file_view_base.abstract.class.php');
-require_once($pwd.'/includes/syntax_highlight.inc.php');
+
+if( !defined('MATRIX_PARSEFILE_PREPROCESSOR__WEB_VIEW') )
+{
+
+define('MATRIX_PARSEFILE_PREPROCESSOR__WEB_VIEW',true);
+
+require(__DIR__.'/parse-file_view_base.abstract.class.php');
+require(__DIR__.'/../../includes/syntax_highlight.inc.php');
 
 class web_view extends base_view
 {
@@ -201,8 +207,12 @@ document.addEventListener(\'DOMContentLoaded\', function(event) {
 	}
 
 
-	public function render_report( $areas , $non_printed_areas , $prints = 0 )
+	public function render_report( \matrix_parsefile_preprocessor\validator $validator , $file = false )
 	{
+
+		$areas = $validator->get_areas_count();
+		$non_printed_areas = $validator->get_non_printed_areas_count();
+
 		echo '
 				<article>
 					<header>
@@ -235,7 +245,7 @@ document.addEventListener(\'DOMContentLoaded\', function(event) {
 					<p>
 						<strong>'.$areas.'</strong> design areas found<br />
 						<strong>'.$non_printed_areas.'</strong> (or ' . round($non_printed_areas/$areas,4) * 100 .'%) design areas were non-print<br />
-						<strong>'.$prints.'</strong> print tags found
+						<strong>'.$validator->get_prints_count().'</strong> print tags found
 					</p>
 					<p>There were:</p>
 					<ul>
@@ -246,4 +256,8 @@ document.addEventListener(\'DOMContentLoaded\', function(event) {
 				</article>
 ';
 	}
+}
+
+
+
 }

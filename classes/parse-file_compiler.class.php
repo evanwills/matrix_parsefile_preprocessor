@@ -2,13 +2,18 @@
 
 namespace matrix_parsefile_preprocessor;
 
-require_once(__DIR__.'/parse-file_config.class.php');
-require_once(__DIR__.'/parse-file_validator.class.php');
-require_once(__DIR__.'/parse-file_nested-partials.class.php');
-require_once(__DIR__.'/parse-file_logger.class.php');
+if( !defined('MATRIX_PARSEFILE_PREPROCESSOR__COMPILER') )
+{
 
-require_once($pwd.'/includes/regex_error.inc.php');
-require_once($pwd.'/includes/type_or_value.inc.php');
+define('MATRIX_PARSEFILE_PREPROCESSOR__COMPILER',true);
+
+require(__DIR__.'/parse-file_config.class.php');
+require(__DIR__.'/parse-file_validator.class.php');
+require(__DIR__.'/parse-file_nested-partials.class.php');
+require(__DIR__.'/parse-file_logger.class.php');
+
+require(__DIR__.'/../includes/regex_error.inc.php');
+require(__DIR__.'/../includes/type_or_value.inc.php');
 
 class compiler {
 
@@ -150,56 +155,14 @@ class compiler {
 
 
 
-	public function __construct( $base_file , $compare = false )
+	public function __construct( config $config , logger $logger , nested_partials $partials )
 	{
-		if( !is_string($base_file) || trim($base_file) == '' )
-		{
-			throw new \Exception(get_class($this).' constructor expects first parameter $base_file to be a non-empty string. '.\type_or_value($base_file,'string').' given');
-		}
+		$this->config = $config;
+		$this->log = $logger;
+		$this->nested_partials = $partials;
+		$this->validator = new validator($config,$logger,$partials);
 
-
-		$this->config = config::get($base_file);
-		$this->log = logger::get($base_file);
-		$this->nested_partials = nested_partials::get($base_file);
-		$this->validator = new validator();
-
-
-		$file_parts = pathinfo(realpath($base_file));
-
-		$this->output_file = realpath($this->config->get_var('output_dir').$file_parts['basename']);
-		if( (!file_exists($this->output_file) || !is_writable($this->output_file)) && !is_writable(dirname($this->output_file)) )
-		{
-			throw new \Exception(get_class($this).' constructor cannot create file '.$file_parts['basename'].' in directory '.dirname($this->output_file).'/');
-		}
-
-		if( is_bool($compare)  )
-		{
-			if( $compare === true )
-			{
-				if( file_exists($this->output_file) )
-				{
-					$this->validator->process_old_parse_file( file_get_contents($this->output_file), $this->output_file);
-				}
-				else
-				{
-					$this->log->add(
-						'warning'
-						,'could not compare previously compiled version of "'.$this->output_file.'" because it did not exist.'
-					);
-					$compare = false;
-				}
-			}
-		}
-		elseif( is_string($compare) && is_file($compare) && substr( strtolower($compare) , -4 , 4 ) === '.xml' )
-		{
-			$this->validator->process_old_parse_file( file_get_contents($compare) , $compare );
-			$compare = true;
-		}
-		else
-		{
-			throw new \Exception(get_class($this).' constructor expects second parameter $compare to be either boolean or a string path to an XML file '.\type_or_value($base_file,'string').' given');
-		}
-
+		$this->output_file = $this->config->get_var('output_dir').$this->nested_partials->get_base_file();
 		$this->output = fopen( $this->output_file , 'w' );
 
 		$ws = $this->config->get_var('white_space');
@@ -660,5 +623,9 @@ class compiler {
 	{
 		return 'MySource_'.strtoupper($matches[1]);
 	}
+
+}
+
+
 
 }

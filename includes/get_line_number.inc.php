@@ -2,6 +2,14 @@
 
 namespace matrix_parsefile_preprocessor;
 
+
+if( !defined('MATRIX_PARSEFILE_PREPROCESSOR__GET_LINE_NUMBER') )
+{
+
+define('MATRIX_PARSEFILE_PREPROCESSOR__GET_LINE_NUMBER',true);
+
+
+
 /**
  * @function get_line_number() returns the line the current
  * keyword is on in the preparse file being processed
@@ -19,4 +27,8 @@ function get_line_number( $pattern , $content ) {
 					)
 			);
 	return count($arr);
+}
+
+
+
 }

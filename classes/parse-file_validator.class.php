@@ -2,16 +2,21 @@
 
 namespace matrix_parsefile_preprocessor;
 
+if( !defined('MATRIX_PARSEFILE_PREPROCESSOR__VALIDATOR') )
+{
 
-require_once(__DIR__.'/xml_tag.class.php');
-require_once(__DIR__.'/MySource_tag.class.php');
-require_once(__DIR__.'/parse-file_config.class.php');
-require_once(__DIR__.'/parse-file_logger.class.php');
-require_once(__DIR__.'/parse-file_nested-partials.class.php');
+define('MATRIX_PARSEFILE_PREPROCESSOR__VALIDATOR',true);
 
-require_once($pwd.'/includes/regex_error.inc.php');
-require_once($pwd.'/includes/get_line_number.inc.php');
-require_once($pwd.'/includes/type_or_value.inc.php');
+
+require(__DIR__.'/xml_tag.class.php');
+require(__DIR__.'/MySource_tag.class.php');
+require(__DIR__.'/parse-file_config.class.php');
+require(__DIR__.'/parse-file_logger.class.php');
+require(__DIR__.'/parse-file_nested-partials.class.php');
+
+require(__DIR__.'/../includes/regex_error.inc.php');
+require(__DIR__.'/../includes/get_line_number.inc.php');
+require(__DIR__.'/../includes/type_or_value.inc.php');
 
 
 class validator {
@@ -38,11 +43,11 @@ class validator {
 	const SHOWIF_CALLBACK_REGEX = '`(?<=value=")(.*?)(?=")`';
 
 
-	public function __construct( $file = 'web' )
+	public function __construct( config $config , logger $logger , nested_partials $partials )
 	{
-		$this->config = config::get($file);
-		$this->log = logger::get();
-		$this->nested_partials = nested_partials::get('web');
+		$this->config = $config;
+		$this->log = $logger;
+		$this->nested_partials = $partials;
 	}
 
 
@@ -184,10 +189,21 @@ class validator {
 		{
 			throw new \Exception(get_class($this).'::process_old_parse_file() expects first parameter $parse_file_contents to be a non-empty string. '.type_or_value($parse_file_contents,'string').' given.');
 		}
+		elseif( is_file($parse_file_contents) && is_readable($parse_file_contents) && substr(strtolower($parse_file_contents),-4,4) === '.xml' )
+		{
+			$file_name = $parse_file_contents;
+			$parse_file_contents = file_get_contents($parse_file_contents);
+		}
+
 		if( !is_string($file_name) || trim($file_name) === '' )
 		{
 			throw new \Exception(get_class($this).'::process_old_parse_file() expects second parameter $file_name to be a non-empty string. '.type_or_value($file_name,'string').' given.');
 		}
+		elseif( $file_name !== 'web' && !is_file($file_name) )
+		{
+			throw new \Exception(get_class($this).'::process_old_parse_file() expects second parameter $file_name to be either "web" or a path to an existing file. "'.$file_name.'" given.');
+		}
+
 
 
 		if( preg_match_all( self::TAG_REGEX , $parse_file_contents , $tags , PREG_SET_ORDER ) )
@@ -438,4 +454,7 @@ class validator {
 	{
 		return htmlspecialchars($matches[1]);
 	}
+}
+
+
 }

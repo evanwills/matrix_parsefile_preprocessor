@@ -1,6 +1,12 @@
 <?php
 
-require_once($pwd.'/includes/type_or_value.inc.php');
+if( !defined('MATRIX_PARSEFILE_PREPROCESSOR__XML_TAG') )
+{
+
+define('MATRIX_PARSEFILE_PREPROCESSOR__XML_TAG',true);
+
+
+require(__DIR__.'/../includes/type_or_value.inc.php');
 
 class xml_tag
 {
@@ -112,4 +118,8 @@ class xml_tag
 			return false;
 		}
 	}
+}
+
+
+
 }

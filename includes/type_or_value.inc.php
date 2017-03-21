@@ -2,6 +2,13 @@
 
 namespace matrix_parsefile_preprocessor;
 
+if( !defined('MATRIX_PARSEFILE_PREPROCESSOR__TYPE_OR_VALUE') )
+{
+
+define('MATRIX_PARSEFILE_PREPROCESSOR__TYPE_OR_VALUE',true);
+
+
+
 /**
  * works out whether the type of input matches the specified variable
  * type. If so, it returns the input value. If not, it returns the type
@@ -34,4 +41,7 @@ function type_or_value($input, $var_type)
 	{
 		return $var_type;
 	}
+}
+
+
 }

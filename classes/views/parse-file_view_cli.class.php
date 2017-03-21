@@ -2,17 +2,19 @@
 
 namespace matrix_parsefile_preprocessor\view;
 
-require_once(__DIR__.'/parse-file_view_base.abstract.class.php');
+if( !defined('MATRIX_PARSEFILE_PREPROCESSOR__CLI_VIEW') )
+{
+
+define('MATRIX_PARSEFILE_PREPROCESSOR__CLI_VIEW',true);
+
+
+require(__DIR__.'/parse-file_view_base.abstract.class.php');
 
 
 class cli_view extends base_view
 {
-	public function render_open()
-	{
-	}
-	public function render_close()
-	{
-	}
+	public function render_open() {}
+	public function render_close() {}
 	public function render_report_wrap_open() {}
 	public function render_item_wrap_open() {}
 
@@ -56,19 +58,31 @@ class cli_view extends base_view
 	public function render_item_wrap_close() { }
 	public function render_report_wrap_close() { }
 
-	public function render_report( $areas , $non_printed_areas , $prints = 0 )
+	public function render_report( \matrix_parsefile_preprocessor\validator $validator , $file = false )
 	{
+
+		$areas = $validator->get_areas_count();
+		$non_printed_areas = $validator->get_non_printed_areas_count();
+
 		echo "\n\n==============================================";
 		echo "\n All done!\n";
+		if( is_string($file) && trim($file) !== '' )
+		{
+			echo "\n Processed: \"$file\"\n";
+		}
 		echo "\n   {$this->partials} files processed.";
 		echo "\n   {$this->keywords} keywords found";
 		echo "\n   $areas design areas found";
 		echo "\n   $non_printed_areas (or " . round($non_printed_areas/$areas,4)*100 . "%) design areas were non-print.";
-		echo "\n   $prints print tags found\n";
+		echo "\n   ".$validator->get_prints_count()." print tags found\n";
 		echo "\n   There were:";
 		echo "\n\t{$this->errors} errors";
 		echo "\n\t{$this->warnings} warnings";
 		echo "\n\t{$this->notices} notices";
 		echo "\n\n";
 	}
+}
+
+
+
 }

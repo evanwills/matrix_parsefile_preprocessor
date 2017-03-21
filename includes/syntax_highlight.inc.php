@@ -1,5 +1,12 @@
 <?php
 
+if( !defined('MATRIX_PARSEFILE_PREPROCESSOR__SYNTAX_HIGHLIGHT') )
+{
+
+define('MATRIX_PARSEFILE_PREPROCESSOR__SYNTAX_HIGHLIGHT',true);
+
+
+
 /**
  * syntax_highlight() takes HTML input and highlights all aspects of
  * the code
@@ -25,7 +32,7 @@ function syntax_highlight( $input , $wrapper = '' , $anthing_else = false )
 	if($anthing_else === true && !defined('SYNTAX_HIGHLIGHT_ANTHING_ELSE'))
 	{
 		define('SYNTAX_HIGHLIGHT_ANTHING_ELSE',TRUE);
-	};
+	}
 	$throughput = preg_replace_callback($tag_match,'SYNTAX_HIGHLIGHT_CALLBACK_EL',matrix_url($input));
 	$output = preg_replace(
 			 array(
@@ -50,9 +57,9 @@ function syntax_highlight( $input , $wrapper = '' , $anthing_else = false )
 		case 'pre':
 			$output = '<pre class="hl">'.$output.'</pre>';
 			break;
-	};
+	}
 	return $output;
-};
+}
 
 function SYNTAX_HIGHLIGHT_CALLBACK_EL($matches)
 {
@@ -72,9 +79,9 @@ function SYNTAX_HIGHLIGHT_CALLBACK_EL($matches)
 	{
 		$attributes = '';
 		$close = $matches[2];
-	};
+	}
 	return $open.$attributes.'<span class="el">'.$close.'&gt;</span>';
-};
+}
 
 function matrix_url($input)
 {
@@ -82,7 +89,7 @@ function matrix_url($input)
 		 '/((?:href|src)=[\'"]?\.\/)\?(a=)/i'
 		,'\1&#63;\2'
 		,$input);
-};
+}
 
 define('SYNTAX_HIGHLIGHT_CSS','
 /* ----------------------------------------------
@@ -104,3 +111,5 @@ code.hl,pre.hl { font-size:100%; padding:0.7em 0%; }
 /* END: Syntax Highlight CSS
 ---------------------------------------------- */
 ');
+
+}

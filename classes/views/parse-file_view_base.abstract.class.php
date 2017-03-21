@@ -2,7 +2,14 @@
 
 namespace matrix_parsefile_preprocessor\view;
 
-require_once($pwd.'/includes/type_or_value.inc.php');
+if( !defined('MATRIX_PARSEFILE_PREPROCESSOR__BASE_VIEW') )
+{
+
+define('MATRIX_PARSEFILE_PREPROCESSOR__BASE_VIEW',true);
+
+require(__DIR__.'/../../includes/type_or_value.inc.php');
+
+
 
 abstract class base_view
 {
@@ -60,19 +67,9 @@ abstract class base_view
 	}
 	abstract public function render_item_wrap_close();
 	abstract public function render_report_wrap_close();
-	public function render_report( $areas ,  $non_printed_areas , $prints )
-	{
-		if( !is_int($areas) || $areas < 0 )
-		{
-			throw new \Exception(get_class($this).'::render_report() expects first parameter $areas to be an integer, zero or higher. '.\type_or_value($areas,'integer').' given.');
-		}
-		if( !is_int($non_printed_areas) || $non_printed_areas < 0 )
-		{
-			throw new \Exception(get_class($this).'::render_report() expects second parameter $non_printed_areas to be an integer, zero or higher. '.\type_or_value($non_printed_areas,'integer').' given.');
-		}
-		if( !is_int($prints) || $prints < 0 )
-		{
-			throw new \Exception(get_class($this).'::render_report() expects third parameter $prints to be an integer, zero or higher. '.\type_or_value($prints,'integer').' given.');
-		}
-	}
+
+	abstract public function render_report( \matrix_parsefile_preprocessor\validator $validator , $file = false );
+}
+
+
 }

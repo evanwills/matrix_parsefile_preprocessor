@@ -1,7 +1,13 @@
 <?php
 
-require_once(__DIR__.'/xml_tag.class.php');
-require_once($pwd.'/includes/type_or_value.inc.php');
+if( !defined('MATRIX_PARSEFILE_PREPROCESSOR__MYSOURCE_TAG') )
+{
+
+define('MATRIX_PARSEFILE_PREPROCESSOR__MYSOURCE_TAG',true);
+
+
+require(__DIR__.'/xml_tag.class.php');
+require(__DIR__.'/../includes/type_or_value.inc.php');
 
 class mysource_tag extends xml_tag
 {
@@ -78,4 +84,8 @@ class mysource_tag extends xml_tag
 	{
 		return get_object_vars($this);
 	}
+}
+
+
+
 }

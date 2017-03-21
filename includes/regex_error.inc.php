@@ -2,6 +2,13 @@
 
 namespace matrix_parsefile_preprocessor;
 
+
+if( !defined('MATRIX_PARSEFILE_PREPROCESSOR__REGEX_ERROR') )
+{
+
+define('MATRIX_PARSEFILE_PREPROCESSOR__REGEX_ERROR',true);
+
+
 /**
  * @function regex_error() outputs PHP error message (if any) for a particular regex
  *
@@ -25,7 +32,7 @@ function regex_error( $regex , $pcre = true )
 	else
 	{
 		ini_set('track_errors' , 1);
-	};
+	}
 
 	unset($php_errormsg);
 
@@ -38,7 +45,7 @@ function regex_error( $regex , $pcre = true )
 	{
 		@ereg($regex , '');
 		$flav = 'POSIX';
-	};
+	}
 
 	$output = isset($php_errormsg)?$php_errormsg:false;
 
@@ -49,7 +56,11 @@ function regex_error( $regex , $pcre = true )
 	else
 	{
 		ini_set('track_errors' , 0);
-	};
+	}
 	return $output;
-};
+}
 
+
+
+
+}

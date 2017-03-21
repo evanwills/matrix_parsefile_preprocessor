@@ -2,18 +2,24 @@
 
 namespace matrix_parsefile_preprocessor;
 
-require_once(__DIR__.'/parse-file_log-item.class.php');
-require_once($pwd.'/includes/get_line_number.inc.php');
-require_once($pwd.'/includes/type_or_value.inc.php');
+if( !defined('MATRIX_PARSEFILE_PREPROCESSOR__LOGGER') )
+{
+
+define('MATRIX_PARSEFILE_PREPROCESSOR__LOGGER',true);
+
+require(__DIR__.'/parse-file_log-item.class.php');
+require(__DIR__.'/../includes/get_line_number.inc.php');
+require(__DIR__.'/../includes/type_or_value.inc.php');
 
 
 class logger
 {
-	static private $me = null;
+//	static private $me = null;
 
 	private $log = [ 'all' => [] , 'error' => [] , 'warning' => [] , 'notice' => [] ];
 	private $itterator = null;
 
+	/**
 	static public function get()
 	{
 		if( self::$me === null )
@@ -22,6 +28,7 @@ class logger
 		}
 		return self::$me;
 	}
+	*/
 
 	public function add( $type , $msg , $file = '' , $pattern = '' , $whole_content = '' , $line = 0 )
 	{
@@ -127,4 +134,7 @@ class logger
 	{
 		return $this->log['notice'];
 	}
+}
+
+
 }

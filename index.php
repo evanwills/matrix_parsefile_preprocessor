@@ -65,7 +65,6 @@ $report = '';
 $root_url = '//'.$_SERVER['HTTP_HOST'].dirname($_SERVER['PHP_SELF']).'/';
 
 
-require_once($pwd.'classes/parse-file_validator.class.php');
 require_once($pwd.'classes/views/parse-file_view_web.class.php');
 
 
@@ -78,7 +77,7 @@ if( isset($_POST['compare']) && $_POST['compare'] === 'do' )
 $new_parse_file = isset($_POST['$new_parse_file'])?$_POST['$new_parse_file']:'';
 $old_parse_file = isset($_POST['old_parse_file'])?$_POST['old_parse_file']:'';
 
-if( $old_parse_file === '' )
+if( trim($old_parse_file) === '' )
 {
 	$compare = false;
 }
@@ -99,13 +98,20 @@ $view->render_open();
 
 if( $new_parse_file !== '' )
 {
-	require_once('classes/parse-file_validator.class.php');
+	require('classes/parse-file_config.class.php');
+	require('classes/parse-file_logger.class.php');
+	require('classes/parse-file_nested-partials.class.php');
+	require('classes/parse-file_validator.class.php');
 
+	$config = new
 
 	$fail_on_unprinted = true;
 	$unprinted_exceptions = array();
 
-	$validator = new matrix_parsefile_preprocessor\validator($pwd.'config.xml');
+	$config = new matrix_parsefile_preprocessor\config($pwd,$pwd.'config.xml');
+	$logger = new logger();
+	$partials = new nested_partials($logger,'web');
+	$validator = new matrix_parsefile_preprocessor\validator($config,$logger,$partials);
 
 	if( $compare === true )
 	{

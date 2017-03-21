@@ -62,89 +62,154 @@ if(!function_exists('debug'))
 
 require_once('classes/parse-file_compiler.class.php');
 require_once('classes/views/parse-file_view_cli.class.php');
+require_once($pwd.'includes/get_all_xml_files.inc.php');
 
 
-if( !isset($_SERVER['argv'][1]) || !is_file($_SERVER['argv'][1]) || !is_readable($_SERVER['argv'][1])) {
+if( !isset($_SERVER['argv'][1]) ) {
 	echo "\n\nYou must specify a file to be processed\n\n";
-	exit;
-} elseif( substr(strtolower($_SERVER['argv'][1]), -4 ) != '.xml' ) {
-	echo "\n\nI can only parse XML files.\n\n";
 	exit;
 }
 
 $file = realpath($_SERVER['argv']['1']);
 
-
+$files = [];
+$compare_files = [];
 $compare = false;
 $reporting = 'all';
 
-if( $_SERVER['argc'] > 2 )
+$get_compare_files = false;
+
+for( $a = 2 ; $a < $_SERVER['argc'] ; $a += 1 )
 {
-	for( $a = 2 ; $a < $_SERVER['argc'] ; $a += 1 )
+	switch(strtolower($_SERVER['argv'][$a]))
 	{
-		if( $_SERVER['argv'][$a] === 'compare' )
-		{
+		case 'all':
+		case 'error':
+		case 'notice':
+		case 'warning':
+			$mode = $_SERVER['argv'][2];
+			$get_compare_files = true;
+			break;
+		case 'brief':
+			$mode = ['error','warning'];
+			$get_compare_files = true;
+			break;
+		case 'compare':
 			$compare = true;
-		}
-		elseif( is_file($_SERVER['argv'][$a]) )
-		{
-			$old_file = realpath($_SERVER['argv'][$a]);
-			$old_path = pathinfo($old_file);
-			if( strtolower($old_path['extension']) === 'xml' )
+			$get_compare_files = true;
+			break;
+		case 'q':
+		case 'quiet':
+		case 's':
+		case 'silent':
+			$mode = 'silent';
+			$get_compare_files = true;
+			break;
+		default:
+			if( $get_compare_files === false )
 			{
-				$compare = $old_file;
+				$tmp_var = &$files;
 			}
-		}
-		else
-		{
-			$reporting = $_SERVER['argv'][$a];
-		}
+			else
+			{
+				$tmp_var = &$compare_files;
+			}
+			$tmp = matrix_parsefile_preprocessor\get_all_xml_files($_SERVER['argv'][$a]);
+			if( $tmp !== false )
+			{
+				for( $a = 0 ; $a < count($tmp) ; $a += 1 )
+				{
+					if( !in_array( $tmp[$a] , $tmp_var ) )
+					{
+						$tmp_var[] = $tmp[$a];
+					}
+				}
+			}
+			unset($tmp_var);
 	}
 }
 
-
-
-
-$builder = new matrix_parsefile_preprocessor\compiler($file,$compare);
-$builder->parse($file);
-$builder->log_unprinted();
-if($compare !== false)
+$config = new matrix_parsefile_preprocessor\config($pwd,$files[0]);
+$c_new = count($files);
+$c_old = count($compare_files);
+if( $compare === true )
 {
-	$builder->check_deleted_areas();
-}
-
-$mode = 'all';
-
-switch($reporting)
-{
-	case 'brief':
-		$mode = ['error','warning'];
-		break;
-	case 'error':
-	case 'warning':
-	case 'notice':
-		$mode = $_SERVER['argv'][2];
-		break;
-	case 'q':
-	case 'quiet':
-	case 's':
-	case 'silent':
+	if( $c_new === $c_old || $c_old === 0 )
+	{
+		$output_dir = $config->get_var('output_dir');
+		for( $a = 0 ; $a < $c_new ; $a += 1 )
+		{
+			$tmp = pathinfo($files[$a]);
+			if( !isset($compare_files[$a]) || $compare_files[$a] === true )
+			{
+				$tmp_compare = $output_dir.$tmp['basename'];
+				if( is_file($tmp_compare) && is_readable($tmp_compare) )
+				{
+					$compare_files[$a] = $tmp_compare;
+				}
+				else
+				{
+					$compare_files[$a] = false;
+				}
+			}
+			elseif( !is_file($compare_files[$a]) )
+			{
+				if( is_file($output_dir.$compare_files[$a]) )
+				{
+					$compare_files[$a] = $output_dir.$compare_files[$a];
+				}
+				else
+				{
+					$compare_files[$a] = false;
+				}
+			}
+		}
+	}
+	else
+	{
+		echo "\n\n You've specified some comparison files but not the same number as new files.\n Rather than do the wrong thing, I'm stopping here.\n Better luck next time!\nFiles to compile:\n\t".implode("\n\t",$files)."\n Compare files:\n\t".implode("\n\t",$compare_files)."\n\n";
 		exit;
-		break;
-	default:
-		$mode = 'all';
-
+	}
 }
-
-
-$view = new matrix_parsefile_preprocessor\view\cli_view( $builder->get_processed_partials_count() , $builder->get_keyword_count() , $mode );
-
-$logs = $builder->get_logs();
-
-while( $log_item = $logs->get_next_item() )
+else
 {
-	$view->render_item($log_item);
+	$compare_files = array_fill( 0 , $c_new , false );
 }
 
-$validator = $builder->get_validator();
-$view->render_report( $validator->get_areas_count() , $validator->get_non_printed_areas_count() , $validator->get_prints_count() );
+
+for( $a = 0 ; $a < $c_new ; $a += 1 )
+{
+	$config = new matrix_parsefile_preprocessor\config($pwd,$files[$a]);
+	$logger = new matrix_parsefile_preprocessor\logger();
+	$partials = new matrix_parsefile_preprocessor\nested_partials( $logger , $files[$a] );
+	$validator = new matrix_parsefile_preprocessor\validator($config,$logger,$partials);
+
+
+	if($compare_files[$a] !== false)
+	{
+		$validator->process_old_parse_file($compare_files[$a]);
+	}
+
+	$builder = new matrix_parsefile_preprocessor\compiler($config,$logger,$partials,$validator);
+	$builder->parse($files[$a]);
+	$builder->log_unprinted();
+	if($compare_files[$a] !== false)
+	{
+		$validator->check_deleted_areas();
+	}
+
+	$mode = 'all';
+
+
+	$view = new matrix_parsefile_preprocessor\view\cli_view( $builder->get_processed_partials_count() , $builder->get_keyword_count() , $mode );
+
+	$logs = $builder->get_logs();
+
+	while( $log_item = $logs->get_next_item() )
+	{
+		$view->render_item($log_item);
+	}
+
+	$validator = $builder->get_validator();
+	$view->render_report( $validator, $files[$a] );
+}

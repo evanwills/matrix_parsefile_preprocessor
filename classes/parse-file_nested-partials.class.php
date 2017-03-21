@@ -2,7 +2,12 @@
 
 namespace matrix_parsefile_preprocessor;
 
-require_once($pwd.'/includes/type_or_value.inc.php');
+if( !defined('MATRIX_PARSEFILE_PREPROCESSOR__NESTED_PARTIALS') )
+{
+
+define('MATRIX_PARSEFILE_PREPROCESSOR__NESTED_PARTIALS',true);
+
+require(__DIR__.'/../includes/type_or_value.inc.php');
 
 class nested_partials
 {
@@ -10,7 +15,7 @@ class nested_partials
 	 * @private
 	 * @var nested_partials the single instance object of this class/
 	 */
-	static private $me = null;
+//	static private $me = null;
 
 	private $log = null;
 
@@ -52,14 +57,14 @@ class nested_partials
 	 * Get the single instance instance of this object
 	 * @return nested_partials the single instance object of this class
 	 */
-	static public function get( $file = '' )
-	{
-		if( self::$me === null )
-		{
-			self::$me = new self($file);
-		}
-		return self::$me;
-	}
+//	static public function get( $file = '' )
+//	{
+//		if( self::$me === null )
+//		{
+//			self::$me = new self($file);
+//		}
+//		return self::$me;
+//	}
 
 
 //  END: public Singleton method
@@ -248,7 +253,7 @@ class nested_partials
 // START: private methods
 
 
-	private function __construct($base_file)
+	public function __construct(logger $log , $base_file)
 	{
 		if( !is_string($base_file) )
 		{
@@ -277,6 +282,11 @@ class nested_partials
 			$this->file = 'web';
 		}
 
-		$this->log = logger::get();
+		$this->log = $log;
 	}
+}
+
+
+
+
 }
