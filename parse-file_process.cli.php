@@ -77,7 +77,6 @@ $reporting = 'all';
 $mode = ['error','warning','notice'];
 
 $get_compare_files = false;
-
 for( $a = 1 ; $a < $_SERVER['argc'] ; $a += 1 )
 {
 
@@ -120,11 +119,11 @@ for( $a = 1 ; $a < $_SERVER['argc'] ; $a += 1 )
 			$tmp = matrix_parsefile_preprocessor\get_all_xml_files($_SERVER['argv'][$a]);
 			if( $tmp !== false )
 			{
-				for( $a = 0 ; $a < count($tmp) ; $a += 1 )
+				for( $b = 0 ; $b < count($tmp) ; $b += 1 )
 				{
-					if( !in_array( $tmp[$a] , $tmp_var ) )
+					if( !in_array( $tmp[$b] , $tmp_var ) )
 					{
-						$tmp_var[] = $tmp[$a];
+						$tmp_var[] = $tmp[$b];
 					}
 				}
 			}
