@@ -12,6 +12,78 @@ When you update an existing parse file, any design areas that were in the existi
 ## Problem 3:
 In a single Matrix installation, you often have multiple sites. Most of these sites are likely to share significant portions of their designs and design parse files (e.g. In our main site, we have an Inside page design and a lighter weight _Home page_ design which shares all of the _Inside page_ design's header and footer sections but has a single design area for the main home page stuff). It would be good if you could break down parse files into partials then assemble the partials into different final design parse files. The command line interface for this too allows you to do this.
 
+## Usage
+### Web
+
+The web interface only allows validation and comparrison of parse files. (There are no plans to inlude the compiling functionality in the web interface.)
+
+1.	Place your parse file to be validated in the "Parse-file to be checked" text area.<br />
+	If you want to compare the parse file to another parse file
+	1.	tick the "Check for missing design areas" checkbox
+	2.	place the old parse file in the (grey) "Previously uploaded Parse-file (to be compared against for missing design areas)" text area
+2.	Press the "Submit" button
+3.	Fix items identified in the report and resubmit.
+
+### Command line
+
+The command line interface allows you to compile parse files from partials as well as validate and comparing like the web interface. It also allows you to process multiple files with a single call (although at the moment the output isn't that user friendly in that mode).
+
+```$ php parse-file_process.cli.php parse-file.xml [other-files_1 other-files_2 ...] [brief, error, warning, notice, silent] [compare] [comparison-files_1 comparison-files_2 comparison-files_3 ...]```
+
+#### Basic CLI usage
+
+```$ php parse-file_process.cli.php parse-file.xml```
+
+This will compile all the partials associated with parse-file.xml and write the compiled output to the `output_dir` specified in your config file (usually `compiled`). It will also report all Errors, Warnings and Notices.
+
+#### Without notices
+
+```$ php parse-file_process.cli.php parse-file.xml brief```
+
+Adding `brief` after the file name will stop notices from being displayed. You can use `error`, `warning` or `notice` to output only that type of message.
+You can also use `silent` to stop all output if you like.
+
+#### Comparing parse files
+
+```$ php parse-file_process.cli.php parse-file.xml compare```
+
+This will compare the old version of parse-file.xml (in the `output_dir` directory/folder) with the newly created version of the same file and report any design areas that were in the old version but not the new.
+
+#### Comparing parse file with a different file
+
+```$ php parse-file_process.cli.php parse-file.xml compare other-parse-file.xml```
+
+__NOTE:__ Any file names or directories/folders you pass after a non file name will be assumed to be a comparrison file
+
+e.g. `$ php parse-file_process.cli.php process-me_1.xml process-me_2.xml process-me_3.xml brief process-me-too.xml`
+
+The `process-me_1.xml`, `process-me_2.xml` & `process-me_3.xml` will be compiled and validated as normal. The `process-me-too.xml` will be considered a comparison file and will only be scanned for design area IDs.
+
+#### processing multiple files
+
+You can process multiple files in one of the following ways:
+e.g.
+*	with a wild card - `$ php parse-file_process.cli.php *.xml`
+*	pointing to a directory - `$ php parse-file_process.cli.php my_dir/`
+*	specifying multiple files - `$ php parse-file_process.cli.php process-me_1.xml process-me_2.xml process-me_3.xml`
+
+If you want to compare these files you can just add `compare` after the last file/directory.
+This will cause the validator to look for files with the same name in the `output_dir`.
+
+If you want to specify specific files to compare each of the files, you'll need to have the same number of files in both the compile and the compare list e.g.
+
+```$ php parse-file_process.cli.php process-me_1.xml process-me_2.xml process-me_3.xml compare  compare-me_1.xml compare-me_2.xml compare-me_3.xml```
+
+doing something like
+
+```$ php parse-file_process.cli.php process-me_1.xml process-me_2.xml process-me_3.xml compare  compare-me_1.xml```
+
+or
+
+```$ php parse-file_process.cli.php process-me_1.xml process-me_2.xml compare  compare-me_1.xml compare-me_2.xml nothing-to-compare.xml```
+
+will both cause `parse-file_process.cli.php` to complain.
+
 ## How the validator works:
 
 1.	Finds all `<MySource_AREA>` and `<MySource_PRINT>` tags
@@ -20,9 +92,6 @@ In a single Matrix installation, you often have multiple sites. Most of these si
 4.  `<MySource_AREA>` `design_area="show_if"` tags, it checks to see if they have `keyword_regexp` condition. If so, it validates the regular expression to ensure that if has an error you know about it.
 5.	`<MySource_AREA>` tags with duplicate  `id_name` values are reported as errors.
 6.  Reports any `<MySource_AREA>` tags that are never printed (this is not always a problem but having design areas that are never printed can needlessly add to the processing time of the design.)
-
-### _To do:_
-* Since normal Matrix key words (e.g. `%globals_asset_name%`) work in design parse files, It would be good if the validator checks these. Especially the modifiers.
 
 ## How the builder/compiler works:
 
@@ -81,3 +150,7 @@ There are a few options that can be set either in a config file or at runtime th
 	*	'normal' [default] do nothing (leave as is)
 	*	'compact' delete spaces & tabs from start and end of lines
 	*	'compressed' reduce multiple, consecutive white-spaces character to a single space character
+
+### _To do:_
+* Since normal Matrix key words (e.g. `%globals_asset_name%`) work in design parse files, It would be good if the validator checks these. Especially the modifiers.
+* Go through Squiz Matrix documentation and write code to validate all design tags as per documentation.
