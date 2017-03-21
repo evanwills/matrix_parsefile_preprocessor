@@ -36,6 +36,7 @@ class validator {
 	private $old_IDs = [];
 
 	private $tags = [];
+	private $noID = 0;
 
 	const TAG_REGEX = '`<MySource_(AREA|PRINT)(.*?)/?>`is';
 	const SHOWIF_START_REGEX = '`^.*?(';
@@ -82,7 +83,6 @@ class validator {
 				$line_number = get_line_number($tags[$a][0] , $file_content );
 				$tag = new \mysource_tag( $tags[$a][0] , $element , $tags[$a][2] , $file_name , $line_number );
 				$id = $tag->get_id();
-				$this->tags[$id] = $tag;
 
 				if( $element === 'print' )
 				{
@@ -90,7 +90,7 @@ class validator {
 					if( $id !== '' )
 					{
 						$this->_remove_non_printed_ID($id);
-						$this->tags[$id]->set_printed();
+//						$this->tags[$id]->set_printed();
 						if( $msg = $this->_undefined_area($id) )
 						{
 							$this->log->add(
@@ -105,6 +105,19 @@ class validator {
 				}
 				else
 				{
+					if( trim($id) === '' )
+					{
+						$this->log->add(
+							'error'
+							,'No ID (id_name) speicified!'
+							,$file_name
+							,$tags[$a][0]
+							,$file_content
+						);
+						$this->noID += 1;
+						$id = 'noID_'.$this->noID;
+					}
+					$this->tags[$id] = $tag;
 					$this->areas += 1;
 					if( $msg = $this->_existing_id($id) )
 					{
@@ -261,9 +274,9 @@ class validator {
 		{
 			$tmp = $this->old_IDs;
 			sort($tmp);
-			for( $a = 0 ; $a < count($this->IDs) ; $a += 1 )
+			foreach( $this->tags as $id => $tag )
 			{
-				if( $key = array_search( $this->IDs[$a] , $tmp ) )
+				if( $key = array_search( $id , $tmp ) )
 				{
 					unset($tmp[$key]);
 				}
@@ -370,15 +383,35 @@ class validator {
 	{
 		return $this->areas;
 	}
+
 	public function get_non_printed_areas_count()
 	{
 
 		return $this->non_printed_areas;
 	}
+
 	public function get_prints_count()
 	{
 		return $this->prints;
 	}
+
+	public function get_old_IDs()
+	{
+		return $this->old_IDs;
+	}
+
+	public function get_new_IDs()
+	{
+		return array_keys($this->tags);
+	}
+
+
+
+//  END:  public methods
+// ===============================================================
+// START: private methods
+
+
 
 	private function _undefined_area($input) {
 		if( in_array($input,$this->IDs) )

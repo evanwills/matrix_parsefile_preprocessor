@@ -155,12 +155,12 @@ class compiler {
 
 
 
-	public function __construct( config $config , logger $logger , nested_partials $partials )
+	public function __construct( config $config , logger $logger , nested_partials $partials , validator $validator )
 	{
 		$this->config = $config;
 		$this->log = $logger;
 		$this->nested_partials = $partials;
-		$this->validator = new validator($config,$logger,$partials);
+		$this->validator = $validator;
 
 		$this->output_file = $this->config->get_var('output_dir').$this->nested_partials->get_base_file();
 		$this->output = fopen( $this->output_file , 'w' );

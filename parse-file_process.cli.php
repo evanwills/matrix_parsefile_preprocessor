@@ -70,28 +70,31 @@ if( !isset($_SERVER['argv'][1]) ) {
 	exit;
 }
 
-$file = realpath($_SERVER['argv']['1']);
-
 $files = [];
 $compare_files = [];
 $compare = false;
 $reporting = 'all';
+$mode = ['error','warning','notice'];
 
 $get_compare_files = false;
 
-for( $a = 2 ; $a < $_SERVER['argc'] ; $a += 1 )
+for( $a = 1 ; $a < $_SERVER['argc'] ; $a += 1 )
 {
+
 	switch(strtolower($_SERVER['argv'][$a]))
 	{
 		case 'all':
-		case 'error':
-		case 'notice':
-		case 'warning':
-			$mode = $_SERVER['argv'][2];
+			$mode = ['error','warning','notice'];
 			$get_compare_files = true;
 			break;
 		case 'brief':
 			$mode = ['error','warning'];
+			$get_compare_files = true;
+			break;
+		case 'error':
+		case 'notice':
+		case 'warning':
+			$mode[] = $_SERVER['argv'][2];
 			$get_compare_files = true;
 			break;
 		case 'compare':
@@ -193,13 +196,11 @@ for( $a = 0 ; $a < $c_new ; $a += 1 )
 	$builder = new matrix_parsefile_preprocessor\compiler($config,$logger,$partials,$validator);
 	$builder->parse($files[$a]);
 	$builder->log_unprinted();
+
 	if($compare_files[$a] !== false)
 	{
 		$validator->check_deleted_areas();
 	}
-
-	$mode = 'all';
-
 
 	$view = new matrix_parsefile_preprocessor\view\cli_view( $builder->get_processed_partials_count() , $builder->get_keyword_count() , $mode );
 
@@ -207,7 +208,10 @@ for( $a = 0 ; $a < $c_new ; $a += 1 )
 
 	while( $log_item = $logs->get_next_item() )
 	{
-		$view->render_item($log_item);
+		if( in_array($log_item->get_type() , $mode) )
+		{
+			$view->render_item($log_item);
+		}
 	}
 
 	$validator = $builder->get_validator();

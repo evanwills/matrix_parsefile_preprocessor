@@ -3,7 +3,7 @@
 namespace matrix_parsefile_preprocessor;
 
 
-function get_all_xml_files($input)
+function get_all_xml_files($input , $include_syblings = false )
 {
 	if( !is_string($input) || trim($input) === '' )
 	{
@@ -16,24 +16,24 @@ function get_all_xml_files($input)
 		return false;
 	}
 
-	$output = [];
+	if( $tmp = check_is_good_xml($input) && $include_syblings !== true )
+	{
+		return [$input];
+	}
+
 	if( !is_dir($input) )
 	{
 		$input = dirname($input).'/';
 	}
 
+	$output = [];
 	$contents = scandir($input);
 
 	for( $a = 0 ; $a < count($contents) ; $a += 1 )
 	{
-		$info = pathinfo($contents[$a]);
-		if( isset($info['extension']) )
+		if( $tmp = check_is_good_xml($input.$contents[$a]) )
 		{
-			$tmp = $input.$info['basename'];
-			if( strtolower($info['extension']) === 'xml' && substr( $info['filename'] , 0 , 1 ) !== '_' && is_readable($tmp) )
-			{
-				$output[] = $tmp;
-			}
+			$output[] = $tmp;
 		}
 	}
 
@@ -43,4 +43,17 @@ function get_all_xml_files($input)
 	}
 
 	return $output;
+}
+
+function check_is_good_xml( $item )
+{
+	$info = pathinfo($item);
+	if( isset($info['extension']) )
+	{
+		if( strtolower($info['extension']) === 'xml' && substr( $info['filename'] , 0 , 1 ) !== '_' && is_readable($item) )
+		{
+			return $item;
+		}
+	}
+	return false;
 }

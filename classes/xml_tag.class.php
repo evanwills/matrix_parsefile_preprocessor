@@ -118,6 +118,11 @@ class xml_tag
 			return false;
 		}
 	}
+
+	public function get_all()
+	{
+		return get_object_vars($this);
+	}
 }
 
 
