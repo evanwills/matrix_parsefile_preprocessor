@@ -164,7 +164,7 @@ class config
 		}
 
 		$file = realpath($file);
-		if( $file === false )
+		if( $file === false || is_dir($file) )
 		{
 			// use default config file.
 			$file = realpath($working_dir.'config.info');
@@ -261,7 +261,7 @@ class config
 				$this->config_vars[$key] = $value;
 			}
 		}
-		if( $file === 'web' )
+		if( $file !== 'web' )
 		{
 			$dir = 'output_dir';
 			for( $a = 0 ; $a < 2 ; $a += 1 )

@@ -3,17 +3,17 @@
 namespace matrix_parsefile_preprocessor\view;
 
 
-if( !defined('MATRIX_PARSEFILE_PREPROCESSOR__WEB_VIEW') )
+if( !defined('MATRIX_PARSEFILE_PREPROCESSOR__VIEW__WEB') )
 {
 
-define('MATRIX_PARSEFILE_PREPROCESSOR__WEB_VIEW',true);
+define('MATRIX_PARSEFILE_PREPROCESSOR__VIEW__WEB',true);
 
 require(__DIR__.'/parse-file_view_base.abstract.class.php');
 require(__DIR__.'/../../includes/syntax_highlight.inc.php');
 
 class web_view extends base_view
 {
-	private $title = 'Basic Squiz Matrix parse-file validator';
+	const TITLE = 'Basic Squiz Matrix parse-file validator';
 
 	private $post = [
 		 '$new_parse_file' => ''
@@ -29,20 +29,20 @@ class web_view extends base_view
 		}
 	}
 
-	public function render_open()
+	public function render_open( $file_name )
 	{
-		echo '
+		$this->output('
 <!DOCTYPE html>
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
-		<title>'.$this->title.'</title>
+		<title>'.self::TITLE.'</title>
 		<link href="style.css" rel="stylesheet" />
 	</head>
 	<body>
-		<h1>'.$this->title.'</h1>
+		<h1>'.self::TITLE.'</h1>
 
-';
+');
 	}
 
 
@@ -63,7 +63,7 @@ class web_view extends base_view
 			$sep = '&';
 		}
 
-		echo '
+		$this->output('
 
 		<form action="//'.$_SERVER['HTTP_HOST'].dirname($_SERVER['PHP_SELF']).'/'.$get.'" method="post">
 			<p>
@@ -85,10 +85,10 @@ class web_view extends base_view
 			</ul>
 		</form>
 
-		<p id="install"><a href="'.$_SERVER['REQUEST_URI'].'" rel="sidebar" title="'.$this->title.'">Install as Sidebar</a></p>
+		<p id="install"><a href="'.$_SERVER['REQUEST_URI'].'" rel="sidebar" title="'.self::TITLE.'">Install as Sidebar</a></p>
 		<script type="text/javascript">
 document.addEventListener(\'DOMContentLoaded\', function(event) {
-	\'use strict\';
+	\'use strict\');
 
 	var compare = document.getElementById(\'compare\'),
 		ul = document.getElementById(\'textAreas\'),
@@ -116,17 +116,17 @@ document.addEventListener(\'DOMContentLoaded\', function(event) {
 
 	public function render_report_wrap_open()
 	{
-		echo '
+		$this->output('
 
 		<section class="report">
 			<header>
 				<h1>Report</h1>
-			</header>';
+			</header>');
 	}
 	public function render_item_wrap_open()
 	{
-		echo '
-			<ol>';
+		$this->output('
+			<ol>');
 	}
 
 
@@ -136,25 +136,25 @@ document.addEventListener(\'DOMContentLoaded\', function(event) {
 		parent::render_item($log_item);
 		if( in_array($log_item->get_type(),$this->types) )
 		{
-			echo '
+			$this->output('
 				<li class="log '.$log_item->get_type().'">
 					<p>
 						<strong>'.ucfirst($log_item->get_type()).':</strong>
 						'.$log_item->get_prop('msg').'
 					</p>
-';
+');
 			if( $c = $log_item->get_extra_details_count() )
 			{
 				$tmp = $log_item->get_extra_details();
-				echo '
-					<ul>';
+				$this->output('
+					<ul>');
 				for( $a = 0 ; $a < $c ; $a += 1 )
 				{
-					echo '
-						<li><code>'.$tmp[$a].'</code></li>';
+					$this->output('
+						<li><code>'.$tmp[$a].'</code></li>');
 				}
-				echo '
-					</ul>';
+				$this->output('
+					</ul>');
 			}
 
 			$output = '';
@@ -184,9 +184,9 @@ document.addEventListener(\'DOMContentLoaded\', function(event) {
 					</dl>
 ';
 			}
-			echo $output.'
+			$this->output($output.'
 				</li>
-';
+');
 		}
 	}
 
@@ -194,16 +194,16 @@ document.addEventListener(\'DOMContentLoaded\', function(event) {
 
 	public function render_item_wrap_close()
 	{
-		echo '			</ol>
-';
+		$this->output('			</ol>
+');
 	}
 
 
 
 	public function render_report_wrap_close()
 	{
-		echo '		</section>
-';
+		$this->output('		</section>
+');
 	}
 
 
@@ -213,35 +213,35 @@ document.addEventListener(\'DOMContentLoaded\', function(event) {
 		$areas = $validator->get_areas_count();
 		$non_printed_areas = $validator->get_non_printed_areas_count();
 
-		echo '
+		$this->output('
 				<article>
 					<header>
 						<h1>Overview</h1>
 					</header>
-';
+');
 
 		if( $this->partials > 0 )
 		{
-			echo "\n\t\t\t\t<p><strong>{$this->partials}</strong> files processed";
+			$this->output("\n\t\t\t\t<p><strong>{$this->partials}</strong> files processed");
 			if( $this->keywords )
 			{
-				echo '<br />';
+				$this->output('<br />');
 			}
 			else
 			{
-				echo '</p>';
+				$this->output('</p>');
 			}
 		}
 		if( $this->keywords > 0 )
 		{
-			echo "\n\t\t\t\t";
+			$this->output("\n\t\t\t\t");
 			if( $this->partials === 0 )
 			{
-				echo '<p>';
+				$this->output('<p>');
 			}
-			echo "<strong>{$this->keywords}</strong> keywords found</p>";
+			$this->output("<strong>{$this->keywords}</strong> keywords found</p>");
 		}
-		echo '
+		$this->output('
 					<p>
 						<strong>'.$areas.'</strong> design areas found<br />
 						<strong>'.$non_printed_areas.'</strong> (or ' . round($non_printed_areas/$areas,4) * 100 .'%) design areas were non-print<br />
@@ -254,7 +254,7 @@ document.addEventListener(\'DOMContentLoaded\', function(event) {
 						<li>'.$this->notices.' notices</li>
 					</ul>
 				</article>
-';
+');
 	}
 }
 

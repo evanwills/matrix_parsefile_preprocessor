@@ -19,10 +19,11 @@ abstract class base_view
 	protected $notices = 0;
 	protected $keywords = 0;
 	protected $partials = 0;
+	protected $config = null;
 
 	protected $types = ['error' , 'warning' , 'notice'];
 
-	public function __construct( $partials_count , $keyword_count , $types )
+	public function __construct( $types , \matrix_parsefile_preprocessor\config $config )
 	{
 		if( is_string($types) )
 		{
@@ -44,19 +45,24 @@ abstract class base_view
 			}
 			$this->types = $tmp;
 		}
+		$this->config = $config;
+	}
+
+	public function set_compile_stats( $partials_count , $keyword_count )
+	{
 		if( !is_int($partials_count) || $partials_count < 0 )
 		{
-			throw new \Exception(get_class($this).' constructor expects first parameter $partials_count to be an integer, zero or higher. '.\type_or_value($partials_count,'integer').' given.');
+			throw new \Exception(get_class($this).'::set_compile_stats() expects first parameter $partials_count to be an integer, zero or higher. '.\type_or_value($partials_count,'integer').' given.');
 		}
 		if( !is_int($keyword_count) || $keyword_count < 0 )
 		{
-			throw new \Exception(get_class($this).' constructor expects first parameter $keyword_count to be an integer, zero or higher. '.\type_or_value($keyword_count,'integer').' given.');
+			throw new \Exception(get_class($this).'::set_compile_stats() expects first parameter $keyword_count to be an integer, zero or higher. '.\type_or_value($keyword_count,'integer').' given.');
 		}
 		$this->partials = $partials_count;
 		$this->keywords = $keyword_count;
 	}
 
-	abstract public function render_open();
+	abstract public function render_open( $file_name );
 	abstract public function render_close();
 	abstract public function render_report_wrap_open();
 	abstract public function render_item_wrap_open();
@@ -69,6 +75,11 @@ abstract class base_view
 	abstract public function render_report_wrap_close();
 
 	abstract public function render_report( \matrix_parsefile_preprocessor\validator $validator , $file = false );
+
+	protected function output( $input )
+	{
+		echo $input;
+	}
 }
 
 

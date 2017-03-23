@@ -61,7 +61,6 @@ if(!function_exists('debug'))
 // ==================================================================
 
 require_once('classes/parse-file_compiler.class.php');
-require_once('classes/views/parse-file_view_cli.class.php');
 require_once($pwd.'includes/get_all_xml_files.inc.php');
 
 
@@ -75,6 +74,7 @@ $compare_files = [];
 $compare = false;
 $reporting = 'all';
 $mode = ['error','warning','notice'];
+$log = false;
 
 $get_compare_files = false;
 for( $a = 1 ; $a < $_SERVER['argc'] ; $a += 1 )
@@ -84,28 +84,28 @@ for( $a = 1 ; $a < $_SERVER['argc'] ; $a += 1 )
 	{
 		case 'all':
 			$mode = ['error','warning','notice'];
-			$get_compare_files = true;
 			break;
 		case 'brief':
 			$mode = ['error','warning'];
-			$get_compare_files = true;
 			break;
 		case 'error':
 		case 'notice':
 		case 'warning':
 			$mode[] = $_SERVER['argv'][2];
-			$get_compare_files = true;
 			break;
 		case 'compare':
 			$compare = true;
 			$get_compare_files = true;
+			break;
+		case 'l':
+		case 'log':
+			$log = true;
 			break;
 		case 'q':
 		case 'quiet':
 		case 's':
 		case 'silent':
 			$mode = 'silent';
-			$get_compare_files = true;
 			break;
 		default:
 			if( $get_compare_files === false )
@@ -131,7 +131,7 @@ for( $a = 1 ; $a < $_SERVER['argc'] ; $a += 1 )
 	}
 }
 
-$config = new matrix_parsefile_preprocessor\config($pwd,$files[0]);
+$config = new matrix_parsefile_preprocessor\config($pwd,$pwd);
 $c_new = count($files);
 $c_old = count($compare_files);
 if( $compare === true )
@@ -178,6 +178,16 @@ else
 	$compare_files = array_fill( 0 , $c_new , false );
 }
 
+if( $log === true )
+{
+	require_once('classes/views/parse-file_view_file.class.php');
+	$view = new matrix_parsefile_preprocessor\view\file_view( $mode , $config );
+}
+else
+{
+	require_once('classes/views/parse-file_view_cli.class.php');
+	$view = new matrix_parsefile_preprocessor\view\cli_view( $mode , $config );
+}
 
 for( $a = 0 ; $a < $c_new ; $a += 1 )
 {
@@ -201,10 +211,13 @@ for( $a = 0 ; $a < $c_new ; $a += 1 )
 		$validator->check_deleted_areas();
 	}
 
-	$view = new matrix_parsefile_preprocessor\view\cli_view( $builder->get_processed_partials_count() , $builder->get_keyword_count() , $mode );
+
+	$view->set_compile_stats( $builder->get_processed_partials_count() , $builder->get_keyword_count() );
+
+	$view->render_open($files[$a]);
+
 
 	$logs = $builder->get_logs();
-
 	while( $log_item = $logs->get_next_item() )
 	{
 		if( in_array($log_item->get_type() , $mode) )

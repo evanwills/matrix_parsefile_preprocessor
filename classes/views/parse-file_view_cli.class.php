@@ -2,10 +2,10 @@
 
 namespace matrix_parsefile_preprocessor\view;
 
-if( !defined('MATRIX_PARSEFILE_PREPROCESSOR__CLI_VIEW') )
+if( !defined('MATRIX_PARSEFILE_PREPROCESSOR__VIEW__CLI') )
 {
 
-define('MATRIX_PARSEFILE_PREPROCESSOR__CLI_VIEW',true);
+define('MATRIX_PARSEFILE_PREPROCESSOR__VIEW__CLI',true);
 
 
 require(__DIR__.'/parse-file_view_base.abstract.class.php');
@@ -13,7 +13,24 @@ require(__DIR__.'/parse-file_view_base.abstract.class.php');
 
 class cli_view extends base_view
 {
-	public function render_open() {}
+	protected $base_file = '';
+
+
+	public function render_open( $file_name ) {
+		if( !is_string($file_name) || trim($file_name) === '' )
+		{
+			throw new \Exception(get_class($this).'::render_open() expects only parameter $file_name to be a non-empty string. '.\type_or_value($file_name,'string').' given');
+		}
+
+		$file_prefix = pathinfo($file_name, PATHINFO_FILENAME);
+		if( $file_prefix === '' )
+		{
+			throw new \Exception(get_class($this).'::render_open() expects only parameter $file_name to be the name of an existing file. "'.$file_name.'" is not an existing file.');
+		}
+		$this->base_file = $file_name;
+
+		$this->output("\n\n ==============================================\n file: {$this->base_file}\n start: ".date('H:i:s, l \t\h\e jS \o\f F, Y ')."\n");
+	}
 	public function render_close() {}
 	public function render_report_wrap_open() {}
 	public function render_item_wrap_open() {}
@@ -26,33 +43,33 @@ class cli_view extends base_view
 		if( in_array($log_item->get_type(),$this->types) )
 		{
 			$tmp = $log_item->get_prop();
-			echo "\n\n ---------------------- ".ucfirst($log_item->get_type())." (".$this->{$log_item->get_type().'s'}.') ('.$this->notice_count.") ----------------------\n\n  ";
-			echo $log_item->get_prop('msg')."\n\n";
+			$this->output("\n\n --------------------------------------------\n ".ucfirst($log_item->get_type())." (".$this->{$log_item->get_type().'s'}.') ('.$this->notice_count.") \n  ");
+			$this->output($log_item->get_prop('msg')."\n\n");
 
 			if( $log_item->get_extra_details_count() > 0 )
 			{
 				$tmp = $log_item->get_extra_details();
 				for( $a = 0 ; $a < count($tmp) ; $a += 1 )
 				{
-					echo "\t-  {$tmp[$a]}\n";
+					$this->output("\t-  {$tmp[$a]}\n");
 				}
 			}
 
 			if( $log_item->get_prop('sample') !== '' )
 			{
-				echo "  sample: \"".$log_item->get_prop('sample')."\"\n\n";
+				$this->output("  sample: \"".$log_item->get_prop('sample')."\"\n\n");
 			}
 			if( $log_item->get_prop('line') > 0 )
 			{
-				echo "  line: ".$log_item->get_prop('line')."\n";
+				$this->output("  line: ".$log_item->get_prop('line')."\n");
 			}
 			$file = $log_item->get_prop('file');
 			if( $file !== '' && $file !== 'web' )
 			{
-				echo "  file: \"".$log_item->get_prop('file')."\"\n";
+				$this->output("  file: \"".$log_item->get_prop('file')."\"\n");
 			}
 
-			echo "\n";
+			$this->output("\n");
 		}
 	}
 	public function render_item_wrap_close() { }
@@ -64,22 +81,21 @@ class cli_view extends base_view
 		$areas = $validator->get_areas_count();
 		$non_printed_areas = $validator->get_non_printed_areas_count();
 
-		echo "\n\n==============================================";
-		echo "\n All done!\n";
-		if( is_string($file) && trim($file) !== '' )
-		{
-			echo "\n Processed: \"$file\"\n";
-		}
-		echo "\n   {$this->partials} files processed.";
-		echo "\n   {$this->keywords} keywords found";
-		echo "\n   $areas design areas found";
-		echo "\n   $non_printed_areas (or " . round($non_printed_areas/$areas,4)*100 . "%) design areas were non-print.";
-		echo "\n   ".$validator->get_prints_count()." print tags found\n";
-		echo "\n   There were:";
-		echo "\n\t{$this->errors} errors";
-		echo "\n\t{$this->warnings} warnings";
-		echo "\n\t{$this->notices} notices";
-		echo "\n\n";
+		$this->output("\n\n==============================================");
+		$this->output("\n All done!\n");
+
+		$this->output("\n Processed: \"{$this->base_file}\"\n");
+
+		$this->output("\n   {$this->partials} files processed.");
+		$this->output("\n   {$this->keywords} keywords found");
+		$this->output("\n   $areas design areas found");
+		$this->output("\n   $non_printed_areas (or " . round($non_printed_areas/$areas,4)*100 . "%) design areas were non-print.");
+		$this->output("\n   ".$validator->get_prints_count()." print tags found\n");
+		$this->output("\n   There were:");
+		$this->output("\n\t{$this->errors} errors");
+		$this->output("\n\t{$this->warnings} warnings");
+		$this->output("\n\t{$this->notices} notices");
+		$this->output("\n\n");
 	}
 }
 

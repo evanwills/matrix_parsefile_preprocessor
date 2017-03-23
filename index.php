@@ -85,7 +85,6 @@ if( trim($old_parse_file) === '' )
 $log = isset($_POST['log'])?$_POST['log']:'all';
 
 
-$view = new matrix_parsefile_preprocessor\view\web_view(0 , 0 , $log);
 
 
 $view->set_post('compare',$compare);
@@ -93,7 +92,7 @@ $view->set_post('$new_parse_file',$new_parse_file);
 $view->set_post('old_parse_file',$old_parse_file);
 
 
-$view->render_open();
+$view->render_open('web');
 
 
 if( $new_parse_file !== '' )
@@ -110,7 +109,8 @@ if( $new_parse_file !== '' )
 	$config = new matrix_parsefile_preprocessor\config($pwd,$pwd.'config.xml');
 	$logger = new matrix_parsefile_preprocessor\logger();
 	$partials = new matrix_parsefile_preprocessor\nested_partials($logger,'web');
-	$validator = new matrix_parsefile_preprocessor\validator($config,$logger,$partials);
+	$validator = new matrix_parsefile_preprocessor\validator( $config , $logger , $partials );
+	$view = new matrix_parsefile_preprocessor\view\web_view( $log , $config );
 
 	if( $compare === true )
 	{
