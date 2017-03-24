@@ -68,71 +68,6 @@ class config
 
 
 	/**
-	 * get() is the singleton access method to get the one
-	 * instance of this object
-	 * @param string $file path to base parse file or specific config
-	 *               file (can be .info or JSON format)
-	 */
-	/**
-	static public function get( $file = '' , $runtime = array() )
-	{
-		if( self::$me === null ){
-			self::$me = new self( $file , $runtime );
-		}
-		return self::$me;
-	}
-	*/
-
-	/**
-	 * check whether the object has a particular property
-	 * @param  string $key name of property to be checked
-	 * @return boolean  true if the property exists
-	 */
-	public function has_var($key)
-	{
-		if( !is_string($key) && trim($key) !== '' )
-		{
-			throw new \Exception(get_class($this).'::has_var() expects only param $key to be a non-empty string. '.\type_or_value($key,'string').' given.');
-		}
-
-		if( property_exists($this,$key) || isset($this->config_vars[$key]) )
-		{
-			return true;
-		}
-		return false;
-	}
-
-	public function get_var($key)
-	{
-		if( !is_string($key) && trim($key) !== '' )
-		{
-			throw new \Exception(get_class($this).'::get_var() expects only param $key to be a non-empty string. '.\type_or_value($key,'string').' given.');
-		}
-
-		if( property_exists($this,$key) )
-		{
-			return $this->$key;
-		}
-		elseif( isset($this->config_vars[$key]) )
-		{
-			return $this->config_vars[$key];
-		}
-		else
-		{
-			throw new \Exception(get_class($this).'::get_var() expects only param $key to be a valid config property. Use config->has_var() to check the property exists before you try getting it.');
-		}
-	}
-
-	public function get_all()
-	{
-		return get_object_vars($this);
-	}
-
-
-
-
-	/**
-	 * [[Description]]
 	 * @param string $working_dir full path to the directory
 	 *        of the script calling this file
 	 * @param string $file full path to location of the
@@ -310,8 +245,70 @@ class config
 				$this->config_vars[$key] = $value;
 			}
 		}
-		debug(get_object_vars($this),$this->config_vars,$runtime);
 	}
+
+	/**
+	 * get() is the singleton access method to get the one
+	 * instance of this object
+	 * @param string $file path to base parse file or specific config
+	 *               file (can be .info or JSON format)
+	 */
+	/**
+	static public function get( $file = '' , $runtime = array() )
+	{
+		if( self::$me === null ){
+			self::$me = new self( $file , $runtime );
+		}
+		return self::$me;
+	}
+	*/
+
+	/**
+	 * check whether the object has a particular property
+	 * @param  string $key name of property to be checked
+	 * @return boolean  true if the property exists
+	 */
+	public function has_var($key)
+	{
+		if( !is_string($key) && trim($key) !== '' )
+		{
+			throw new \Exception(get_class($this).'::has_var() expects only param $key to be a non-empty string. '.\type_or_value($key,'string').' given.');
+		}
+
+		if( property_exists($this,$key) || isset($this->config_vars[$key]) )
+		{
+			return true;
+		}
+		return false;
+	}
+
+	public function get_var($key)
+	{
+		if( !is_string($key) && trim($key) !== '' )
+		{
+			throw new \Exception(get_class($this).'::get_var() expects only param $key to be a non-empty string. '.\type_or_value($key,'string').' given.');
+		}
+
+		if( property_exists($this,$key) )
+		{
+			return $this->$key;
+		}
+		elseif( isset($this->config_vars[$key]) )
+		{
+			return $this->config_vars[$key];
+		}
+		else
+		{
+			throw new \Exception(get_class($this).'::get_var() expects only param $key to be a valid config property. Use config->has_var() to check the property exists before you try getting it.');
+		}
+	}
+
+	public function get_all()
+	{
+		return get_object_vars($this);
+	}
+
+
 }
 
 

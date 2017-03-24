@@ -49,28 +49,40 @@ class nested_partials
 
 //  END: object properties
 // ========================================================
-// START: public Singleton method
+// START: public methods
 
 
+	public function __construct(logger $log , $base_file)
+	{
+		if( !is_string($base_file) )
+		{
+			throw new \Exception(get_class($this)."::__constructor() expects first paramater \$base_file to be a string! ".gettype($base_file)." given.");
+		}
 
-	/**
-	 * Get the single instance instance of this object
-	 * @return nested_partials the single instance object of this class
-	 */
-//	static public function get( $file = '' )
-//	{
-//		if( self::$me === null )
-//		{
-//			self::$me = new self($file);
-//		}
-//		return self::$me;
-//	}
+		if( $base_file !== 'web')
+		{
+			$base_file = realpath($base_file);
+			if( $base_file === false )
+			{
+				throw new \Exception(get_class($this)."::__constructor() expects first paramater \$base_file to be the path to a file! \"$base_file\" cannot be found.");
+			}
 
+			$file_parts = pathinfo($base_file);
+			if( !isset($file_parts['extension']) || strtolower($file_parts['extension']) !== 'xml' )
+			{
+				throw new \Exception(get_class($this)."::__constructor() expects first paramater \$base_file to be an XML file (with the .xml extension)! \"$base_file\" cannot be found.");
+			}
 
-//  END: public Singleton method
-// ========================================================
-// START: private methods
+			$this->path = $file_parts['dirname'].'/';
+			$this->file = $file_parts['basename'];
+		}
+		else
+		{
+			$this->file = 'web';
+		}
 
+		$this->log = $log;
+	}
 
 
 	/**
@@ -250,40 +262,7 @@ class nested_partials
 
 //  END: public methods
 // ========================================================
-// START: private methods
 
-
-	public function __construct(logger $log , $base_file)
-	{
-		if( !is_string($base_file) )
-		{
-			throw new \Exception(get_class($this)."::__constructor() expects first paramater \$base_file to be a string! ".gettype($base_file)." given.");
-		}
-
-		if( $base_file !== 'web')
-		{
-			$base_file = realpath($base_file);
-			if( $base_file === false )
-			{
-				throw new \Exception(get_class($this)."::__constructor() expects first paramater \$base_file to be the path to a file! \"$base_file\" cannot be found.");
-			}
-
-			$file_parts = pathinfo($base_file);
-			if( !isset($file_parts['extension']) || strtolower($file_parts['extension']) !== 'xml' )
-			{
-				throw new \Exception(get_class($this)."::__constructor() expects first paramater \$base_file to be an XML file (with the .xml extension)! \"$base_file\" cannot be found.");
-			}
-
-			$this->path = $file_parts['dirname'].'/';
-			$this->file = $file_parts['basename'];
-		}
-		else
-		{
-			$this->file = 'web';
-		}
-
-		$this->log = $log;
-	}
 }
 
 
