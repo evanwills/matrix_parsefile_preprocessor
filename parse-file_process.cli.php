@@ -61,6 +61,7 @@ if(!function_exists('debug'))
 // ==================================================================
 
 require_once('classes/parse-file_compiler.class.php');
+require_once('classes/parse-file_compiled-output-writer.class.php');
 require_once($pwd.'includes/get_all_xml_files.inc.php');
 
 
@@ -75,12 +76,12 @@ $compare = false;
 $reporting = 'all';
 $mode = ['error','warning','notice'];
 $log = false;
-
+$runtime_config = [];
 $get_compare_files = false;
 for( $a = 1 ; $a < $_SERVER['argc'] ; $a += 1 )
 {
-
-	switch(strtolower($_SERVER['argv'][$a]))
+	$tmp = strtolower($_SERVER['argv'][$a]);
+	switch($tmp)
 	{
 		case 'all':
 			$mode = ['error','warning','notice'];
@@ -91,21 +92,45 @@ for( $a = 1 ; $a < $_SERVER['argc'] ; $a += 1 )
 		case 'error':
 		case 'notice':
 		case 'warning':
-			$mode[] = $_SERVER['argv'][2];
+			$mode[] = $tmp;
+			break;
+		case 'compact':
+		case 'compress':
+		case 'compressed':
+		case 'normal':
+			$runtime_config['white_space'] = $tmp;
 			break;
 		case 'compare':
 			$compare = true;
 			$get_compare_files = true;
 			break;
+		case 'keepcomments':
+		case 'keep-comments':
+		case 'keep_comments':
+			$runtime_config['strip_comments'] = false;
+			break;
 		case 'l':
 		case 'log':
 			$log = true;
+			break;
+		case 'nowrap':
+		case 'no-wrap':
+		case 'no_wrap':
+			$runtime_config['wrap_in_comments'] = false;
 			break;
 		case 'q':
 		case 'quiet':
 		case 's':
 		case 'silent':
 			$mode = 'silent';
+			break;
+		case 'stripcomments':
+		case 'strip-comments':
+		case 'strip_comments':
+			$runtime_config['strip_comments'] = true;
+			break;
+		case 'wrap':
+			$runtime_config['wrap_in_comments'] = true;
 			break;
 		default:
 			if( $get_compare_files === false )
@@ -131,7 +156,7 @@ for( $a = 1 ; $a < $_SERVER['argc'] ; $a += 1 )
 	}
 }
 
-$config = new matrix_parsefile_preprocessor\config($pwd,$pwd);
+$config = new matrix_parsefile_preprocessor\config( $pwd , $pwd , $runtime_config );
 $c_new = count($files);
 $c_old = count($compare_files);
 if( $compare === true )
@@ -191,10 +216,11 @@ else
 
 for( $a = 0 ; $a < $c_new ; $a += 1 )
 {
-	$config = new matrix_parsefile_preprocessor\config($pwd,$files[$a]);
+	$config = new matrix_parsefile_preprocessor\config( $pwd , $files[$a] , $runtime_config );
 	$logger = new matrix_parsefile_preprocessor\logger();
 	$partials = new matrix_parsefile_preprocessor\nested_partials( $logger , $files[$a] );
 	$validator = new matrix_parsefile_preprocessor\validator($config,$logger,$partials);
+	$writer = new matrix_parsefile_preprocessor\compiled_file_writer($config,$partials);
 
 
 	if($compare_files[$a] !== false)
@@ -202,7 +228,7 @@ for( $a = 0 ; $a < $c_new ; $a += 1 )
 		$validator->process_old_parse_file($compare_files[$a]);
 	}
 
-	$builder = new matrix_parsefile_preprocessor\compiler($config,$logger,$partials,$validator);
+	$builder = new matrix_parsefile_preprocessor\compiler($config,$logger,$partials,$validator,$writer);
 	$builder->parse($files[$a]);
 	$builder->log_unprinted();
 
@@ -212,7 +238,8 @@ for( $a = 0 ; $a < $c_new ; $a += 1 )
 	}
 
 
-	$view->set_compile_stats( $builder->get_processed_partials_count() , $builder->get_keyword_count() );
+	$view->set_compile_stats( $builder );
+	$view->set_output_file( $writer );
 
 	$view->render_open($files[$a]);
 
@@ -227,5 +254,5 @@ for( $a = 0 ; $a < $c_new ; $a += 1 )
 	}
 
 	$validator = $builder->get_validator();
-	$view->render_report( $validator, $files[$a] );
+	$view->render_report( $validator, $files[$a] , $writer );
 }

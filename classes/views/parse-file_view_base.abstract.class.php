@@ -20,6 +20,7 @@ abstract class base_view
 	protected $keywords = 0;
 	protected $partials = 0;
 	protected $config = null;
+	protected $output_file = '';
 
 	protected $types = ['error' , 'warning' , 'notice'];
 
@@ -48,18 +49,15 @@ abstract class base_view
 		$this->config = $config;
 	}
 
-	public function set_compile_stats( $partials_count , $keyword_count )
+	public function set_compile_stats( \matrix_parsefile_preprocessor\compiler $compiler )
 	{
-		if( !is_int($partials_count) || $partials_count < 0 )
-		{
-			throw new \Exception(get_class($this).'::set_compile_stats() expects first parameter $partials_count to be an integer, zero or higher. '.\type_or_value($partials_count,'integer').' given.');
-		}
-		if( !is_int($keyword_count) || $keyword_count < 0 )
-		{
-			throw new \Exception(get_class($this).'::set_compile_stats() expects first parameter $keyword_count to be an integer, zero or higher. '.\type_or_value($keyword_count,'integer').' given.');
-		}
-		$this->partials = $partials_count;
-		$this->keywords = $keyword_count;
+		$this->partials = $compiler->get_processed_partials_count();
+		$this->keywords = $compiler->get_keyword_count();
+	}
+
+	public function set_output_file( \matrix_parsefile_preprocessor\compiled_file_writer $writer )
+	{
+		$this->output_file = $writer->get_file_name();
 	}
 
 	abstract public function render_open( $file_name );

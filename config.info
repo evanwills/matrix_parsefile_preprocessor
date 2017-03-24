@@ -3,9 +3,9 @@
 output_dir: compiled/;
 
 
-; {string} partials  must be relative to the primary source file's
+; {string} log_dir  must be relative to the primary source file's
 ;					  directory or relative to the filesystem root.
-;partials_dir: ./;
+log_dir: logs/;
 
 
 ; {boolean} show_error_extended If there is an error display the partial
@@ -35,6 +35,3 @@ wrap_in_comments: false;
 ;			compact - delete spaces & tabs from start and end of lines
 ;			compressed - reduce multiple, consecutive white-spaces character to a single space character
 white_space : normal;
-
-test_int: 15;
-test_float: 1.234;

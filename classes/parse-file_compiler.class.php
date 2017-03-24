@@ -24,6 +24,7 @@ class compiler {
 	private $log = null;
 
 	private $nested_partials = null;
+	private $file_writer = null;
 
 
 	/**
@@ -155,56 +156,13 @@ class compiler {
 
 
 
-	public function __construct( config $config , logger $logger , nested_partials $partials , validator $validator )
+	public function __construct( config $config , logger $logger , nested_partials $partials , validator $validator , compiled_file_writer $file_writer )
 	{
 		$this->config = $config;
 		$this->log = $logger;
 		$this->nested_partials = $partials;
 		$this->validator = $validator;
-
-		$this->output_file = $this->config->get_var('output_dir').$this->nested_partials->get_base_file();
-		$this->output = fopen( $this->output_file , 'w' );
-
-		$ws = $this->config->get_var('white_space');
-		if( $ws == 'normal' )
-		{
-			$this->handle_white_space = '_white_space_normal';
-		}
-		else
-		{
-			$this->handle_white_space = '_strip_white_space';
-			if( $ws == 'compress' )
-			{
-				$this->white_space_regex = '`\s+`';
-			}
-			else
-			{
-				$this->white_space_regex = self::STRIP_WHITE_SPACE_COMPACT;
-			}
-		}
-
-		if( $this->config->get_var('strip_comments') === true )
-		{
-			$this->handle_comments = '_strip_comments';
-		}
-		else
-		{
-			$this->handle_comments = '_leave_comments';
-		}
-
-		if( $this->config->get_var('wrap_in_comments') === true )
-		{
-			$this->handle_wrap = '_wrap_in_comments';
-		}
-		else
-		{
-			$this->handle_wrap = '_dont_wrap';
-		}
-	}
-
-	public function __destruct()
-	{
-		fclose($this->output);
+		$this->file_writer = $file_writer;
 	}
 
 	/**
@@ -213,11 +171,15 @@ class compiler {
 	 * @param string $file_name
 	 * @param [[Type]] [$modifiers = false] [[Description]]
 	 */
-	public function parse( $file_name , $modifiers = false )
+	public function parse( $file_name , $modifiers = false , $wrap_type = false )
 	{
 		if( !is_string($file_name) || trim($file_name) === '' )
 		{
 			throw new \Exception(get_class($this).'::parse() expects first parameter $file_name to be a non-empty string. '.\type_or_value($file_name,'string').' given.');
+		}
+		if( $wrap_type !== false && (!is_string($wrap_type) || ($wrap_type !== 'html' && $wrap_type !== 'css' )))
+		{
+			throw new \Exception(get_class($this).'::parse() expects third parameter $wrap_type to be either FALSE, "html" or "css". '.\type_or_value($wrap_type,'string').' given.');
 		}
 		$this->_validate_modifiers($modifiers);
 
@@ -254,15 +216,10 @@ class compiler {
 				$content = $this->_get_parse_file_contents($file,$modifiers);
 
 				$wrap_type = $this->wrap_type;
-				if( $this->wrap_type )
+				if( $wrap_type !== false )
 				{
-					$wrap_function = $this->handle_wrap;
+					$this->file_writer->wrap($file,true,$wrap_type);
 				}
-				else
-				{
-					$wrap_function = '_dont_wrap';
-				}
-				$this->{$wrap_function}($file,true,$wrap_type);
 
 				$this->current_file[] = $file;
 				$this->current_content[] = $content;
@@ -298,8 +255,12 @@ class compiler {
 						,$file
 					);
 				}
-				fwrite( $this->output , $content );
-				$this->{$wrap_function}($file,false,$wrap_type);
+				$this->file_writer->output( $content );
+				if( $wrap_type !== false )
+				{
+					$this->file_writer->wrap($file,false,$wrap_type);
+
+				}
 
 				$this->partials_processed += 1;
 
@@ -433,7 +394,7 @@ class compiler {
 		$this->validator->parse( $match[1] , $this->_get_current('file') , $this->_get_current('content') );
 		$this->last_match = $match[0];
 
-		fwrite($this->output,$this->_fix_MySource_case($match[1]));
+		$this->file_writer->output($this->_fix_MySource_case($match[1]));
 
 		$ok = false;
 		$no_comments = false;
@@ -507,93 +468,6 @@ class compiler {
 		return '';
 	}
 
-
-
-//	private function _dont_wrap($partial_content,$keyword)
-//	{
-//		return $this->_strip_comments($partial_content);
-//	}
-
-//	private function _wrap_in_comments($partial_content,$keyword)
-//	{
-//		$open = '<!--';
-//		$close = '-->';
-//		if( preg_match( '`^\s*/\*`' , $partial_content ) )
-//		{
-//			$open = '/*';
-//			$close = '*/';
-//		}
-//		$open = "\n$open|| ";
-//		$close = "||$close\n";
-//
-//		return "{$open}START: $keyword {$close}{$partial_content}{$open} END:  $keyword $close";
-//	}
-
-	private function _dont_wrap($file_name, $open = false)
-	{
-
-		// don't do anything;
-	}
-	private function _wrap_in_comments( $file_name, $open = false , $wrap_type = 'html' )
-	{
-
-		if( $open === true )
-		{
-			$tmp = 'START:';
-		}
-		else
-		{
-			$tmp = ' END: ';
-		}
-		if( $wrap_type === 'html' )
-		{
-			$open = '<!--';
-			$close = '-->';
-		}
-		else
-		{
-			$open = '/*';
-			$close = '*/';
-		}
-		fwrite($this->output , "\n$open $tmp $file_name $close\n" );
-	}
-
-	private function _strip_comments($partial_content)
-	{
-		return preg_replace( '`<!--(?!=\[).*?-->|/\*.*?\*/`s' , '' , $partial_content );
-	}
-
-	private function _leave_comments($partial_content)
-	{
-		return $partial_content;
-	}
-
-	private function _white_space_normal($input) {
-		return $input;
-	}
-
-	private function _strip_white_space($input) {
-		$pre = $erp = [];
-		preg_match_all('`<pre[^>]*>.*?</pre>`is',$input,$matches);
-		for( $a = 0 ; $a > $matches[0] ; $a += 1 )
-		{
-			$pre[] = $matches[$a];
-			$erp[] = '<<{PRE'.$a.'}>>';
-		}
-		return str_replace(
-				$erp,
-				$pre,
-				preg_replace(
-					$this->white_space_regex,
-					' ' ,
-					str_replace(
-						$pre,
-						$erp,
-						$input
-					)
-				)
-			);
-	}
 
 	private function _get_current( $type = 'content' )
 	{

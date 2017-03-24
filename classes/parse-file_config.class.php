@@ -138,7 +138,7 @@ class config
 	 * @param string $file full path to location of the
 	 *        base parse file
 	 */
-	public function __construct( $working_dir , $file )
+	public function __construct( $working_dir , $file , $runtime = [] )
 	{
 		$web = false;
 		if( !is_string($working_dir) || trim($working_dir) === '' )
@@ -161,6 +161,11 @@ class config
 		elseif( $file === 'web' )
 		{
 			$web = true;
+		}
+
+		if( !is_array($runtime) )
+		{
+			throw new \Exception(get_class($this).'::__construct() expects third parameter $runtime to be an array. '.gettype($file).' given.');
 		}
 
 		$file = realpath($file);
@@ -231,7 +236,7 @@ class config
 
 		if( $type === false )
 		{
-			throw new \Exception(get_class($this).'::__construct() expects only parameter $file to point to a .info or .json file. "'.$file."\" given.\n");
+			throw new \Exception(get_class($this).'::__construct() expects second parameter $file to point to a .info or .json file. "'.$file."\" given.\n");
 		}
 		elseif( $type === 'info' )
 		{
@@ -250,9 +255,10 @@ class config
 		{
 			if( property_exists($this,$key) )
 			{
-				if( gettype($this->$key) !== gettype($value) )
+				$tmp = gettype($this->$key);
+				if( $tmp !== gettype($value) )
 				{
-					settype( $value , gettype($this->$key) );
+					settype( $value , $tmp );
 				}
 				$this->$key = $value;
 			}
@@ -281,6 +287,30 @@ class config
 				$dir = 'log_dir';
 			}
 		}
+
+		// Allow runtime values to over-ride config file values.
+		foreach( $runtime as $key => $value )
+		{
+			if( property_exists($this,$key) )
+			{
+				$tmp = gettype($this->$key);
+				if( $tmp !== gettype($value) )
+				{
+					settype( $value , $tmp );
+				}
+				$this->$key = $value;
+			}
+			elseif( array_key_exists($key , $this->config_vars))
+			{
+				$tmp = gettype($this->config_vars[$key]);
+				if( $tmp !== gettype($value) )
+				{
+					settype( $value , $tmp );
+				}
+				$this->config_vars[$key] = $value;
+			}
+		}
+		debug(get_object_vars($this),$this->config_vars,$runtime);
 	}
 }
 

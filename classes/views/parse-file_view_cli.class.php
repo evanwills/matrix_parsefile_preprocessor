@@ -14,6 +14,7 @@ require(__DIR__.'/parse-file_view_base.abstract.class.php');
 class cli_view extends base_view
 {
 	protected $base_file = '';
+	protected $output_file = '';
 
 
 	public function render_open( $file_name ) {
@@ -75,7 +76,7 @@ class cli_view extends base_view
 	public function render_item_wrap_close() { }
 	public function render_report_wrap_close() { }
 
-	public function render_report( \matrix_parsefile_preprocessor\validator $validator , $file = false )
+	public function render_report( \matrix_parsefile_preprocessor\validator $validator , $file = false  )
 	{
 
 		$areas = $validator->get_areas_count();
@@ -84,7 +85,11 @@ class cli_view extends base_view
 		$this->output("\n\n==============================================");
 		$this->output("\n All done!\n");
 
-		$this->output("\n Processed: \"{$this->base_file}\"\n");
+		$this->output("\n Input:  {$this->base_file}\n");
+		if( $this->output_file !== '' )
+		{
+			$this->output(" Output: {$this->output_file}\n");
+		}
 
 		$this->output("\n   {$this->partials} files processed.");
 		$this->output("\n   {$this->keywords} keywords found");
