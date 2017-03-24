@@ -28,7 +28,7 @@ The web interface only allows validation and comparrison of parse files. (There 
 
 The command line interface allows you to compile parse files from partials as well as validate and comparing like the web interface. It also allows you to process multiple files with a single call (although at the moment the output isn't that user friendly in that mode).
 
-```$ php parse-file_process.cli.php parse-file.xml [other-files_1 other-files_2 ...] [brief, error, warning, notice, silent] [compare] [comparison-files_1 comparison-files_2 comparison-files_3 ...]```
+```$ php parse-file_process.cli.php parse-file.xml [runtime options] [other-files_1 other-files_2 ...] [compare] [comparison-files_1 comparison-files_2 comparison-files_3 ...]```
 
 #### Basic CLI usage
 
@@ -36,12 +36,26 @@ The command line interface allows you to compile parse files from partials as we
 
 This will compile all the partials associated with parse-file.xml and write the compiled output to the `output_dir` specified in your config file (usually `compiled`). It will also report all Errors, Warnings and Notices.
 
-#### Without notices
+#### Runtime options
 
-```$ php parse-file_process.cli.php parse-file.xml brief```
+You can set default behaviour by modifying the [config file](#config) config file. You can also control behaviour at runtime.
+*	__`all`__ report ALL errors, warnings and notices.
+*	__`brief`__ report only errors and warnings
+*	__`compact`__ convert multiple lines to single line and strip white space from the begining and end of lines
+*	__`compare`__ compare newly compiled files with existing files<br />If no files are specified, newly compiled files are compared with existing versions of the same file (i.e. the old file is parsed before it is overwritten with the output of that parse is compared with the output from parsing the new version.)<br />If files are specified, the number of files to be compared must be the same as the number of files to compare against or the script will complain.<br />__NOTE:__ If there's no existing version the comparrison will be silently skipped for that file.
+*	__`compress`__ convert adjacent lines, tabs & spaces into a single space.
+*	__`error`__ report only errors
+*	__`keep-comments`__ if the config file says delete comments, you can override it at runtime
+*	__`l`__ *or* __`log`__ write info from compile to log file.
+*	__`no-wrap`__ do not wrap partials in comments
+*	__`notice`__ report only notices
+*	__`q`__ *or* __`quiet`__ suppress all reporting
+*	__`strip-comments`__ remove all HTML, CSS & JavaScript comments from compiled file.
+*	__`warning`__ report only warnings
+*	__`wrap`__ wrap partials in comments to identify where the start and end of the partial is.
 
-Adding `brief` after the file name will stop notices from being displayed. You can use `error`, `warning` or `notice` to output only that type of message.
-You can also use `silent` to stop all output if you like.
+Most of the untime options can be passed in any order with the exception of `compare`. Once `compare` has been passed any files or directorys passed  after it will be assumed to be comparison files.
+
 
 #### Comparing parse files
 
@@ -83,6 +97,12 @@ or
 ```$ php parse-file_process.cli.php process-me_1.xml process-me_2.xml compare  compare-me_1.xml compare-me_2.xml nothing-to-compare.xml```
 
 will both cause `parse-file_process.cli.php` to complain.
+
+__NOTE:__ If you are comparing multiple files, it's probably better write the output to a log file by passing the `l` or `log` runtime option.
+e.g.
+
+```$ php parse-file_process.cli.php log process-me/*.xml compare```
+
 
 ## How the validator works:
 
@@ -138,18 +158,20 @@ will both cause `parse-file_process.cli.php` to complain.
 ## Config:
 
 There are a few options that can be set either in a config file or at runtime these are:
-*	__`output`__ {string} directory to save output (either relative to source file or absolute)
+*	__`output_dir`__ `{string}` *`[compiled/]`* directory to save output (either relative to source file or absolute)
+*	__`log_dir`__ `{string}` *`[logs/]`* directory to save logs to (either relative to source file or absolute)
 *	__`on_unprinted`__ {string} either 'show', 'fail' or 'hide':
 	*	'show' [default] show the unprinted IDs, the line they were found on and the file they were found in
 	*	'fail' same as show but stops processing if there are any unprinted IDs (__NOTE:__ there will be no output written to file)
 	*	'hide' don't show unprinted IDs
 *	__`unprinted_exceptions`__ {string} comma separated list of IDs that can be ignored if unprinted.
 *	__`show_error_extended`__ {boolean} If there is an error show the whole partial/parse file where the error occured as well as the line and file name.
-*	__`strip_comments`__ {boolean} strip_comments Strip HTML comments as output is being created.
-*	__`white_space`__ {string} white_space How to handle white space during compile either 'normal', 'compact' or 'compressed':
+*	__`strip_comments`__ `{boolean}` *`[FALSE]`* strip_comments Strip HTML comments as output is being created.
+*	__`white_space`__ `{string}` white_space How to handle white space during compile either 'normal', 'compact' or 'compressed':
 	*	'normal' [default] do nothing (leave as is)
 	*	'compact' delete spaces & tabs from start and end of lines
 	*	'compressed' reduce multiple, consecutive white-spaces character to a single space character
+*	__`wrap_in_comments`__ `{boolean}` *`[FALSE]`* during development, it's useful to see where each bit of parse file code comes from. setting `wrap_in_comments` to `TRUE` causes the the absolute file path of each partial to be shown (in HTML/CSS comments) to identify the begining and end of each partial.
 
 ### _To do:_
 * Since normal Matrix key words (e.g. `%globals_asset_name%`) work in design parse files, It would be good if the validator checks these. Especially the modifiers.
