@@ -169,6 +169,7 @@ e.g.
 There are a few options that can be set either in a config file or at runtime these are:
 *	__`output_dir`__ `{string}` *`[compiled/]`* directory to save output (either relative to source file or absolute)
 *	__`log_dir`__ `{string}` *`[logs/]`* directory to save logs to (either relative to source file or absolute)
+*	__`report_to_file`__ `{boolean}` *`[FALSE]`* write report info to log file rather than to screen
 *	__`on_unprinted`__ {string} either 'show', 'fail' or 'hide':
 	*	'show' [default] show the unprinted IDs, the line they were found on and the file they were found in
 	*	'fail' same as show but stops processing if there are any unprinted IDs (__NOTE:__ there will be no output written to file)

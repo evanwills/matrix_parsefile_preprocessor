@@ -36,5 +36,9 @@ wrap_in_comments: false;
 ;			compressed - reduce multiple, consecutive white-spaces character to a single space character
 white_space : normal;
 
-
+; {boolean} write report info to log file rather than to screen
+; 		log file name is prefixed with the compiled file's name which is then
+;		followed by YYYY-MM-DD_HH-MM-SS the script was called and
+;		suffixed by ".log.txt"
+;		e.g. my-parseFile.xml would have a log file of my-parseFile_2017-03-25_11:49:34.log.txt
 report_to_file: false;
