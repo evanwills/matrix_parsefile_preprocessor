@@ -44,7 +44,7 @@ You can set default behaviour by modifying the [config file](#config) config fil
 
 *	__`all`__ - report ALL errors, warnings and notices.
 *	__`brief`__ - report only errors and warnings
-*	__`compare`__ - compare newly compiled files with existing files<br />If no files are specified, newly compiled files are compared with existing versions of the same file (i.e. the old file is parsed before it is overwritten with the output of that parse is compared with the output from parsing the new version.)<br />If files are specified, the number of files to be compared must be the same as the number of files to compare against or the script will complain.<br />__NOTE:__ If there's no existing version the comparison will be silently skipped for that file.
+*	__`compare`__ - compare newly compiled files with existing files (See [How comparison works](#how-the-oldnew-comparison-works))<br />If no files are specified, newly compiled files are compared with existing versions of the same file (i.e. the old file is parsed before it is overwritten with the output current compile task.)<br />If files are specified, the number of files to be compared must be the same as the number of files to compare against or the script will complain.<br />__NOTE:__ If there's no existing version the comparison will be silently skipped for that file.
 *	__`error`__ - report only errors
 *	__`l`__ *or* __`log`__ - write info from compile to log file.
 *	__`notice`__ - report only notices
