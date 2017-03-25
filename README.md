@@ -44,11 +44,14 @@ You can set default behaviour by modifying the [config file](#config) config fil
 
 *	__`all`__ - report ALL errors, warnings and notices.
 *	__`brief`__ - report only errors and warnings
-*	__`compare`__ - compare newly compiled files with existing files (See [How comparison works](#how-the-oldnew-comparison-works))<br />If no files are specified, newly compiled files are compared with existing versions of the same file (i.e. the old file is parsed before it is overwritten with the output current compile task.)<br />If files are specified, the number of files to be compared must be the same as the number of files to compare against or the script will complain.<br />__NOTE:__ If there's no existing version the comparison will be silently skipped for that file.
+*	__`compare`__ - compare newly compiled files with existing files (See [How comparison works](#how-the-oldnew-comparison-works))
+	*	If no files are specified, newly compiled files are compared with existing versions of the same file (i.e. the old file is parsed before it is overwritten with the output current compile task.)<br />__NOTE:__ If there is no existing version the comparison will be silently skipped for that file.
+	*	If files are specified, the number of files to be compared must be the same as the number of files to compare against or the script will complain.
 *	__`error`__ - report only errors
-*	__`l`__ *or* __`log`__ - write info from compile to log file.
+*	__`l`__ *or* __`log`__ - write report from compile to log file instead of screen.
 *	__`notice`__ - report only notices
 *	__`q`__ *or* __`quiet`__ - suppress all reporting
+*	__`s`__ *or* __`screen`__ - write report from compile to screen instead of log file.
 *	__`warning`__ - report only warnings
 
 ##### Compiled output
@@ -172,12 +175,12 @@ There are a few options that can be set either in a config file or at runtime th
 	*	'hide' don't show unprinted IDs
 *	__`unprinted_exceptions`__ {string} comma separated list of IDs that can be ignored if unprinted.
 *	__`show_error_extended`__ {boolean} If there is an error show the whole partial/parse file where the error occured as well as the line and file name.
-*	__`strip_comments`__ `{boolean}` *`[FALSE]`* strip_comments Strip HTML comments as output is being created.
+*	__`strip_comments`__ `{boolean}` *`[FALSE]`* Strip HTML comments as output is being created.
 *	__`white_space`__ `{string}` white_space How to handle white space during compile either 'normal', 'compact' or 'compressed':
 	*	'normal' [default] do nothing (leave as is)
 	*	'compact' delete spaces & tabs from start and end of lines
 	*	'compressed' reduce multiple, consecutive white-spaces character to a single space character
-*	__`wrap_in_comments`__ `{boolean}` *`[FALSE]`* during development, it's useful to see where each bit of parse file code comes from. setting `wrap_in_comments` to `TRUE` causes the the absolute file path of each partial to be shown (in HTML/CSS comments) to identify the begining and end of each partial.
+*	__`wrap_in_comments`__ `{boolean}` *`[FALSE]`* during development, it's useful to see where each bit of parse file code comes from. Setting `wrap_in_comments` to `TRUE` causes the the absolute file path of each partial to be shown (in HTML/CSS comments) to identify the begining and end of each partial.
 
 ### _To do:_
 * Since normal Matrix key words (e.g. `%globals_asset_name%`) work in design parse files, It would be good if the validator checks these. Especially the modifiers.

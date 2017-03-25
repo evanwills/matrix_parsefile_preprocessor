@@ -75,7 +75,6 @@ $compare_files = [];
 $compare = false;
 $reporting = 'all';
 $mode = ['error','warning','notice'];
-$log = false;
 $runtime_config = [];
 $get_compare_files = false;
 for( $a = 1 ; $a < $_SERVER['argc'] ; $a += 1 )
@@ -111,7 +110,7 @@ for( $a = 1 ; $a < $_SERVER['argc'] ; $a += 1 )
 			break;
 		case 'l':
 		case 'log':
-			$log = true;
+			$runtime_config['report_to_file'] = true;
 			break;
 		case 'nowrap':
 		case 'no-wrap':
@@ -120,9 +119,11 @@ for( $a = 1 ; $a < $_SERVER['argc'] ; $a += 1 )
 			break;
 		case 'q':
 		case 'quiet':
-		case 's':
-		case 'silent':
 			$mode = 'silent';
+			break;
+		case 's':
+		case 'screen':
+			$runtime_config['report_to_file'] = false;
 			break;
 		case 'stripcomments':
 		case 'strip-comments':
@@ -156,7 +157,9 @@ for( $a = 1 ; $a < $_SERVER['argc'] ; $a += 1 )
 	}
 }
 
+debug($runtime_config);
 $config = new matrix_parsefile_preprocessor\config( $pwd , $pwd , $runtime_config );
+debug($config->get_var('report_to_file'));
 $c_new = count($files);
 $c_old = count($compare_files);
 if( $compare === true )
@@ -203,7 +206,8 @@ else
 	$compare_files = array_fill( 0 , $c_new , false );
 }
 
-if( $log === true )
+debug($config->get_var('report_to_file'));
+if( $config->get_var('report_to_file') === true )
 {
 	require_once('classes/views/parse-file_view_file.class.php');
 	$view = new matrix_parsefile_preprocessor\view\file_view( $mode , $config );
