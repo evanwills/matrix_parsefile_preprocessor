@@ -169,12 +169,12 @@ e.g.
 There are a few options that can be set either in a config file or at runtime these are:
 *	__`output_dir`__ `{string}` *`[compiled/]`* directory to save output (either relative to source file or absolute)
 *	__`log_dir`__ `{string}` *`[logs/]`* directory to save logs to (either relative to source file or absolute)
-*	__`report_to_file`__ `{boolean}` *`[FALSE]`* write report info to log file rather than to screen
 *	__`on_unprinted`__ {string} either 'show', 'fail' or 'hide':
 	*	'show' [default] show the unprinted IDs, the line they were found on and the file they were found in
 	*	'fail' same as show but stops processing if there are any unprinted IDs (__NOTE:__ there will be no output written to file)
 	*	'hide' don't show unprinted IDs
 *	__`unprinted_exceptions`__ {string} comma separated list of IDs that can be ignored if unprinted.
+*	__`report_to_file`__ `{boolean}` *`[FALSE]`* write report info to log file rather than to screen
 *	__`show_error_extended`__ {boolean} If there is an error show the whole partial/parse file where the error occured as well as the line and file name.
 *	__`strip_comments`__ `{boolean}` *`[FALSE]`* Strip HTML comments as output is being created.
 *	__`white_space`__ `{string}` white_space How to handle white space during compile either 'normal', 'compact' or 'compressed':
