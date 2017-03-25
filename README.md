@@ -7,7 +7,7 @@ It has a command line version which allows for building full parse files out of 
 The only way to validate a [parse files](https://matrix.squiz.net/manuals/designs/chapters/design-asset#parse-file) is to upload it to Matrix. This is fine during initial development phase when the design hasn't got many customisation and hasn't been applied to too many assets. However, changing an existing parse file can take a very long time to process and, if there's an error in the code you've uploaded it can take the same amount of time again to fix the error. This tool attempts to provide a way of validating your parse-file (in seconds) before you upload it to Matrix.
 
 ## Problem 2:
-When you update an existing parse file, any design areas that were in the existing parse file but not in the new version will have all their customisation setting permanently lost. This means if you inadvertently delete a design area on a production design it can have disastrous effects only fixable by doing a full restore from the most recent database backup, causing you to loose _**ALL**_ the changes made to Matrix since the last backup. This tool compares a specified old version of the file against the newly created version and identify any design areas missing from the new version.
+When you update an existing parse file, any design areas that were in the existing parse file but not in the new version will have all their customisation setting permanently lost. This means if you inadvertently delete a design area on a production design it can have disastrous effects only fixable by doing a full restore from the most recent database backup, causing you to loose __*ALL*__ the changes made to Matrix since the last backup. This tool compares a specified old version of the file against the newly created version and identify any design areas missing from the new version.
 
 ## Problem 3:
 In a single Matrix installation, you often have multiple sites. Most of these sites are likely to share significant portions of their designs and design parse files (e.g. In our main site, we have an Inside page design and a lighter weight _Home page_ design which shares all of the _Inside page_ design's header and footer sections but has a single design area for the main home page stuff). It would be good if you could break down parse files into partials then assemble the partials into different final design parse files. The command line interface for this too allows you to do this.
@@ -15,7 +15,7 @@ In a single Matrix installation, you often have multiple sites. Most of these si
 ## Usage
 ### Web
 
-The web interface only allows validation and comparrison of parse files. (There are no plans to inlude the compiling functionality in the web interface.)
+The web interface only allows validation and comparison of parse files. (There are no plans to include the compiling functionality in the web interface.)
 
 1.	Place your parse file to be validated in the "Parse-file to be checked" text area.<br />
 	If you want to compare the parse file to another parse file
@@ -26,7 +26,7 @@ The web interface only allows validation and comparrison of parse files. (There 
 
 ### Command line
 
-The command line interface allows you to compile parse files from partials as well as validate and comparing like the web interface. It also allows you to process multiple files with a single call (although at the moment the output isn't that user friendly in that mode).
+The command line interface allows you to compile parse files from partials as well as validate and comparing like the web interface. It also allows you to process multiple files with a single call.
 
 ```$ php parse-file_process.cli.php parse-file.xml [runtime options] [other-files_1 other-files_2 ...] [compare] [comparison-files_1 comparison-files_2 comparison-files_3 ...]```
 
@@ -39,22 +39,27 @@ This will compile all the partials associated with parse-file.xml and write the 
 #### Runtime options
 
 You can set default behaviour by modifying the [config file](#config) config file. You can also control behaviour at runtime.
-*	__`all`__ report ALL errors, warnings and notices.
-*	__`brief`__ report only errors and warnings
-*	__`compact`__ convert multiple lines to single line and strip white space from the begining and end of lines
-*	__`compare`__ compare newly compiled files with existing files<br />If no files are specified, newly compiled files are compared with existing versions of the same file (i.e. the old file is parsed before it is overwritten with the output of that parse is compared with the output from parsing the new version.)<br />If files are specified, the number of files to be compared must be the same as the number of files to compare against or the script will complain.<br />__NOTE:__ If there's no existing version the comparrison will be silently skipped for that file.
-*	__`compress`__ convert adjacent lines, tabs & spaces into a single space.
-*	__`error`__ report only errors
-*	__`keep-comments`__ if the config file says delete comments, you can override it at runtime
-*	__`l`__ *or* __`log`__ write info from compile to log file.
-*	__`no-wrap`__ do not wrap partials in comments
-*	__`notice`__ report only notices
-*	__`q`__ *or* __`quiet`__ suppress all reporting
-*	__`strip-comments`__ remove all HTML, CSS & JavaScript comments from compiled file.
-*	__`warning`__ report only warnings
-*	__`wrap`__ wrap partials in comments to identify where the start and end of the partial is.
 
-Most of the untime options can be passed in any order with the exception of `compare`. Once `compare` has been passed any files or directorys passed  after it will be assumed to be comparison files.
+##### Reporting
+
+*	__`all`__ - report ALL errors, warnings and notices.
+*	__`brief`__ - report only errors and warnings
+*	__`compare`__ - compare newly compiled files with existing files<br />If no files are specified, newly compiled files are compared with existing versions of the same file (i.e. the old file is parsed before it is overwritten with the output of that parse is compared with the output from parsing the new version.)<br />If files are specified, the number of files to be compared must be the same as the number of files to compare against or the script will complain.<br />__NOTE:__ If there's no existing version the comparison will be silently skipped for that file.
+*	__`error`__ - report only errors
+*	__`l`__ *or* __`log`__ - write info from compile to log file.
+*	__`notice`__ - report only notices
+*	__`q`__ *or* __`quiet`__ - suppress all reporting
+*	__`warning`__ - report only warnings
+
+##### Compiled output
+*	__`compact`__ - when writing the compiled output to file, convert multiple lines to single line and strip white space from the beginning and end of lines
+*	__`compress`__ - in compiled parse file, convert adjacent lines, tabs & spaces into a single space.
+*	__`keep-comments`__ - when writing the compiled output to file, do not delete HTML/CSS comments
+*	__`no-wrap`__ - when writing the compiled output to file, do not wrap partials in comments
+*	__`strip-comments`__ - remove all HTML, CSS & JavaScript comments from compiled file.
+*	__`wrap`__ - wrap partials in comments to identify where the start and end of the partial is.
+
+Most of the runtime options can be passed in any order with the exception of __`compare`__. Once __`compare`__ has been passed any files or directories passed  after it will be assumed to be comparison files.
 
 
 #### Comparing parse files
@@ -67,13 +72,15 @@ This will compare the old version of parse-file.xml (in the `output_dir` directo
 
 ```$ php parse-file_process.cli.php parse-file.xml compare other-parse-file.xml```
 
-__NOTE:__ Any file names or directories/folders you pass after a non file name will be assumed to be a comparrison file
+__NOTE:__ Any file names or directories/folders you pass after __`compare`__ will be assumed to be a comparison file
 
 e.g. `$ php parse-file_process.cli.php process-me_1.xml process-me_2.xml process-me_3.xml brief process-me-too.xml`
 
 The `process-me_1.xml`, `process-me_2.xml` & `process-me_3.xml` will be compiled and validated as normal. The `process-me-too.xml` will be considered a comparison file and will only be scanned for design area IDs.
 
-#### processing multiple files
+__NOTE:__ because you've inadvertently passed a single comparison file for three input files, the script will complain and terminate because you the number of comparison files doesn't match the number of input files.
+
+#### Processing multiple files
 
 You can process multiple files in one of the following ways:
 e.g.
@@ -102,7 +109,6 @@ __NOTE:__ If you are comparing multiple files, it's probably better write the ou
 e.g.
 
 ```$ php parse-file_process.cli.php log process-me/*.xml compare```
-
 
 ## How the validator works:
 
@@ -145,10 +151,10 @@ e.g.
 	*	`{[` partial is wrapped in HTML comments `<!-- ... -->`
 	*	`{(` partial is wrapped in CSS/JS comments `/* ... */`
 	<br />__NOTE:__ the keyword match will find any combination of `[]{}()` but will throw errors if the delimiters are not `{[...]}` or `{{...}}` or `{(...)}`
-*	"__path/to/partial/__" relative or absolute path to partial. By default partial paths should be relative to the location they are called from.
+*	"__path/to/partial/__" relative or absolute path to partial. By default, partial paths should be relative to the location they are called from.
 *	"__file__" name of partial file.
 	<br />__NOTE:__ partials must be prefixed with an underscore '_' and end with the .xml file extension. e.g. `_my-partial.xml`
-*	"__<code>&#96;</code>__" or "__`|`__" or "__`~`__" or "__;__" find/replace delimiter can be either backtick '&#96;', pipe '|' or tilda '~' or semicolon ';'
+*	"__<code>&#96;</code>__" or "__`|`__" or "__`~`__" or "__;__" find/replace delimiter can be either backtick '&#96;', pipe '|' or tilde '~' or semicolon ';'
 	<br />__NOTE:__ the delimiter you use in the keyword is also the delimiter used in the final regular expression. This may cause your regex problems.
 	<br />__NOTE ALSO:__ The regex used to match the keyword is delimited by an __`@`__ symbol. If your regex needs to match __`@`__ symbols, you'll need to escape them too<br />(e.g. "`jo.smith\@company.org`")
 *	"__find__"  find string or regex
