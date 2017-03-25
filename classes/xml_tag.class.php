@@ -13,7 +13,7 @@ class xml_tag
 	protected $name = '';
 	protected $whole_tag = '';
 	protected $id = '';
-	protected $attrs = array();
+	protected $attrs = [];
 	protected $line = 0;
 	protected $file = '';
 
@@ -29,9 +29,9 @@ class xml_tag
 		{
 			throw new \Exception(get_class($this).' constructor expects first parameter $element to be a non-empty string. '.\type_or_value($element,'string').' given');
 		}
-		if( !is_string($attrs) || trim($attrs) == '' )
+		if( !is_array($attrs) )
 		{
-			throw new \Exception(get_class($this).' constructor expects second parameter $attrs to be a non-empty string. '.\type_or_value($attrs,'string').' given');
+			throw new \Exception(get_class($this).' constructor expects second parameter $attrs to be an array. '.\type_or_value($attrs,'array').' given');
 		}
 		if( !is_int($ln_number) || $ln_number < 1 )
 		{
@@ -47,30 +47,16 @@ class xml_tag
 		$this->line = $ln_number;
 		$this->file = $file;
 
-		if( preg_match_all( self::ATTR_REGEX , $attrs , $matches , PREG_SET_ORDER ) )
+		foreach($attrs as $key => $value )
 		{
-			for( $a = 0 ; $a < count($matches) ; $a += 1 )
+			$key = strtolower($key);
+			if( $key === 'id' )
 			{
-				$c = count($matches[$a]);
-				$key = strtolower($matches[$a][1]);
-				if( $c >= 3 )
-				{
-					$c -= 1;
-					$value = $matches[$a][$c];
-				}
-				else
-				{
-					$value = $key;
-				}
-
-				if( $key === 'id' )
-				{
-					$this->id = $value;
-				}
-				else
-				{
-					$this->attrs[$key] = $value;
-				}
+				$this->id = $value;
+			}
+			else
+			{
+				$this->attrs[$key] = $value;
 			}
 		}
 	}

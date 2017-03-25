@@ -38,7 +38,7 @@ class validator {
 	private $tags = [];
 	private $noID = 0;
 
-	const TAG_REGEX = '`<MySource_(AREA|PRINT)(.*?)/?>`is';
+	const TAG_REGEX = '`(<MySource_([a-z_]+).*?)(?:(/>)|(?<=>).*?</MySource_\2>)`is';
 	const SHOWIF_START_REGEX = '`^.*?(';
 	const SHOWIF_END_REGEX = '.*?)(?=\s*<MySource_(?:THEN|ELSE>)).*$`is';
 	const SHOWIF_CALLBACK_REGEX = '`(?<=value=")(.*?)(?=")`';
@@ -73,123 +73,152 @@ class validator {
 		}
 
 
-
 		if( preg_match_all( self::TAG_REGEX , $code , $tags , PREG_SET_ORDER ) )
 		{
 			for( $a = 0 ; $a < count($tags) ; $a += 1 )
 			{
 				$status = false;
-				$element = strtolower($tags[$a][1]);
-				$line_number = get_line_number($tags[$a][0] , $file_content );
-				$tag = new \mysource_tag( $tags[$a][0] , $element , $tags[$a][2] , $file_name , $line_number );
-				$id = $tag->get_id();
+				$element = strtolower($tags[$a][2]);
+				$validation_function = '_validate_'.$element;
+				$line_number = get_line_number( $tags[$a][1] , $file_content );
+				$end = isset($tags[$a][3])?$tags[$a][3]:'';
 
-				if( $element === 'print' )
+				$tmp = $this->_make_xml_safe($tags[$a][0]);
+				if( array_key_exists( 'design_area', $tmp['@attributes'] ))
 				{
-					$this->prints += 1;
-					if( $id !== '' )
-					{
-						$this->_remove_non_printed_ID($id);
-//						$this->tags[$id]->set_printed();
-						if( $msg = $this->_undefined_area($id) )
-						{
-							$this->log->add(
-								'error'
-								,$msg
-								,$file_name
-								,$tags[$a][0]
-								,$file_content
-							);
-						}
-					}
+					$validation_function .= '__'.$tmp['@attributes']['design_area'];
+				}
+
+				if( method_exists($this,$validation_function) )
+				{
+					$this->$validation_function(
+						 $tags[$a][0]
+						,$tmp
+						,new \mysource_tag(
+							 $tags[$a][1].$end
+							,$element
+							,$tmp['@attributes']
+							,$file_name
+							,$line_number
+						 )
+					);
 				}
 				else
 				{
-					if( trim($id) === '' )
-					{
-						$this->log->add(
-							'error'
-							,'No ID (id_name) speicified!'
-							,$file_name
-							,$tags[$a][0]
-							,$file_content
-						);
-						$this->noID += 1;
-						$id = 'noID_'.$this->noID;
-					}
-					$this->tags[$id] = $tag;
-					$this->areas += 1;
-					if( $msg = $this->_existing_id($id) )
-					{
-						$this->log->add(
-							 'error'
-							,$msg
-							,$file_name
-							,$tags[$a][0]
-							,$file_content
-						);
-					}
-
-					if( $tag->get_attr('print') === 'no' )
-					{
-
-						$printed = false;
-						$this->_add_non_print_ID( $id , $tag->get_line() , $file_name);
-						$this->non_printed_areas += 1;
-					}
-
-					if( $tag->get_attr('design_area') === 'show_if' )
-					{
-						$show_if_regex = self::SHOWIF_START_REGEX.preg_quote($tags[$a][0]).SELF::SHOWIF_END_REGEX;
-
-						$show_if_xml = simplexml_load_string(
-							preg_replace_callback(
-								 '`(?<=value=")(.*?)(?=")`'
-								,array( $this , 'SHOW_IF_CALLBACK' )
-								,preg_replace(
-									 $show_if_regex
-									,'\1</MySource_AREA>'
-									,$code
-								 )
-							 )
-						);
-
-						$fields = array();
-						if( $show_if_xml !== false )
-						{
-							// todo work out why XML sometimes breaks;
-							foreach( $show_if_xml->MySource_SET as $area_set )
-							{
-								$name = '';
-								$value = '';
-								foreach ($area_set->attributes() as $key => $VALUE ) {
-									settype($key,'string');
-									settype($VALUE,'string');
-									$$key = $VALUE;
-								}
-								$fields[$name] = $value;
-							}
-							if( isset($fields['condition']) && $fields['condition'] == 'keyword_regexp' )
-							{
-								if( isset($fields['condition_keyword_match']) )
-								{
-									if( $msg = regex_error( '/'.$fields['condition_keyword_match'].'/' ) )
-									{
-										$this->log->add(
-											 'error'
-											,"Regular expression \"$regex\" has an error: ".$msg
-											,$file_name
-											,$tags[$a][0]
-											,$file_content
-										);
-									}
-
-								}
-							}
-						}
-
-					}
+					$this->log->add(
+						'error'
+						,'could not validate area: "'.$tmp['@attributes']['design_area'].'"'
+						,$file_name
+						,$tags[$a][0]
+						,$file_content
+					);
 				}
+
+//				if( $element === 'print' )
+//				{
+//					$this->prints += 1;
+//					if( $id !== '' )
+//					{
+//						$this->_remove_non_printed_ID($id);
+////						$this->tags[$id]->set_printed();
+//						if( $msg = $this->_undefined_area($id) )
+//						{
+//							$this->log->add(
+//								'error'
+//								,$msg
+//								,$file_name
+//								,$tags[$a][0]
+//								,$file_content
+//							);
+//						}
+//					}
+//				}
+//				else
+//				{
+//					if( trim($id) === '' )
+//					{
+//						$this->log->add(
+//							'error'
+//							,'No ID (id_name) speicified!'
+//							,$file_name
+//							,$tags[$a][0]
+//							,$file_content
+//						);
+//						$this->noID += 1;
+//						$id = 'noID_'.$this->noID;
+//					}
+//					$this->tags[$id] = $tag;
+//					$this->areas += 1;
+//					if( $msg = $this->_existing_id($id) )
+//					{
+//						$this->log->add(
+//							 'error'
+//							,$msg
+//							,$file_name
+//							,$tags[$a][0]
+//							,$file_content
+//						);
+//					}
+//
+//					if( $tag->get_attr('print') === 'no' )
+//					{
+//
+//						$printed = false;
+//						$this->_add_non_print_ID( $id , $tag->get_line() , $file_name);
+//						$this->non_printed_areas += 1;
+//					}
+//
+//					if( $tag->get_attr('design_area') === 'show_if' )
+//					{
+//						$show_if_regex = self::SHOWIF_START_REGEX.preg_quote($tags[$a][0]).SELF::SHOWIF_END_REGEX;
+//
+//						$show_if_xml = simplexml_load_string(
+//							preg_replace_callback(
+//								 '`(?<=value=")(.*?)(?=")`'
+//								,array( $this , 'SHOW_IF_CALLBACK' )
+//								,preg_replace(
+//									 $show_if_regex
+//									,'\1</MySource_AREA>'
+//									,$code
+//								 )
+//							 )
+//						);
+//
+//						$fields = array();
+//						if( $show_if_xml !== false )
+//						{
+//							// todo work out why XML sometimes breaks;
+//							foreach( $show_if_xml->MySource_SET as $area_set )
+//							{
+//								$name = '';
+//								$value = '';
+//								foreach ($area_set->attributes() as $key => $VALUE ) {
+//									settype($key,'string');
+//									settype($VALUE,'string');
+//									$$key = $VALUE;
+//								}
+//								$fields[$name] = $value;
+//							}
+//							if( isset($fields['condition']) && $fields['condition'] == 'keyword_regexp' )
+//							{
+//								if( isset($fields['condition_keyword_match']) )
+//								{
+//									if( $msg = regex_error( '/'.$fields['condition_keyword_match'].'/' ) )
+//									{
+//										$this->log->add(
+//											 'error'
+//											,"Regular expression \"$regex\" has an error: ".$msg
+//											,$file_name
+//											,$tags[$a][0]
+//											,$file_content
+//										);
+//									}
+//
+//								}
+//							}
+//						}
+//					}
+//				}
 			}
 		}
 	}
@@ -412,6 +441,242 @@ class validator {
 // START: private methods
 
 
+	private function _validate_area( $xml_str , $xml_array , \mysource_tag $MySource_obj )
+	{
+
+	}
+	private function _validate_area__access_history( $xml_str , $xml_array , \mysource_tag $MySource_obj )
+	{
+
+	}
+	private function _validate_area__asset_lineage( $xml_str , $xml_array , \mysource_tag $MySource_obj )
+	{
+
+	}
+	private function _validate_area__body( $xml_str , $xml_array , \mysource_tag $MySource_obj )
+	{
+		debug('processing body',$xml_str,$xml_obj,$MySource_obj->get_all());
+
+	}
+	private function _validate_area__colourise_image( $xml_str , $xml_array , \mysource_tag $MySource_obj )
+	{
+
+	}
+	private function _validate_area__constant_button( $xml_str , $xml_array , \mysource_tag $MySource_obj )
+	{
+
+	}
+	private function _validate_area__custom_image( $xml_str , $xml_array , \mysource_tag $MySource_obj )
+	{
+
+	}
+	private function _validate_area__datetime( $xml_str , $xml_array , \mysource_tag $MySource_obj )
+	{
+
+	}
+	private function _validate_area__declared_vars( $xml_str , $xml_array , \mysource_tag $MySource_obj )
+	{
+//		debug('processing declared vars',$xml_str,$xml_obj,$MySource_obj->get_all());
+
+	}
+	private function _validate_area__exit( $xml_str , $xml_array , \mysource_tag $MySource_obj )
+	{
+//		debug('processing exit area',$xml_str,$xml_obj,$MySource_obj->get_all());
+	}
+	private function _validate_area__head( $xml_str , $xml_array , \mysource_tag $MySource_obj )
+	{
+
+	}
+	private function _validate_area__linked_css( $xml_str , $xml_array , \mysource_tag $MySource_obj )
+	{
+
+	}
+	private function _validate_area__login_form( $xml_str , $xml_array , \mysource_tag $MySource_obj )
+	{
+
+	}
+	private function _validate_area__menu_normal( $xml_str , $xml_array , \mysource_tag $MySource_obj )
+	{
+//		debug('processing menu_normal',$xml_str,$xml_obj,$MySource_obj->get_all());
+
+	}
+	private function _validate_area__menu_stalks( $xml_str , $xml_array , \mysource_tag $MySource_obj )
+	{
+//		debug('processing menu_stalks',$xml_str,$xml_obj,$MySource_obj->get_all());
+
+	}
+	private function _validate_area__metadata( $xml_str , $xml_array , \mysource_tag $MySource_obj )
+	{
+//		debug('processing metadata',$xml_str,$xml_obj,$MySource_obj->get_all());
+
+	}
+	private function _validate_area__nest_content( $xml_str , $xml_array , \mysource_tag $MySource_obj )
+	{
+		debug('processing nested content',$xml_str,$xml_array,$MySource_obj->get_all());
+		$MySource_obj->invalid_ID($this->log,count($this->tags));
+		$id = $MySource_obj->get_id();
+		if( $MySource_obj->get_printed() )
+		{
+			$MySource_obj->set_called();
+		}
+		else
+		{
+			$this->_add_non_print_ID( $id , $MySource_obj->get_line() , $MySource_obj->get_file() );
+		}
+
+		$this->tags[$id] = $MySource_obj;
+		$set = false;
+
+		if( !isset($xml_array['MySource_SET']) )
+		{
+			$msg = 'was missing <MySource_SET> element';
+			$MySource_obj->set_error($msg);
+			$this->log->add(
+				'error'
+				,'"'.$MySource_obj->get_whole_tag().'" '.$msg
+				,$MySource_obj->get_file()
+				,$MySource_obj->get_whole_tag()
+				,''
+				,$MySource_obj->get_line()
+			);
+		}
+		else {
+			$mysource_set = get_object_vars($xml_array['MySource_SET']);
+			if( !isset($mysourse_set['@attributes']['name']) )
+			{
+				$msg = '<MySource_SET> element is missing a name attribute.';
+				$MySource_obj->set_error($msg);
+				$this->log->add(
+					'error'
+					,'"'.$MySource_obj->get_whole_tag().'" '.$msg
+					,$MySource_obj->get_file()
+					,$MySource_obj->get_whole_tag()
+					,''
+					,$MySource_obj->get_line()
+				);
+			}
+			elseif( preg_match_all('`[^a-z_]+`i', $mysourse_set['@attributes']['name'] , $matches ))
+			{
+				$msg = '<MySource_SET> element\'s name attribute contains invalid characters: "'.implode('", "',$matches[0]).'".';
+				$MySource_obj->set_error($msg);
+				$this->log->add(
+					'error'
+					,'"'.$MySource_obj->get_whole_tag().'" '.$msg
+					,$MySource_obj->get_file()
+					,$MySource_obj->get_whole_tag()
+					,''
+					,$MySource_obj->get_line()
+				);
+			}
+			elseif( !isset($mysourse_set['@attributes']['value']) )
+			{
+				$msg = '<MySource_SET> element is missing a value attribute.';
+				$MySource_obj->set_error($msg);
+				$this->log->add(
+					'error'
+					,'"'.$MySource_obj->get_whole_tag().'" '.$msg
+					,$MySource_obj->get_file()
+					,$MySource_obj->get_whole_tag()
+					,''
+					,$MySource_obj->get_line()
+				);
+			}
+			elseif( preg_match_all('`[^a-z ,]+`i', $mysourse_set['@attributes'] ['value'] , $matches ))
+			{
+				$msg = '<MySource_SET> element\'s value attribute contains invalid characters: "'.implode('", "',$matches[0]).'".';
+				$MySource_obj->set_error($msg);
+				$this->log->add(
+					'error'
+					,'"'.$MySource_obj->get_whole_tag().'" '.$msg
+					,$MySource_obj->get_file()
+					,$MySource_obj->get_whole_tag()
+					,''
+					,$MySource_obj->get_line()
+				);
+			}
+		}
+
+	}
+	private function _validate_area__password_change_form( $xml_str , $xml_array , \mysource_tag $MySource_obj )
+	{
+
+	}
+	private function _validate_area__request_vars( $xml_str , $xml_array , \mysource_tag $MySource_obj )
+	{
+//		debug('processing request vars',$xml_str,$xml_obj,$MySource_obj->get_all());
+	}
+	private function _validate_area__show_if( $xml_str , $xml_array , \mysource_tag $MySource_obj )
+	{
+//		debug('processing showif',$xml_str,$xml_obj,$MySource_obj->get_all());
+
+	}
+	private function _validate_area__js_calendar_navigator( $xml_str , $xml_array , \mysource_tag $MySource_obj )
+	{
+
+	}
+	private function _validate_area__searchbox( $xml_str , $xml_array , \mysource_tag $MySource_obj )
+	{
+
+	}
+	private function _validate_area__ecommerce_cart( $xml_str , $xml_array , \mysource_tag $MySource_obj )
+	{
+
+	}
+
+	private function _validate_print( $xml_str , $xml_array , \mysource_tag $MySource_obj )
+	{
+//		debug('processing print',$xml_str,$xml_obj,$MySource_obj->get_all());
+
+	}
+
+	private function _validate_set( $xml_str , $xml_array , \mysource_tag $MySource_obj )
+	{
+
+	}
+
+	private function _validate_asset( $xml_str , $xml_array , \mysource_tag $MySource_obj )
+	{
+
+	}
+
+	private function _validate_declare( $xml_str , $xml_array , \mysource_tag $MySource_obj )
+	{
+//		debug('processing declare',$xml_str,$xml_obj,$MySource_obj->get_all());
+
+	}
+
+	private function _validate_then( $xml_str , $xml_array , \mysource_tag $MySource_obj )
+	{
+//		debug('processing then',$xml_str,$xml_obj,$MySource_obj->get_all());
+	}
+
+	private function _validate_else( $xml_str , $xml_array , \mysource_tag $MySource_obj )
+	{
+//		debug('processing else',$xml_str,$xml_obj,$MySource_obj->get_all());
+	}
+
+	private function _validate_login_section( $xml_str , $xml_array , \mysource_tag $MySource_obj )
+	{
+
+	}
+
+	private function _validate_logout_section( $xml_str , $xml_array , \mysource_tag $MySource_obj )
+	{
+
+	}
+
+	private function _validate_sub( $xml_str , $xml_array , \mysource_tag $MySource_obj )
+	{
+
+	}
+
+	private function _validate_sub__( $xml_str , $xml_array , \mysource_tag $MySource_obj )
+	{
+
+	}
+
+
+
 
 	private function _undefined_area($input) {
 		if( in_array($input,$this->IDs) )
@@ -431,6 +696,7 @@ class validator {
 	{
 		if( !isset($this->not_printed_IDs[$id]) && !in_array($id,$this->unprinted_exceptions) )
 		{
+			$this->non_printed_areas += 1;
 			$this->not_printed_IDs[$id] = array(
 				 'line' => $line
 				,'file' => $file
@@ -486,6 +752,31 @@ class validator {
 	private function SHOW_IF_CALLBACK($matches)
 	{
 		return htmlspecialchars($matches[1]);
+	}
+
+
+	private function _make_xml_safe($xml_str)
+	{
+		$xml_str = preg_replace_callback(
+			 '`(.*?)(</?MySource_[a-z_]+.*?>)`is'
+			,[ $this , '_MAKE_XML_SAFE_CALLBACK' ]
+			,$xml_str
+		);
+		$output = @simplexml_load_string($xml_str);
+		if( $output === false )
+		{
+			debug($xml_str);
+			return $output;
+		}
+		else
+		{
+			return get_object_vars($output);
+		}
+	}
+
+	private function _MAKE_XML_SAFE_CALLBACK($matches)
+	{
+		return htmlentities($matches[1]).$matches[2];
 	}
 }
 

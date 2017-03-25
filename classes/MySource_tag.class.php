@@ -14,7 +14,10 @@ class mysource_tag extends xml_tag
 	protected $printed = true;
 	protected $called = false;
 	protected $error = false;
-	protected $error_msg = '';
+	protected $error_msg = [];
+	protected $error_count = 0;
+	protected $warning_count = 0;
+	protected $notice_count = 0;
 
 	public function __construct( $whole , $element , $attrs , $file , $ln_number )
 	{
@@ -37,7 +40,7 @@ class mysource_tag extends xml_tag
 			}
 			if( $key === 'id_name' )
 			{
-				$this->id = $value;
+				$this->id = trim($value);
 				unset($this->attrs[$key]);
 			}
 		}
@@ -68,7 +71,8 @@ class mysource_tag extends xml_tag
 			throw new \Exception('mysource_tag::set_error() expects only parameter $error_msg to be a non-empty string. '.type_or_value($error_msg,'string').' given.');
 		}
 		$this->error = true;
-		$this->error_msg = $error_msg;
+		$this->error_msg[] = $error_msg;
+		$this->error_count += 1;
 	}
 
 	public function get_error()
@@ -83,6 +87,29 @@ class mysource_tag extends xml_tag
 	public function get_all()
 	{
 		return get_object_vars($this);
+	}
+
+	public function invalid_id(\matrix_parsefile_preprocessor\logger $logger , $c )
+	{
+		if( !is_int($c) && $c < 1 )
+		{
+			throw new \Exception(get_class($this).'::invalid_id() expects secont parameter $c to be an integer greater than 0. '.type_or_value($c, 'integer').' given.');
+		}
+
+		if( $this->id === '' )
+		{
+			$this->log->add(
+				'error'
+				,'"'.$this->get_whole_tag().'" didn\'t have an id_name attribute.'
+				,$this->get_file()
+				,$this->get_whole_tag()
+				,''
+				,$this->get_line()
+			);
+			$this->id = 'dudID-'.count($this->tags);
+			return true;
+		}
+		return false;
 	}
 }
 
