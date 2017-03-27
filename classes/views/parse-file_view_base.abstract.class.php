@@ -60,6 +60,17 @@ abstract class base_view
 		$this->output_file = $writer->get_file_name();
 	}
 
+	public function reset_counters( \matrix_parsefile_preprocessor\config $config )
+	{
+		$this->notice_count = 0;
+		$this->notice_count = 0;
+		$this->errors = 0;
+		$this->warnings = 0;
+		$this->notices = 0;
+		$this->keywords = 0;
+		$this->partials = 0;
+		$this->config = $config;
+	}
 	abstract public function render_open( $file_name );
 	abstract public function render_close();
 	abstract public function render_report_wrap_open();

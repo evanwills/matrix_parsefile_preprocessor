@@ -157,9 +157,8 @@ for( $a = 1 ; $a < $_SERVER['argc'] ; $a += 1 )
 	}
 }
 
-debug($runtime_config);
 $config = new matrix_parsefile_preprocessor\config( $pwd , $pwd , $runtime_config );
-debug($config->get_var('report_to_file'));
+
 $c_new = count($files);
 $c_old = count($compare_files);
 if( $compare === true )
@@ -206,7 +205,6 @@ else
 	$compare_files = array_fill( 0 , $c_new , false );
 }
 
-debug($config->get_var('report_to_file'));
 if( $config->get_var('report_to_file') === true )
 {
 	require_once('classes/views/parse-file_view_file.class.php');
@@ -225,6 +223,7 @@ for( $a = 0 ; $a < $c_new ; $a += 1 )
 	$partials = new matrix_parsefile_preprocessor\nested_partials( $logger , $files[$a] );
 	$validator = new matrix_parsefile_preprocessor\validator($config,$logger,$partials);
 	$writer = new matrix_parsefile_preprocessor\compiled_file_writer($config,$partials);
+	$view->reset_counters($config);
 
 
 	if($compare_files[$a] !== false)
