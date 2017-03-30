@@ -778,6 +778,38 @@ class validator {
 	{
 		return htmlentities($matches[1]).$matches[2];
 	}
+
+
+	private function _make_MySource_array( SimpleXMLElement $input )
+	{
+		$input = get_object_vars($input);
+		$areas = [
+			'@attributes' , 'MySource_AREA' , 'MySource_SET' , 'MySource_PRINT' ,
+			'MySource_ASSET' , 'MySource_DIVIDER' , 'MySource_DECLARE' , 'MySource_THEN' ,
+			'MySource_ELSE' , 'MySource_LOGIN_SECTION' , 'MySource_LOGOUT_SECTION' , 'MySource_SUB'
+		];
+
+		foreach( $input as $key => $value )
+		{
+			if( in_array(strtolower($key,$areas)) )
+			{
+				if(is_object($value) && get_class($value) === 'SimpleXMLElement' )
+				{
+					$input[$key] = [$value];
+				}
+				elseif( !is_array($value) )
+				{
+
+				}
+			}
+			else
+			{
+				debug("\"{$input[$key]}\" is not a valid MySource design area." );
+				// report error
+			}
+		}
+		return $input;
+	}
 }
 
 
